@@ -31,7 +31,7 @@ namespace attrs = boost::log::attributes;
 #define logError BOOST_LOG_TRIVIAL(error)
 
 /**
- * logLevel
+ * 日志等级，支持宏定义
  * 0 debug 1 info
  */
 //#define logLevel 0

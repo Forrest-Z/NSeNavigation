@@ -7,6 +7,7 @@
 
 #ifndef NAVIGATIONAPPLICATION_H_
 #define NAVIGATIONAPPLICATION_H_
+#include <Application/Application.h>
 
 namespace NS_Navigation {
 ///
@@ -17,10 +18,9 @@ enum NaviState
     CLEARING,
   };
 /**
- *
- *navigation launcher
+ *关于导航功能的类
  */
-class NavigationApplication {
+class NavigationApplication : public Application{
 public:
 	NavigationApplication();
 	virtual ~NavigationApplication();

@@ -6,7 +6,7 @@
  */
 
 #include "NavigationApplication.h"
-
+#include <Parameter/Parameter.h>
 namespace NS_Navigation {
 
 NavigationApplication::NavigationApplication() {
@@ -17,5 +17,19 @@ NavigationApplication::NavigationApplication() {
 NavigationApplication::~NavigationApplication() {
 	// TODO Auto-generated destructor stub
 }
+void NavigationApplication::loadParameters() {
+	NS_NaviCommon::Parameter parameter;
 
+	parameter.loadConfigurationFile("navigation.xml");
+
+	global_planner_type_ = parameter.getParameter("global_planner_type",
+			"global_planner");
+
+	local_planner_type_ = parameter.getParameter("local_planner_type",
+			"trajectory_local_planner");
+
+	planner_frequency_ = parameter.getParameter("planner_frequency", 0.0f);
+	controller_frequency_ = parameter.getParameter("controller_frequency",
+			5.0f);
+}
 } /* namespace NS_Navigation */

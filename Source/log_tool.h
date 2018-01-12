@@ -30,8 +30,10 @@ namespace attrs = boost::log::attributes;
 #define logWarn BOOST_LOG_TRIVIAL(warning)
 #define logError BOOST_LOG_TRIVIAL(error)
 
-/// 0 debug
-/// 1 info
+/**
+ * logLevel
+ * 0 debug 1 info
+ */
 //#define logLevel 0
 
 enum severity_level {
@@ -43,7 +45,9 @@ BOOST_LOG_ATTRIBUTE_KEYWORD(severity, "Severity", severity_level)
 BOOST_LOG_ATTRIBUTE_KEYWORD(tag_attr, "Tag", std::string)
 BOOST_LOG_ATTRIBUTE_KEYWimestamp, "TimeStamp", boost::posix_time::ptime)
 
-//
+/**
+ * info log filter
+ */
 void addInfoFilter() {
 	logging::core::get()->set_filter(
 			logging::trivial::severity >= logging::trivial::info);

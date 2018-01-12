@@ -40,10 +40,11 @@ enum severity_level {
 	trace, debug, info, warning, error, fatal,
 };
 
-BOOST_LOG_ATTRIBUTE_KEYWORD(line_id, "LineID", unsigned int)
-BOOST_LOG_ATTRIBUTE_KEYWORD(severity, "Severity", severity_level)
-BOOST_LOG_ATTRIBUTE_KEYWORD(tag_attr, "Tag", std::string)
-BOOST_LOG_ATTRIBUTE_KEYWORD(timestamp, "TimeStamp", boost::posix_time::ptime)
+//BOOST_LOG_ATTRIBUTE_KEYWORD(line_id, "LineID", unsigned int)
+//BOOST_LOG_ATTRIBUTE_KEYWORD(severity, "Severity", severity_level)
+//BOOST_LOG_ATTRIBUTE_KEYWORD(tag_attr, "Tag", std::string)
+//BOOST_LOG_ATTRIBUTE_KEYWORD(timestamp, "TimeStamp", boost::posix_time::ptime)
+
 
 /**
  * info log filter

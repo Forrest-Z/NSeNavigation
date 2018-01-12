@@ -2,13 +2,20 @@
  * NavigationApplication.h
  *
  *  Created on: Jan 10, 2018
- *      Author: root
+ *      Author: pengjiawei
  */
 
 #ifndef NAVIGATIONAPPLICATION_H_
 #define NAVIGATIONAPPLICATION_H_
 
 namespace NS_Navigation {
+///
+enum NaviState
+  {
+    PLANNING,
+    CONTROLLING,
+    CLEARING,
+  };
 
 class NavigationApplication {
 public:

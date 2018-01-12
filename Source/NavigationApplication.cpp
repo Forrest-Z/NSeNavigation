@@ -2,7 +2,7 @@
  * NavigationApplication.cpp
  *
  *  Created on: Jan 10, 2018
- *      Author: root
+ *      Author: pengjiawei
  */
 
 #include "NavigationApplication.h"

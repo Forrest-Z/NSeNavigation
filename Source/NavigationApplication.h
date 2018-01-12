@@ -16,7 +16,10 @@ enum NaviState
     CONTROLLING,
     CLEARING,
   };
-
+/**
+ *
+ *navigation launcher
+ */
 class NavigationApplication {
 public:
 	NavigationApplication();

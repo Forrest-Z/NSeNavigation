@@ -12,7 +12,7 @@ namespace NS_CostMap
   class CostmapLayer;
 
   /**
-   * 加入层的costmap封装类
+   * 加入costmap层的costmap封装类
    */
   class LayeredCostmap
   {
@@ -91,8 +91,8 @@ namespace NS_CostMap
       return initialized_;
     }
 
-    /** @brief Updates the stored footprint, updates the circumscribed
-     * and inscribed radii, and calls onFootprintChanged() in all
+    /** @brief Update the footprint, circumstance radius
+     * and inscribed radius, and calls onFootprintChanged() in all
      * layers. */
     void
     setFootprint(const std::vector< NS_DataType::Point >& footprint_spec);

@@ -32,7 +32,7 @@ double distanceToLine(double pX, double pY, double x0, double y0, double x1,
 
   return distance(pX, pY, xx, yy);
 }
-
+///not used
 bool intersects(std::vector< NS_DataType::Point >& polygon, float testx,
                 float testy)
 {
@@ -48,7 +48,7 @@ bool intersects(std::vector< NS_DataType::Point >& polygon, float testx,
   }
   return c;
 }
-
+///not used
 bool intersects_helper(std::vector< NS_DataType::Point >& polygon1,
                        std::vector< NS_DataType::Point >& polygon2)
 {

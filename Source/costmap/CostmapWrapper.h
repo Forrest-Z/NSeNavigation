@@ -10,6 +10,10 @@
 #include "costmap_2d/CostMapLayer.h"
 #include <Parameter/Parameter.h>
 #include <DataSet/DataType/OccupancyGrid.h>
+#include <Transform/DataTypes.h>
+#include <Service/ServiceType/ServiceBase.h>
+#include <Service/ServiceType/ServiceTransform.h>
+#include <Service/Client.h>
 #include <vector>
 namespace NS_CostMap {
 
@@ -20,7 +24,10 @@ class CostmapWrapper {
 public:
 	CostmapWrapper();
 	virtual ~CostmapWrapper();
-	int a;
+
+	    NS_Service::Client< NS_ServiceType::ServiceTransform >* odom_tf_cli;
+
+	    NS_Service::Client< NS_ServiceType::ServiceTransform >* map_tf_cli;
 private:
 	void
 	loadParameters();
@@ -37,8 +44,26 @@ private:
 	/**
 	 * 初始化占据栅格图
 	 */
-    void
-    prepareMap();
+	void
+	prepareMap();
+
+	/**
+	 * update footprint
+	 */
+	void
+	setPaddedRobotFootprint(const std::vector<NS_DataType::Point>& points);
+
+	/**
+	 * call layered_costmap.updateMap mainly
+	 */
+	void
+	updateMap();
+	/**
+	 * useless?
+	 */
+	void
+	updateCostmap();
+
 private:
 	///决定costmap的默认值为未知还是空白
 	bool track_unknown_space_;
@@ -61,10 +86,51 @@ private:
 	unsigned int x0, xn, y0, yn;
 
 	LayeredCostmap* layered_costmap;
+
+	void
+	updateMapLoop(double frequency);
+
+	boost::thread update_map_thread;
+
 	NS_DataType::OccupancyGrid map;
 	double saved_origin_x, saved_origin_y;
 	///将costmap的0~255的值转为占据栅格图的-1~100
 	char* cost_translation_table;
+
+    std::vector< NS_DataType::Point > padded_footprint;
+
+    std::vector< NS_DataType::Point > footprint_for_trajectory;
+
+    std::vector< NS_DataType::Point > footprint_from_param;
+
+    bool got_map;
+
+    bool running;
+public:
+	LayeredCostmap*
+	getLayeredCostmap() {
+		return layered_costmap;
+	}
+	;
+	bool
+	getRobotPose(NS_Transform::Stamped<NS_Transform::Pose>& global_pose) const;
+
+	Costmap2D*
+	getCostmap() {
+		return layered_costmap->getCostmap();
+	}
+	;
+	std::vector<NS_DataType::Point> getRobotFootprint() {
+		//      return padded_footprint;
+		return footprint_for_trajectory;
+	}
+public:
+	void
+	initialize();
+	void
+	start();
+	void
+	stop();
 };
 
 } /* namespace NS_CostMap */

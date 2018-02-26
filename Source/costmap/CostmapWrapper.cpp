@@ -6,7 +6,12 @@
  */
 
 #include "CostmapWrapper.h"
+#include "layers/StaticLayer.h"
+#include "layers/InflationLayer.h"
 
+#include <DataSet/DataType/PolygonStamped.h>
+#include <Time/Rate.h>
+#include "utils/Footprint.h"
 namespace NS_CostMap {
 
 CostmapWrapper::CostmapWrapper() {
@@ -17,6 +22,50 @@ CostmapWrapper::CostmapWrapper() {
 CostmapWrapper::~CostmapWrapper() {
 	// TODO Auto-generated destructor stub
 }
+
+void CostmapWrapper::updateMap()
+  {
+    // get global pose
+    NS_Transform::Stamped < NS_Transform::Pose > pose;
+    if(getRobotPose (pose))
+    {
+      double x = pose.getOrigin().x(), y = pose.getOrigin().y(),
+          yaw = NS_Transform::getYaw(pose.getRotation());
+
+      layered_costmap->updateMap(x, y, yaw);
+
+      NS_DataType::PolygonStamped footprint;
+      footprint.header.stamp = NS_NaviCommon::Time::now();
+
+      //by pengjiawei
+      transformFootprint(x, y, yaw, padded_footprint, footprint);
+      footprint_for_trajectory = toPointVector(footprint.polygon);
+//      setPaddedRobotFootprint (toPointVector (footprint.polygon));
+//      setPaddedRobotFootprint (padded_footprint);
+      setPaddedRobotFootprint (footprint_from_param);
+    }
+  }
+void CostmapWrapper::updateCostmap(){
+
+}
+void CostmapWrapper::updateMapLoop(double frequency)
+{
+  NS_NaviCommon::Rate rate(frequency);
+  while(running)
+  {
+    updateMap();
+    if(layered_costmap->isInitialized())
+    {
+      unsigned int _x0_, _y0_, _xn_, _yn_;
+      layered_costmap->getBounds(&_x0_, &_xn_, &_y0_, &_yn_);
+      updateBounds(_x0_, _xn_, _y0_, _yn_);
+      ///useless
+      updateCostmap();
+    }
+    rate.sleep();
+  }
+}
+
 void CostmapWrapper::loadParameters()
  {
    NS_NaviCommon::Parameter parameter;
@@ -75,5 +124,152 @@ void CostmapWrapper::prepareMap()
       map.data[i] = cost_translation_table[data[i]];
     }
   }
+
+
+bool CostmapWrapper::getRobotPose(
+      NS_Transform::Stamped< NS_Transform::Pose >& global_pose) const
+  {
+    NS_ServiceType::ServiceTransform odom_transform;
+    NS_ServiceType::ServiceTransform map_transform;
+
+    int times = 0;
+    while(times != 3)
+    {
+      NS_Service::Client < NS_ServiceType::ServiceTransform > map_tf_cli(
+          "ODOM_MAP_TF");
+      if(map_tf_cli.call(map_transform) == true)
+      {
+        printf("updatemap get robot pose get map transform success!\n");
+        break;
+      }
+      ++times;
+    }
+    if(times == 3)
+    {
+      printf("update map get robot pose Get map transform failure!\n");
+      return false;
+    }
+
+    times = 0;
+    while(times != 3)
+    {
+      NS_Service::Client < NS_ServiceType::ServiceTransform > odom_tf_cli(
+          "BASE_ODOM_TF");
+      if(odom_tf_cli.call(odom_transform) == true)
+      {
+        printf("updatemap get robot pose get odom transform success!\n");
+        break;
+      }
+      ++times;
+    }
+    if(times == 3)
+    {
+      printf("update map get robot pose Get odom transform failure!\n");
+      return false;
+    }
+
+    //TODO: not verify code for transform
+    NS_Transform::Transform odom_tf, map_tf;
+    NS_Transform::transformMsgToTF(odom_transform.transform, odom_tf);
+    NS_Transform::transformMsgToTF(map_transform.transform, map_tf);
+
+    global_pose.setData(odom_tf * map_tf);
+
+    return true;
+  }
+
+
+
+
+void CostmapWrapper::setPaddedRobotFootprint(
+    const std::vector< NS_DataType::Point >& points)
+{
+  padded_footprint = points;
+  padFootprint(padded_footprint, footprint_padding_);
+
+  layered_costmap->setFootprint(padded_footprint);
+}
+
+
+void CostmapWrapper::initialize()
+ {
+   printf("costmap is initializing!\n");
+   loadParameters();
+
+   layered_costmap = new LayeredCostmap(track_unknown_space_);
+
+   if(layered_costmap)
+   {
+     StaticLayer* static_layer = new StaticLayer();
+     boost::shared_ptr < CostmapLayer > layer(static_layer);
+     layered_costmap->addPlugin(layer);
+   }
+
+   if(layered_costmap)
+   {
+     InflationLayer* inflation_layer = new InflationLayer();
+     boost::shared_ptr < CostmapLayer > layer(inflation_layer);
+     layered_costmap->addPlugin(layer);
+   }
+
+   std::vector < boost::shared_ptr< CostmapLayer > > *layers = layered_costmap->getPlugins();
+   for(std::vector< boost::shared_ptr< CostmapLayer > >::iterator layer = layers->begin();
+       layer != layers->end(); ++layer)
+   {
+     (*layer)->initialize(layered_costmap);
+   }
+
+   xn = yn = 0;
+   x0 = layered_costmap->getCostmap()->getSizeInCellsX();
+   y0 = layered_costmap->getCostmap()->getSizeInCellsY();
+
+//    if(!makeFootprintFromString(footprint_, footprint_from_param))
+//    {
+//      printf("Footprint parameter parse failure!\n");
+//      return;
+//    }
+   footprint_from_param = makeFootprintFromRadius(footprint_radius);
+   printf("footprint.size() = %d\n", footprint_from_param.size());
+   setPaddedRobotFootprint (footprint_from_param);
+
+   layered_costmap->resizeMap((unsigned int)(map_width_meters_ / resolution_),
+                              (unsigned int)(map_height_meters_ / resolution_),
+                              resolution_, origin_x_, origin_y_);
+
+ }
+
+ void CostmapWrapper::start()
+ {
+   printf("costmap is running!\n");
+
+   std::vector < boost::shared_ptr< CostmapLayer > > *layers = layered_costmap->getPlugins();
+   for(std::vector< boost::shared_ptr< CostmapLayer > >::iterator layer = layers->begin();
+       layer != layers->end(); ++layer)
+   {
+     (*layer)->activate();
+   }
+
+   running = true;
+
+   update_map_thread = boost::thread(
+       boost::bind(&CostmapWrapper::updateMapLoop, this,
+                   map_update_frequency_));
+ }
+
+ void CostmapWrapper::stop()
+ {
+   printf("costmap is quitting!\n");
+
+   std::vector < boost::shared_ptr< CostmapLayer > > *layers = layered_costmap->getPlugins();
+   for(std::vector< boost::shared_ptr< CostmapLayer > >::iterator layer = layers->begin();
+       layer != layers->end(); ++layer)
+   {
+     (*layer)->deactivate();
+   }
+
+   running = false;
+   update_map_thread.join();
+ }
+
 
 } /* namespace NS_CostMap */

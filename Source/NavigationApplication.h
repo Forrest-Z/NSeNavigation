@@ -9,12 +9,21 @@
 #define NAVIGATIONAPPLICATION_H_
 #include <Application/Application.h>
 #include <DataSet/DataType/PoseStamped.h>
-
+#include "planner/base/GlobalPlannerBase.h"
+#include "planner/base/LocalPlannerBase.h"
+#include <boost/thread/thread.hpp>
+#include <boost/thread/condition.hpp>
+#include <DataSet/Publisher.h>
+#include <DataSet/Subscriber.h>
+#include <Service/Server.h>
+#include <Service/Client.h>
+#include <Mission/Executor.h>
 namespace NS_Navigation {
 ///
 enum NaviState {
 	PLANNING, CONTROLLING, CLEARING,
 };
+#define PLANNER_LOOP_TIMEOUT 100
 /**
  *关于导航功能的类
  */
@@ -22,6 +31,11 @@ class NavigationApplication: public Application {
 public:
 	NavigationApplication();
 	virtual ~NavigationApplication();
+
+	virtual void
+	run();
+	virtual void
+	quit();
 private:
 	/**
 	 * 从文件加载参数
@@ -31,10 +45,53 @@ private:
 	/**
 	 * 全局规划器计算路径
 	 */
-    bool
-    makePlan(const NS_DataType::PoseStamped& goal,
-             std::vector< NS_DataType::PoseStamped >& plan);
+	bool
+	makePlan(const NS_DataType::PoseStamped& goal,
+			std::vector<NS_DataType::PoseStamped>& plan);
 
+	void
+	planLoop();
+
+	void
+	controlLoop();
+	//TODO not sure how to implement this
+	void visualizedGlobalGoal(NS_DataType::PoseStamped& global_goal_);
+	//TODO not sure how to implement this
+	void visualizedCurrentPose(NS_DataType::PoseStamped& current_pose);
+	//TODO not sure how to implement this
+	void visualizedPlan(std::vector<NS_DataType::PoseStamped>& plan_);
+	/**
+	 * transform the goal in robot frame to global frame
+	 * @param goal,pose in robot frame
+	 * @return pose in global frame
+	 */
+	NS_DataType::PoseStamped
+	goalToGlobalFrame(NS_DataType::PoseStamped& goal);
+	/**
+	 * to stop the robot
+	 */
+	void
+	publishZeroVelocity();
+	/**
+	 * make the robot move
+	 */
+	void
+	publishVelocity(double linear_x, double linear_y, double angular_z);
+
+	/**
+	 * recovery behavior ,it's nothing by now
+	 */
+	void
+	runRecovery();
+	/**
+	 * reset the control state
+	 */
+	void
+	resetState();
+
+    double
+    distance(const NS_DataType::PoseStamped& p1,
+             const NS_DataType::PoseStamped& p2);
 
 private:
 	std::string global_planner_type_;
@@ -47,6 +104,56 @@ private:
 	double inscribed_radius_;
 	/// 外切半径
 	double circumscribed_radius_;
+
+	double planner_patience_, controller_patience_;
+	double oscillation_timeout_, oscillation_distance_;
+private:
+	std::vector<NS_DataType::PoseStamped>* global_planner_plan;
+	std::vector<NS_DataType::PoseStamped>* latest_plan;
+
+	NS_DataType::PoseStamped oscillation_pose_;
+
+	NS_CostMap::CostmapWrapper* global_costmap;
+
+	NS_CostMap::CostmapWrapper* local_costmap;
+
+	NS_Planner::GlobalPlannerBase* global_planner;
+
+	NS_Planner::LocalPlannerBase* local_planner;
+
+	NS_DataType::PoseStamped goal;
+
+	bool new_goal_trigger;
+
+	boost::thread plan_thread;
+	boost::mutex planner_mutex;
+	boost::condition planner_cond;
+
+	boost::thread control_thread;
+	boost::mutex controller_mutex;
+	boost::condition controller_cond;
+
+	NaviState state;
+
+	///publish velocity to controller
+	NS_DataSet::Publisher<NS_DataType::Twist>* twist_pub;
+	///subscribe the goal from other
+	NS_DataSet::Subscriber<NS_DataType::PoseStamped>* goal_sub;
+	///global goal for visualized
+	NS_Service::Server<NS_DataType::PoseStamped>* global_goal_srv;
+	NS_DataType::PoseStamped global_goal;
+	bool is_global_target_ok = 0;
+	///current pose for visualized
+	NS_Service::Server<NS_DataType::PoseStamped>* current_pose_srv;
+	NS_DataType::PoseStamped current_pose;
+	///plan for visualized
+	NS_Service::Server<std::vector<NS_DataType::PoseStamped> >* plan_srv;
+	std::vector<NS_DataType::PoseStamped> global_plan;
+
+	///TODO not sure how to do this
+	NS_DataSet::Publisher<bool>* explore_pub;
+	///mission executor
+	NS_Mission::Executor* goalCallbackExecutor;
 };
 
 } /* namespace NS_Navigation */

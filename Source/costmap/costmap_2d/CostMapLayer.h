@@ -48,25 +48,20 @@ public:
 		return current_;
 	}
 
-	/** @brief Implement this to make this layer match the size of the parent costmap. */
+	/** @brief for child layer matching their size for master costmap*/
 	virtual void matchSize() {
 	}
 
-	/** @brief Convenience function for layered_costmap_->getFootprint(). */
+	/** @brief just for layered_costmap_->getFootprint(). */
 	const std::vector<NS_DataType::Point>&
 	getFootprint() const;
 
-	/** @brief LayeredCostmap calls this whenever the footprint there
-	 * changes (via LayeredCostmap::setFootprint()).  Override to be
-	 * notified of changes to the robot's footprint. */
+	/** @brief called when the foorprint is changed , called in LayeredCostmap::setFootprint())  */
 	virtual void onFootprintChanged() {
 	}
 
 protected:
-	   /** @brief This is called at the end of initialize().  Override to
-	     * implement subclass-specific initialization.
-	     *
-	     * tf_, name_, and layered_costmap_ will all be set already when this is called. */
+	   /** @brief method for child layer initialize */
 	    virtual void onInitialize()
 	    {
 	    }
@@ -79,7 +74,11 @@ protected:
 
 	LayeredCostmap* layered_costmap_;
 	bool current_;
-	bool enabled_; ///< Currently this var is managed by subclasses. TODO: make this managed by this class and/or container class.
+	bool enabled_;
+
+	bool has_extra_bounds_;
+	///actually we have never used the extra bound so we don't need
+	///extra_min_x_, extra_max_x_, extra_min_y_, extra_max_y_;
 private:
 	std::vector<NS_DataType::Point> footprint_spec_;
 };

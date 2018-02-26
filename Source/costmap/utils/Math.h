@@ -26,7 +26,7 @@ inline double distance(double x0, double y0, double x1, double y1)
 double
 distanceToLine(double pX, double pY, double x0, double y0, double x1,
                double y1);
-
+///not used
 bool
 intersects(std::vector< NS_DataType::Point >& polygon, float testx,
            float testy);

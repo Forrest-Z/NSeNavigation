@@ -26,5 +26,10 @@ SUBDIRS := \
 Source \
 Source/costmap \
 Source/costmap/costmap_2d \
+Source/costmap/layers \
 Source/costmap/utils \
+Source/planner/implements/GlobalPlanner/Algorithm \
+Source/planner/implements/GlobalPlanner \
+Source/planner/implements/TrajectoryLocalPlanner/Algorithm \
+Source/planner/implements/TrajectoryLocalPlanner \
 

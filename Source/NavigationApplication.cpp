@@ -21,15 +21,17 @@ void NavigationApplication::loadParameters() {
 	NS_NaviCommon::Parameter parameter;
 
 	parameter.loadConfigurationFile("navigation.xml");
-
 	global_planner_type_ = parameter.getParameter("global_planner_type",
 			"global_planner");
-
 	local_planner_type_ = parameter.getParameter("local_planner_type",
 			"trajectory_local_planner");
-
 	planner_frequency_ = parameter.getParameter("planner_frequency", 0.0f);
 	controller_frequency_ = parameter.getParameter("controller_frequency",
 			5.0f);
+}
+
+bool NavigationApplication::makePlan(const NS_DataType::PoseStamped& goal,
+             std::vector< NS_DataType::PoseStamped >& plan){
+
 }
 } /* namespace NS_Navigation */

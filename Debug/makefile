@@ -8,6 +8,9 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
+-include Source/costmap/utils/subdir.mk
+-include Source/costmap/costmap_2d/subdir.mk
+-include Source/costmap/subdir.mk
 -include Source/subdir.mk
 -include subdir.mk
 -include objects.mk

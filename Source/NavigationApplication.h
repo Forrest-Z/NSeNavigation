@@ -8,6 +8,7 @@
 #ifndef NAVIGATIONAPPLICATION_H_
 #define NAVIGATIONAPPLICATION_H_
 #include <Application/Application.h>
+#include <DataSet/DataType/PoseStamped.h>
 
 namespace NS_Navigation {
 ///
@@ -26,6 +27,14 @@ private:
 	 * 从文件加载参数
 	 */
 	void loadParameters();
+
+	/**
+	 * 全局规划器计算路径
+	 */
+    bool
+    makePlan(const NS_DataType::PoseStamped& goal,
+             std::vector< NS_DataType::PoseStamped >& plan);
+
 
 private:
 	std::string global_planner_type_;

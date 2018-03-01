@@ -294,8 +294,6 @@ void NavigationApplication::run() {
 
 	global_planner->initialize(global_costmap);
 
-	///remove the local planner
-
 	//load local planner
 
 	local_planner = new NS_Planner::TrajectoryLocalPlanner();

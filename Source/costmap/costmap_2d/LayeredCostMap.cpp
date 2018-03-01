@@ -85,8 +85,6 @@ namespace NS_CostMap
     y0 = std::max(0, y0);
     yn = std::min(int(costmap_.getSizeInCellsY()), yn + 1);
 
-    //printf("Updating area x: [%d, %d] y: [%d, %d]\n", x0, xn, y0, yn);
-
     if(xn < x0 || yn < y0)
       return;
 

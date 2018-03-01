@@ -11,6 +11,7 @@
 #include <DataSet/DataType/PoseStamped.h>
 #include "planner/base/GlobalPlannerBase.h"
 #include "planner/base/LocalPlannerBase.h"
+#include "transform/transform2d.h"
 #include <boost/thread/thread.hpp>
 #include <boost/thread/condition.hpp>
 #include <DataSet/Publisher.h>

@@ -15,6 +15,7 @@
 #include <Service/ServiceType/ServiceTransform.h>
 #include <Service/Client.h>
 #include <vector>
+#include "log_tool.h"
 namespace NS_CostMap {
 
 /*

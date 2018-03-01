@@ -27,13 +27,17 @@ void CostmapWrapper::updateMap()
   {
     // get global pose
     NS_Transform::Stamped < NS_Transform::Pose > pose;
+    double x = 0.0,y = 0.0,yaw = 0.0;
     if(getRobotPose (pose))
     {
-      double x = pose.getOrigin().x(), y = pose.getOrigin().y(),
+      x = pose.getOrigin().x(), y = pose.getOrigin().y(),
           yaw = NS_Transform::getYaw(pose.getRotation());
 
       layered_costmap->updateMap(x, y, yaw);
-
+    }else{
+    	printf("failed to get robot pose so update map with 0,0,0\n");
+    	layered_costmap->updateMap();
+    }
       NS_DataType::PolygonStamped footprint;
       footprint.header.stamp = NS_NaviCommon::Time::now();
 
@@ -43,7 +47,7 @@ void CostmapWrapper::updateMap()
 //      setPaddedRobotFootprint (toPointVector (footprint.polygon));
 //      setPaddedRobotFootprint (padded_footprint);
       setPaddedRobotFootprint (footprint_from_param);
-    }
+
   }
 void CostmapWrapper::updateCostmap(){
 
@@ -139,14 +143,12 @@ bool CostmapWrapper::getRobotPose(
           "ODOM_MAP_TF");
       if(map_tf_cli.call(map_transform) == true)
       {
-        printf("updatemap get robot pose get map transform success!\n");
         break;
       }
       ++times;
     }
     if(times == 3)
     {
-      printf("update map get robot pose Get map transform failure!\n");
       return false;
     }
 
@@ -157,14 +159,12 @@ bool CostmapWrapper::getRobotPose(
           "BASE_ODOM_TF");
       if(odom_tf_cli.call(odom_transform) == true)
       {
-        printf("updatemap get robot pose get odom transform success!\n");
         break;
       }
       ++times;
     }
     if(times == 3)
     {
-      printf("update map get robot pose Get odom transform failure!\n");
       return false;
     }
 
@@ -175,6 +175,7 @@ bool CostmapWrapper::getRobotPose(
 
     global_pose.setData(odom_tf * map_tf);
 
+    logInfo << "get robot pose successfully";
     return true;
   }
 
@@ -193,7 +194,7 @@ void CostmapWrapper::setPaddedRobotFootprint(
 
 void CostmapWrapper::initialize()
  {
-   printf("costmap is initializing!\n");
+	logInfo<<"costmap wrapper initialize";
    loadParameters();
 
    layered_costmap = new LayeredCostmap(track_unknown_space_);
@@ -240,7 +241,7 @@ void CostmapWrapper::initialize()
 
  void CostmapWrapper::start()
  {
-   printf("costmap is running!\n");
+   logInfo<<"costmap is running!";
 
    std::vector < boost::shared_ptr< CostmapLayer > > *layers = layered_costmap->getPlugins();
    for(std::vector< boost::shared_ptr< CostmapLayer > >::iterator layer = layers->begin();

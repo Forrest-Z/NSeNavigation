@@ -9,69 +9,75 @@
 #include <Service/ServiceType/ServiceMap.h>
 #include <Service/Client.h>
 
-namespace NS_CostMap
-{
+namespace NS_CostMap {
 
-  class StaticLayer: public CostmapLayer
-  {
-  public:
-    StaticLayer();
-    virtual
-    ~StaticLayer();
-    virtual void
-    onInitialize();
-    virtual void
-    activate();
-    virtual void
-    deactivate();
-    virtual void
-    reset();
+class StaticLayer: public CostmapLayer {
+public:
+	StaticLayer();
+	virtual
+	~StaticLayer();
+	virtual void
+	onInitialize();
+	virtual void
+	activate();
+	virtual void
+	deactivate();
+	virtual void
+	reset();
 
-    virtual void
-    updateBounds(double robot_x, double robot_y, double robot_yaw,
-                 double* min_x, double* min_y, double* max_x, double* max_y);
-    virtual void
-    updateCosts(Costmap2D& master_grid, int min_i, int min_j, int max_i,
-                int max_j);
+	virtual void
+	updateBounds(double robot_x, double robot_y, double robot_yaw,
+			double* min_x, double* min_y, double* max_x, double* max_y);
+	virtual void
+	updateCosts(Costmap2D& master_grid, int min_i, int min_j, int max_i,
+			int max_j);
 
-    virtual void
-    matchSize();
+	virtual void
+	matchSize();
 
-  private:
+private:
 
-    unsigned char
-    interpretValue(unsigned char value);
+	unsigned char
+	interpretValue(unsigned char value);
 
-  private:
-    unsigned int x_, y_, width_, height_;
-    bool track_unknown_space_;
-    bool use_maximum_;
-    bool first_map_only_; ///< @brief Store the first static map and reuse it on reinitializing
-    bool trinary_costmap_;
+private:
+	unsigned int x_, y_, width_, height_;
+	bool track_unknown_space_;
+	bool use_maximum_;
+	bool first_map_only_; ///< @brief Store the first static map and reuse it on reinitializing
+	bool trinary_costmap_;
 
-    unsigned char lethal_threshold_, unknown_cost_value_;
+	unsigned char lethal_threshold_, unknown_cost_value_;
 
-    double map_update_frequency_;
+	double map_update_frequency_;
 
-  private:
+private:
 
-    bool active;
+	bool active;
 
-    boost::thread static_layer_loop;
+	boost::thread static_layer_loop;
 
-    bool map_received;
+	bool map_received;
 
-    bool has_updated_data;
+	bool has_updated_data;
 
-    NS_Service::Client< NS_ServiceType::ServiceMap >* map_cli;
+	NS_Service::Client<NS_ServiceType::ServiceMap>* map_cli;
 
-    void
-    loopStaticMap();
+	void
+	loopStaticMap();
 
-    void
-    processMap(const NS_DataType::OccupancyGrid& new_map);
+	/**
+	 * important function,update cost of static layer from laser scan
+	 */
+	void
+	processMap(const NS_DataType::OccupancyGrid& new_map);
 
-  };
+	/**
+	 * if you don't have a laser,use a local pgm file for updating cost
+	 */
+	void readPgm(std::string pgm_file_path, int16_t& width,
+			int16_t& height, std::vector<char>& value_vec);
+};
 
 }  // namespace costmap_2d
 

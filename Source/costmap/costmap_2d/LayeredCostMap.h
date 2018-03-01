@@ -29,6 +29,12 @@ namespace NS_CostMap
     updateMap(double robot_x, double robot_y, double robot_yaw);
 
     /**
+     * actually we don't need the initial pose of robot to update map
+     */
+    void updateMap(){
+    	updateMap(0.0,0.0,0.0);
+    }
+    /**
      * 更新costmap参数
      */
     void

@@ -30,13 +30,25 @@ namespace NS_CostMap
     while(active)
     {
       NS_ServiceType::ServiceMap srv_map;
-      if(map_cli->call(srv_map))
-      {
-        if(srv_map.result)
-        {
-          processMap(srv_map.map);
-        }
-      }
+
+      srv_map.map.info.resolution = 0.1;
+         srv_map.map.info.origin.position.x = 0.0;
+         srv_map.map.info.origin.position.y = 0.0;
+         srv_map.map.info.origin.position.z = 0.0;
+         srv_map.map.info.origin.orientation.x = 0.0;
+         srv_map.map.info.origin.orientation.y = 0.0;
+         srv_map.map.info.origin.orientation.z = 0.0;
+         srv_map.map.info.origin.orientation.w = 0.0;
+         std::string file_path = "/home/pengjiawei/map.pgm";
+         readPgm(file_path,srv_map.map.info.width,srv_map.map.info.height,srv_map.map.data);
+         processMap(srv_map.map);
+//      if(map_cli->call(srv_map))
+//      {
+//        if(srv_map.result)
+//        {
+//          processMap(srv_map.map);
+//        }
+//      }
 
       rate.sleep();
     }
@@ -209,6 +221,56 @@ namespace NS_CostMap
       updateWithTrueOverwrite(master_grid, min_i, min_j, max_i, max_j);
 //    else
 //      updateWithMax(master_grid, min_i, min_j, max_i, max_j);
+  }
+  void StaticLayer::readPgm(std::string pgm_file_path,int16_t& width ,int16_t& height,std::vector<char>& value_vec){
+      int row = 0, col = 0;
+      ifstream infile(pgm_file_path);
+      stringstream ss;
+      string inputLine = "";
+
+      // First line : version
+      getline(infile,inputLine);
+      if(inputLine.compare("P5") != 0) cerr << "Version error" << endl;
+      else cout << "Version : " << inputLine << endl;
+
+      // Second line : comment
+      getline(infile,inputLine);
+
+      while(inputLine.find("#") != string::npos){
+          cout << "Comment : " << inputLine << endl;
+          getline(infile,inputLine);
+      }
+      // Continue with a stringstream
+      ss << infile.rdbuf();
+      // Third line : size
+      stringstream wwhhss(inputLine);
+      wwhhss >> width >> height;
+      cout << width << " columns and " << height << " rows" << endl;
+
+      int array[height][width];
+
+      int max_value;
+      ss >> max_value;
+      cout <<"max value = "<<max_value<<endl;
+      unsigned char pixel;
+      // Following lines : data
+      for(row = 0; row < height; ++row){
+          for (col = 0; col < width; ++col){
+              ss >> pixel;
+              array[row][col] = pixel;
+              value_vec.push_back(pixel);
+          }
+      }
+      // Now print the array to see the result
+      FILE* file = fopen("/home/pengjiawei/pixels.log","a");
+      for(row = 0; row < height; ++row) {
+          for(col = 0; col < width; ++col) {
+              fprintf(file,"%d\n",array[row][col]);
+          }
+      }
+
+      fclose(file);
+      infile.close();
   }
 
 }  // namespace costmap_2d

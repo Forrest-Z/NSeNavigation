@@ -68,11 +68,11 @@ void addFilter(){
 	}
 }
 
-void addFileLog(std::string file_name) {
+void addFileLog(std::string file_path) {
 
 	logging::add_common_attributes();
 
-	logging::add_file_log(keywords::file_name = "/tmp/NSeNavigation%N.log",
+	logging::add_file_log(keywords::file_path = "/tmp/NSeNavigation%N.log",
 			keywords::rotation_size = 10 * 1024 * 1024,		//rotate every 10 MB
 			keywords::time_based_rotation = sinks::file::rotation_at_time_point(
 					0, 0, 0),			//rotate at midnight

@@ -127,15 +127,13 @@ bool GlobalPlanner::makePlan(const NS_DataType::PoseStamped& start,
 				"This planner has not been initialized yet, but it is being used, please call initialize() before use\n");
 		return false;
 	}
-
-	//clear the plan, just in case
 	// 先把 plan 清空
 	plan.clear();
 
 	double wx = start.pose.position.x;
 	double wy = start.pose.position.y;
 
-	cout << "start world wx = " << wx << " wy = " << wy << "\n";
+	logInfo << "start world wx = " << wx << " wy = " << wy;
 	/*
 	 * 把现实位置映射到地图中
 	 * 获取 start 和 goal 在地图中的坐标
@@ -143,18 +141,6 @@ bool GlobalPlanner::makePlan(const NS_DataType::PoseStamped& start,
 	unsigned int start_x_i, start_y_i, goal_x_i, goal_y_i;
 	double start_x, start_y, goal_x, goal_y;
 
-	/*
-	 * costmap 是 CostmapWrapper*，
-	 * GlobalPlannerBase 的 protected 成员
-	 * CostmapWrapper 有一个私有成员 LayeredCostmap*，通过公共方法 getLayeredCostmap 获得
-	 * costmap -> getLayeredCostmap() 返回 LayeredCostmap*
-	 *
-	 * LayeredCostmap 有一个私有成员 Costmap2D，通过公共方法 getCostmap 获得
-	 *   Costmap2D* getCostmap()
-	 {
-	 return &costmap_;
-	 }
-	 */
 	if (!costmap->getLayeredCostmap()->getCostmap()->worldToMap(wx, wy,
 					start_x_i, start_y_i)) {
 		// 加一下错误提示
@@ -162,11 +148,9 @@ bool GlobalPlanner::makePlan(const NS_DataType::PoseStamped& start,
 				"The robot's start position is off the global costmap. Planning will always fail, are you sure the robot has been properly localized?\n");
 		return false;
 	}
-	//默认 old_navfn_behavior = false
 	worldToMap(wx, wy, start_x, start_y);
 
-	cout << "start_x_i, start_y_i, start_x, start_y" << start_x_i << " "
-	<< start_y_i << " " << start_x << " " << start_y << "\n";
+	logInfo << "start_x_i = "<< start_x_i<<" start_y_i = "  << start_y_i;
 
 	/*
 	 * 处理 goal
@@ -174,7 +158,7 @@ bool GlobalPlanner::makePlan(const NS_DataType::PoseStamped& start,
 	wx = goal.pose.position.x;
 	wy = goal.pose.position.y;
 
-	cout << "goal world wx = " << wx << " wy = " << wy << "\n";
+	logInfo << "goal world wx = " << wx << " wy = " << wy << "\n";
 
 	if (!costmap->getLayeredCostmap()->getCostmap()->worldToMap(wx, wy,
 					goal_x_i, goal_y_i)) {
@@ -185,23 +169,10 @@ bool GlobalPlanner::makePlan(const NS_DataType::PoseStamped& start,
 	}
 	worldToMap(wx, wy, goal_x, goal_y);
 
-	cout << "goal_x_i, goal_y_i, goal_x, goal_y" << goal_x_i << " " << goal_y_i
-	<< " " << goal_x << " " << goal_y << "\n";
+	logInfo << "goal_x_i = "<< goal_x_i<<" goal_y_i = "<< goal_y_i;
 
-//	NS_NaviCommon::console.debug("After worldToMap...");
-	/*
-	 * 这个函数的第一个参数 const tf::Stamped<tf::Pose> 其实是没用上的，
-	 * 因此可以把函数签名去掉这个参数
-	 */
-	//clear the starting cell within the costmap because we know it can't be an obstacle
-//	tf::Stamped<tf::Pose> start_pose;
-//	tf::poseStampedMsgToTF(start, start_pose);
-//	clearRobotCell(start_pose, start_x_i, start_y_i);
+	///clear current pose of robot at the beginning
 	clearRobotCell(start_x_i, start_y_i);
-
-//	NS_NaviCommon::console.debug("After clearRobotCell...");
-
-	//int nx = costmap_->getSizeInCellsX(), ny = costmap_->getSizeInCellsY();
 
 	int nx = costmap->getLayeredCostmap()->getCostmap()->getSizeInCellsX(), ny =
 	costmap->getLayeredCostmap()->getCostmap()->getSizeInCellsY();
@@ -210,73 +181,25 @@ bool GlobalPlanner::makePlan(const NS_DataType::PoseStamped& start,
 	double inscribe_radius = costmap->getLayeredCostmap()->getInscribedRadius();
 	double circumscribed_radius =
 	costmap->getLayeredCostmap()->getCircumscribedRadius();
-//	NS_NaviCommon::console.debug("After getting nx, ny...");
-	cout << "nx, ny = " << nx << " " << ny << " resolution = " << resolution
-	<< "inscribed_radius = " << inscribe_radius
-	<< "circumscribed_radius = " << circumscribed_radius << "\n";
-	cout << "origin x y"
-	<< costmap->getLayeredCostmap()->getCostmap()->getOriginX() << " "
-	<< costmap->getLayeredCostmap()->getCostmap()->getOriginY() << endl;
+
+	logInfo << "size in cell x "<< nx<<" , ny = "<<ny << " , resolution = " << resolution
+	<< " , inscribed_radius = " << inscribe_radius
+	<< " ,circumscribed_radius = " << circumscribed_radius << "\n";
+	logInfo << "origin x = "<< costmap->getLayeredCostmap()->getCostmap()->getOriginX()<<", y = "
+	<< costmap->getLayeredCostmap()->getCostmap()->getOriginY();
 	//make sure to resize the underlying array that Navfn uses
 	p_calc_->setSize(nx, ny);// PotentialCalculator* p_calc_;
 	planner_->setSize(nx, ny);// Expander* planner_;
 	path_maker_->setSize(nx, ny);// Traceback* path_maker_;
 	potential_array_ = new float[nx * ny];// float* potential_array_;
 
-//	NS_NaviCommon::console.debug("After parameters setSize...");
 	unsigned char* char_map =
 	costmap->getLayeredCostmap()->getCostmap()->getCharMap();
 
-//    for(int i = 0; i < nx * ny; ++i)
-//    {
-//      if(char_map[i] == NS_CostMap::LETHAL_OBSTACLE)
-//      {
-//        printf("char_map index %d lethal_obstacle\n", i);
-//      }
-//    }
 
-//    FILE* mapfile;
-//    mapfile = fopen("/tmp/costmap.log", "w");
-//    for(int j = 0; j < ny; j++)
-//    {
-//      for(int i = 0; i < nx; i++)
-//      {
-//        int i_tmp = char_map[i + ny * j];
-//        fprintf(mapfile, "%d %d %d\n", i, j, i_tmp);
-////        if(char_map[i + ny * j] == NS_CostMap::LETHAL_OBSTACLE)
-////        {
-////          printf("char_map index %d x = %d, y = %d lethal_obstacle\n",
-////                 i + ny * j, i, j);
-////        }
-//      }
-//    }
-//    fclose(mapfile);
-
+	///update the boundary of costmap
 	outlineMap(costmap->getLayeredCostmap()->getCostmap()->getCharMap(), nx, ny,
 			NS_CostMap::LETHAL_OBSTACLE);
-
-//    char buf[4096];
-//    sprintf(buf, "costmap.ppm");
-//    FILE *fp = fopen(buf, "w");
-//    if(fp)
-//    {
-//      fprintf(fp, "P3\n");
-//      fprintf(fp, "%d %d\n", nx, ny);
-//      fprintf(fp, "255\n");
-//      for(int j = ny - 1; j >= 0; --j)
-//      {
-//        for(unsigned int i = 0; i < nx; ++i)
-//        {
-//          int i_tmp = char_map[i];
-//          fprintf(fp, "%d 0 %d ", i_tmp, 0);
-//        }
-//        fprintf(fp, "\n");
-//      }
-//      fclose(fp);
-//    }
-
-//	NS_NaviCommon::console.debug("After outlineMap, invoking calculatePotentials...");
-
 	/*
 	 * 此处开始调用算法
 	 */
@@ -284,13 +207,11 @@ bool GlobalPlanner::makePlan(const NS_DataType::PoseStamped& start,
 			costmap->getLayeredCostmap()->getCostmap()->getCharMap(), start_x,
 			start_y, goal_x, goal_y, nx * ny * 2, potential_array_);
 
-//	NS_NaviCommon::console.debug("After calculatePotentials, invoking clearEndPoint...");
-
+	///计算终点周围方圆2个像素的点的potential值，防止值为POT_HIGH
 	planner_->clearEndpoint(
 			costmap->getLayeredCostmap()->getCostmap()->getCharMap(),
 			potential_array_, goal_x_i, goal_y_i, 2);
 
-//	NS_NaviCommon::console.debug("After clearEndpoint...");
 
 	if (found_legal) {
 		//extract the plan

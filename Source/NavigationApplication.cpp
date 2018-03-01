@@ -12,7 +12,8 @@
 #include <Service/ServiceType/ServiceMap.h>
 namespace NS_Navigation {
 
-NavigationApplication::NavigationApplication() {
+NavigationApplication::NavigationApplication() :
+		new_global_plan_(false), runPlanner_(false) {
 	// TODO Auto-generated constructor stub
 
 }
@@ -32,245 +33,250 @@ void NavigationApplication::loadParameters() {
 	controller_frequency_ = parameter.getParameter("controller_frequency",
 			5.0f);
 }
-void NavigationApplication::runRecovery()
- {
+void NavigationApplication::runRecovery() {
+	logInfo<<"run Recovery()";
+}
 
- }
-
-void NavigationApplication::resetState()
- {
-   state = PLANNING;
-   publishZeroVelocity();
- }
-void NavigationApplication::publishZeroVelocity()
-{
-  printf("--------------->publishZeroVelocity------------------------>");
-  publishVelocity(0, 0, 0);
+void NavigationApplication::resetState() {
+	state = PLANNING;
+	publishZeroVelocity();
+}
+void NavigationApplication::publishZeroVelocity() {
+	logInfo<<"--------------->publishZeroVelocity------------------------>";
+	publishVelocity(0, 0, 0);
 }
 void NavigationApplication::publishVelocity(double linear_x, double linear_y,
-                                            double angular_z)
-{
-  NS_DataType::Twist vel;
-  vel.linear.x = linear_x;
-  vel.linear.y = linear_y;
-  vel.angular.z = angular_z;
-  twist_pub->publish(vel);
+		double angular_z) {
+	NS_DataType::Twist vel;
+	vel.linear.x = linear_x;
+	vel.linear.y = linear_y;
+	vel.angular.z = angular_z;
+	twist_pub->publish(vel);
 }
-void NavigationApplication::controlLoop()
- {
-   while(running)
-   {
-     NS_NaviCommon::Rate rate(controller_frequency_);
-     controller_mutex.lock();
-     while((state != CONTROLLING || global_planner_plan->size() == 0) && running)
-     {
-       controller_cond.timed_wait(
-           controller_mutex,
-           (boost::get_system_time() + boost::posix_time::milliseconds(
-               PLANNER_LOOP_TIMEOUT)));
-     }
-     controller_mutex.unlock();
+bool NavigationApplication::goalFromAPP(NS_DataType::PoseStamped& goal_from_app){
+	planner_mutex.lock();
+	    goal = goalToGlobalFrame(goal_from_app);
+	    printf("goal_callback x = %.4f,y = %.4f, w = %.4f\n", goal.pose.position.x,
+	           goal.pose.position.y, goal.pose.orientation.w);
+	    new_goal_trigger = true;
+	    state = PLANNING;
+	    planner_cond.notify_one();
+	    planner_mutex.unlock();
 
-     if(!running)
-     {
-       console.message("Quit local planning loop...");
-       break;
-     }
-     if(!local_planner->setPlan(*global_planner_plan))
-     {
-       console.error("Set plan to local planner failure!");
-       resetState();
-       continue;
-     }
-     bool is_planning = 0;
-     while(!is_planning)
-     {
-       NS_DataType::Twist cmd_vel;
-       NS_NaviCommon::Time last_valid_control;
+	    controlLoop();
+	    return true;
+}
+void NavigationApplication::controlLoop() {
+	while (running) {
+		NS_NaviCommon::Rate rate(controller_frequency_);
+//		controller_mutex.lock();
+//		while ((state != CONTROLLING || global_planner_plan->size() == 0)
+//				&& running) {
+//			controller_cond.timed_wait(controller_mutex,
+//					(boost::get_system_time() + boost::posix_time::milliseconds(
+//					PLANNER_LOOP_TIMEOUT)));
+//		}
+//		controller_mutex.unlock();
 
-       //update feedback to correspond to our curent position
-       NS_Transform::Stamped < NS_Transform::Pose > global_pose;
-       global_costmap->getRobotPose(global_pose);
+		if (!running) {
+			console.message("Quit local planning loop...");
+			break;
+		}
+		if (new_global_plan_) {
+			if (!local_planner->setPlan(*global_planner_plan)) {
+				console.error("Set plan to local planner failure!");
+				resetState();
+				logInfo<< "local planner failed tp set plan,so disable plan thread ";
+				planner_mutex.lock();
+				runPlanner_ = false;
+				planner_mutex.unlock();
+				continue;
+			}
+			new_global_plan_ = false;
+		} else {
+			logInfo<< "no new global plan do not set plan";
+		}
 
-       printf("global_pose x = %.4f,y = %.4f, w = %.4f ,state = %d\n",
-              global_pose.getOrigin().x(), global_pose.getOrigin().y(),
-              global_pose.getRotation().w(), state);
+		NS_DataType::Twist cmd_vel;
+		NS_NaviCommon::Time last_valid_control;
 
-       NS_DataType::PoseStamped current_position;
-       NS_Transform::poseStampedTFToMsg(global_pose, current_position);
+		//update feedback to correspond to our curent position
+		NS_Transform::Stamped<NS_Transform::Pose> global_pose;
+		global_costmap->getRobotPose(global_pose);
 
-       if(distance(current_position, oscillation_pose_) >= oscillation_distance_)
-       {
-         //TODO: oscillation
+		printf("global_pose x = %.4f,y = %.4f, w = %.4f ,state = %d\n",
+				global_pose.getOrigin().x(), global_pose.getOrigin().y(),
+				global_pose.getRotation().w(), state);
 
-         oscillation_pose_ = current_position;
-       }
+		NS_DataType::PoseStamped current_position;
+		NS_Transform::poseStampedTFToMsg(global_pose, current_position);
 
-       switch(state)
-       {
-         case PLANNING:
-           is_planning = 1;
-           break;
-         case CONTROLLING:
-           if(local_planner->isGoalReached())
-           {
-             console.message("The goal has reached!");
-             goalCallbackExecutor->done();
+		if (distance(current_position, oscillation_pose_)
+				>= oscillation_distance_) {
+			//TODO: oscillation
+			logInfo<< "oscillation is triggered , but do nothing now";
+			oscillation_pose_ = current_position;
+		}
+
+		switch (state) {
+		case PLANNING:
+			logInfo<< "control loop state is planning";
+			planner_mutex.lock();
+			planner_cond.notify_one();
+			runPlanner_ = true;
+			planner_mutex.unlock();
+			break;
+			case CONTROLLING:
+			if(local_planner->isGoalReached())
+			{
+				console.message("The goal has reached!");
+				goalCallbackExecutor->done();
 //             printf("continue exploring? = %d\n", isExploring);
 //             publishIsExploring();
-             resetState();
-             break;
-           }
+				resetState();
+				planner_mutex.lock();
+				runPlanner_ = false;
+				planner_mutex.unlock();
+				break;
+			}
 
-           //TODO : check oscillation and clear
-           clock_t start, end;
-           start = clock();
-           FILE* file;
+			//TODO : check oscillation and clear
+			clock_t start, end;
+			start = clock();
 
-           if(local_planner->computeVelocityCommands(cmd_vel))
-           {
-             file = fopen("/tmp/vel.log", "a+");
-             fprintf(file, "%.3lf,%.3lf,%.3lf\n", cmd_vel.linear.x,
-                     cmd_vel.linear.y, cmd_vel.angular.z);
-             console.debug(
-                 "Got velocity data : l_x=%.3lf, l_y=%.3lf, a_z=%.3lf!",
-                 cmd_vel.linear.x, cmd_vel.linear.y, cmd_vel.angular.z);
-             last_valid_control = NS_NaviCommon::Time::now();
-             publishVelocity(cmd_vel.linear.x, cmd_vel.linear.y,
-                             cmd_vel.angular.z);
-             end = clock();
-             fclose(file);
-             printf("\n\n\n");
-           }
-           else
-           {
-             console.warning("The planner can not got a valid velocity data!");
-             NS_NaviCommon::Time next_control = last_valid_control + NS_NaviCommon::Duration(
-                 controller_patience_);
+			if(local_planner->computeVelocityCommands(cmd_vel))
+			{
+				console.debug(
+						"Got velocity data : l_x=%.3lf, l_y=%.3lf, a_z=%.3lf!",
+						cmd_vel.linear.x, cmd_vel.linear.y, cmd_vel.angular.z);
+				last_valid_control = NS_NaviCommon::Time::now();
+				publishVelocity(cmd_vel.linear.x, cmd_vel.linear.y,
+						cmd_vel.angular.z);
+				end = clock();
+			}
+			else
+			{
+				console.warning("The planner can not got a valid velocity data!");
+				NS_NaviCommon::Time next_control = last_valid_control + NS_NaviCommon::Duration(
+						controller_patience_);
 
-             if(NS_NaviCommon::Time::now() > next_control)
-             {
-               publishZeroVelocity();
-               state = CLEARING;
-               resetState();
-               is_planning = 1;
-             }
-             else
-             {
-               //TODO: re-plan
+				if(NS_NaviCommon::Time::now() > next_control)
+				{
+					publishZeroVelocity();
+					state = CLEARING;
+					logInfo << "can't get valid vel and out of control patience , recovery behavior should be triggered";
+				}
+				else
+				{
+					//TODO: re-plan
 
-               publishZeroVelocity();
-               state = PLANNING;
-               is_planning = 1;
-//                resetState();
-             }
-           }
+					logInfo << "go back to planning";
+					publishZeroVelocity();
+					state = PLANNING;
 
-           break;
-         case CLEARING:
-           runRecovery();
-           state = PLANNING;
-           is_planning = 1;
-           break;
-       }
+					planner_mutex.lock();
+					runPlanner_ = true;
+					planner_cond.notify_one();
+					planner_mutex.unlock();
+				}
+			}
 
-       rate.sleep();
-     }
-   }
- }
+			break;
+			case CLEARING:
+			runRecovery();
+			state = PLANNING;
+			break;
+		}
+		rate.sleep();
+	}
+}
 
+void NavigationApplication::planLoop() {
+	NS_NaviCommon::Rate rate(planner_frequency_);
 
-void NavigationApplication::planLoop()
- {
-   NS_NaviCommon::Rate rate(planner_frequency_);
+	while (running) {
+		planner_mutex.lock();
+		while (!new_goal_trigger && running && runPlanner_) {
+			planner_cond.timed_wait(planner_mutex,
+					(boost::get_system_time() + boost::posix_time::milliseconds(
+					PLANNER_LOOP_TIMEOUT)));
+		}
+		planner_mutex.unlock();
 
-   while(running)
-   {
-     planner_mutex.lock();
-     while(!new_goal_trigger && running)
-     {
-       planner_cond.timed_wait(
-           planner_mutex,
-           (boost::get_system_time() + boost::posix_time::milliseconds(
-               PLANNER_LOOP_TIMEOUT)));
-     }
-     planner_mutex.unlock();
+		if (!running) {
+			console.message("Quit global planning loop...");
+			break;
+		}
 
-     if(!running)
-     {
-       console.message("Quit global planning loop...");
-       break;
-     }
+		new_goal_trigger = false;
 
-     new_goal_trigger = false;
+		if (!makePlan(goal, *latest_plan) && state != PLANNING) {
+			console.error("Make plan failure!");
+			goalCallbackExecutor->abort();
+			logInfo << "global planner failed to make plan , maybe recovery should be triggered";
+			continue;
+		}
 
-     if(!makePlan(goal, *latest_plan) && state != PLANNING)
-     {
-       console.error("Make plan failure!");
-       goalCallbackExecutor->abort();
-       continue;
-     }
+//		controller_mutex.lock();
+		state = CONTROLLING;
+		new_global_plan_ = true;
+		global_planner_plan->clear();
+		global_planner_plan->assign(latest_plan->begin(), latest_plan->end());
+		if(runPlanner_)
+			state = CONTROLLING;
+//		controller_cond.notify_one();
+//		controller_mutex.unlock();
 
-     controller_mutex.lock();
-     state = CONTROLLING;
-     global_planner_plan->clear();
-     global_planner_plan->assign(latest_plan->begin(), latest_plan->end());
-     controller_cond.notify_one();
-     controller_mutex.unlock();
-
-     if(planner_frequency_ != 0.0f)
-       rate.sleep();
-   }
- }
-NS_DataType::PoseStamped NavigationApplication::goalToGlobalFrame(NS_DataType::PoseStamped& goal){
+		if (planner_frequency_ != 0.0f)
+			rate.sleep();
+	}
+}
+NS_DataType::PoseStamped NavigationApplication::goalToGlobalFrame(
+		NS_DataType::PoseStamped& goal) {
 
 }
 bool NavigationApplication::makePlan(const NS_DataType::PoseStamped& goal,
 		std::vector<NS_DataType::PoseStamped>& plan) {
 
-    boost::unique_lock < NS_CostMap::Costmap2D::mutex_t > lock(
-        *(global_costmap->getLayeredCostmap()->getCostmap()->getMutex()));
+	boost::unique_lock<NS_CostMap::Costmap2D::mutex_t> lock(
+			*(global_costmap->getLayeredCostmap()->getCostmap()->getMutex()));
 
-    plan.clear();
+	plan.clear();
 
-    //get the starting pose of the robot
-    NS_Transform::Stamped < NS_Transform::Pose > global_pose;
-    if(!global_costmap->getRobotPose(global_pose))
-    {
-      console.error(
-          "Unable to get starting pose of robot, unable to create global plan");
-      return false;
-    }
+	//get the starting pose of the robot
+	NS_Transform::Stamped<NS_Transform::Pose> global_pose;
+	if (!global_costmap->getRobotPose(global_pose)) {
+		console.error(
+				"Unable to get starting pose of robot, unable to create global plan");
+		return false;
+	}
 
-    NS_DataType::PoseStamped start;
-    NS_Transform::poseStampedTFToMsg(global_pose, start);
+	NS_DataType::PoseStamped start;
+	NS_Transform::poseStampedTFToMsg(global_pose, start);
 
-    //if the planner fails or returns a zero length plan, planning failed
-    if(!global_planner->makePlan(start, goal, plan) || plan.empty())
-    {
-      console.warning("Failed to find a  plan to point (%.2f, %.2f)",
-                      goal.pose.position.x, goal.pose.position.y);
-      return false;
-    }
+	//if the planner fails or returns a zero length plan, planning failed
+	if (!global_planner->makePlan(start, goal, plan) || plan.empty()) {
+		console.warning("Failed to find a  plan to point (%.2f, %.2f)",
+				goal.pose.position.x, goal.pose.position.y);
+		return false;
+	}
 
-    console.debug("Plans computed, %d points to go...", plan.size());
-    global_plan.resize(plan.size());
-    for(size_t i = 0; i < plan.size(); i++)
-    {
-      console.debug("[%d] x = %lf, y = %lf", (i + 1), plan[i].pose.position.x,
-                    plan[i].pose.position.y);
-      global_plan[i] = plan[i];
-      printf("%lf,%lf,\n", plan[i].pose.position.x, plan[i].pose.position.y);
-    }
-    printf("global_plan is assigned and size = %d\n", global_plan.size());
-    return true;
+	console.debug("Plans computed, %d points to go...", plan.size());
+	global_plan.resize(plan.size());
+	for (size_t i = 0; i < plan.size(); i++) {
+		console.debug("[%d] x = %lf, y = %lf", (i + 1), plan[i].pose.position.x,
+				plan[i].pose.position.y);
+		global_plan[i] = plan[i];
+		printf("%lf,%lf,\n", plan[i].pose.position.x, plan[i].pose.position.y);
+	}
+	printf("global_plan is assigned and size = %d\n", global_plan.size());
+	return true;
 
 }
 double NavigationApplication::distance(const NS_DataType::PoseStamped& p1,
-                                       const NS_DataType::PoseStamped& p2)
-{
-  return hypot(p1.pose.position.x - p2.pose.position.x,
-               p1.pose.position.y - p2.pose.position.y);
+		const NS_DataType::PoseStamped& p2) {
+	return hypot(p1.pose.position.x - p2.pose.position.x,
+			p1.pose.position.y - p2.pose.position.y);
 }
 void NavigationApplication::run() {
 	loadParameters();
@@ -319,19 +325,18 @@ void NavigationApplication::run() {
 	plan_thread = boost::thread(
 			boost::bind(&NavigationApplication::planLoop, this));
 
-	control_thread = boost::thread(
-			boost::bind(&NavigationApplication::controlLoop, this));
+//	control_thread = boost::thread(
+//			boost::bind(&NavigationApplication::controlLoop, this));
 
 	global_costmap->start();
 	sleep(2);
 //    isExploring = true;
 }
 
-void NavigationApplication::quit()
-{
-  console.message("navigation is quitting!");
+void NavigationApplication::quit() {
+	console.message("navigation is quitting!");
 
-  running = false;
-  plan_thread.join();
+	running = false;
+	plan_thread.join();
 }
 } /* namespace NS_Navigation */

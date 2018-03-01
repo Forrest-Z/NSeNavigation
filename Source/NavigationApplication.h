@@ -55,6 +55,8 @@ private:
 
 	void
 	controlLoop();
+
+	bool goalFromAPP(NS_DataType::PoseStamped& goal_from_app);
 	//TODO not sure how to implement this
 	void visualizedGlobalGoal(NS_DataType::PoseStamped& global_goal_);
 	//TODO not sure how to implement this
@@ -125,6 +127,10 @@ private:
 	NS_DataType::PoseStamped goal;
 
 	bool new_goal_trigger;
+	/// for local planner set plan
+	bool new_global_plan_;
+	///run plan thread or not
+	bool runPlanner_;
 
 	boost::thread plan_thread;
 	boost::mutex planner_mutex;
@@ -143,7 +149,6 @@ private:
 	///global goal for visualized
 	NS_Service::Server<NS_DataType::PoseStamped>* global_goal_srv;
 	NS_DataType::PoseStamped global_goal;
-	bool is_global_target_ok = 0;
 	///current pose for visualized
 	NS_Service::Server<NS_DataType::PoseStamped>* current_pose_srv;
 	NS_DataType::PoseStamped current_pose;

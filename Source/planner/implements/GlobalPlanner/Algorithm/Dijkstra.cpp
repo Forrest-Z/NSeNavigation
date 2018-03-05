@@ -96,21 +96,21 @@ bool DijkstraExpansion::calculatePotentials(unsigned char* costs,
 		potential[k + nx_] = neutral_cost_ * 2 * dx * (1 - dy);
 		potential[k + nx_ + 1] = neutral_cost_ * 2 * (1 - dx) * (1 - dy); //*/
 
-		pushCur(k + 2,costs);
-		pushCur(k - 1,costs);
-		pushCur(k + nx_ - 1,costs);
-		pushCur(k + nx_ + 2,costs);
+		pushCur(k + 2, costs);
+		pushCur(k - 1, costs);
+		pushCur(k + nx_ - 1, costs);
+		pushCur(k + nx_ + 2, costs);
 
-		pushCur(k - nx_,costs);
-		pushCur(k - nx_ + 1,costs);
-		pushCur(k + nx_ * 2,costs);
-		pushCur(k + nx_ * 2 + 1,costs);
+		pushCur(k - nx_, costs);
+		pushCur(k - nx_ + 1, costs);
+		pushCur(k + nx_ * 2, costs);
+		pushCur(k + nx_ * 2 + 1, costs);
 	} else {
 		potential[k] = 0;
-		pushCur(k + 1,costs);
-		pushCur(k - 1,costs);
-		pushCur(k - nx_,costs);
-		pushCur(k + nx_,costs);
+		pushCur(k + 1, costs);
+		pushCur(k - 1, costs);
+		pushCur(k - nx_, costs);
+		pushCur(k + nx_, costs);
 	}
 
 	int nwv = 0;            // max priority block size
@@ -124,7 +124,6 @@ bool DijkstraExpansion::calculatePotentials(unsigned char* costs,
 
 	for (; cycle < cycles; cycle++) // go for this many cycles, unless interrupted
 			{
-		//
 		if (currentEnd_ == 0 && nextEnd_ == 0) // priority blocks empty
 			return false;
 
@@ -204,27 +203,27 @@ inline void DijkstraExpansion::updateCell(unsigned char* costs,
 		float ue = INVSQRT2 * (float) getCost(costs, n - nx_);
 		float de = INVSQRT2 * (float) getCost(costs, n + nx_);
 		potential[n] = pot;
-		//ROS_INFO("UPDATE %d %d %d %f", n, n%nx, n/nx, potential[n]);
+
 		if (pot < threshold_)    // low-cost buffer block
 				{
 			if (potential[n - 1] > pot + le)
-				push_next(n - 1);
+				pushNext(n - 1,costs);
 			if (potential[n + 1] > pot + re)
-				push_next(n + 1);
+				pushNext(n + 1,costs);
 			if (potential[n - nx_] > pot + ue)
-				push_next(n - nx_);
+				pushNext(n - nx_,costs);
 			if (potential[n + nx_] > pot + de)
-				push_next(n + nx_);
+				pushNext(n + nx_,costs);
 		} else            // overflow block
 		{
 			if (potential[n - 1] > pot + le)
-				push_over(n - 1);
+				pushOver(n - 1,costs);
 			if (potential[n + 1] > pot + re)
-				push_over(n + 1);
+				pushOver(n + 1,costs);
 			if (potential[n - nx_] > pot + ue)
-				push_over(n - nx_);
+				pushOver(n - nx_,costs);
 			if (potential[n + nx_] > pot + de)
-				push_over(n + nx_);
+				pushOver(n + nx_,costs);
 		}
 	}
 }

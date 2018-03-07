@@ -23,6 +23,8 @@
 
 #include "../../base/LocalPlannerBase.h"
 
+#include "log_tool.h"
+
 namespace NS_Planner
 {
   /**

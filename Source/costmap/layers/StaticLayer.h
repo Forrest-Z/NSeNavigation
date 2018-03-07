@@ -9,6 +9,7 @@
 #include <Service/ServiceType/ServiceMap.h>
 #include <Service/Client.h>
 
+#include "log_tool.h"
 namespace NS_CostMap {
 
 class StaticLayer: public CostmapLayer {
@@ -60,6 +61,8 @@ private:
 	bool map_received;
 
 	bool has_updated_data;
+
+	bool simulated;
 
 	NS_Service::Client<NS_ServiceType::ServiceMap>* map_cli;
 

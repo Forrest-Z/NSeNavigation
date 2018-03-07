@@ -108,9 +108,8 @@ namespace NS_Planner
     escaping_ = false;
     final_goal_position_valid_ = false;
 
-    printf(
-        "initial trajectory planner inscribed_raidus = %.4f and circumstance_radius = %.4f\n",
-        inscribed_radius_, circumscribed_radius_);
+    logInfo <<
+        "initial trajectory planner inscribed_raidus = "<<inscribed_radius_<< " and circumstance_radius = "<<circumscribed_radius_;
 //    NS_CostMap::calculateMinAndMaxDistances(footprint_spec_, inscribed_radius_,
 //                                            circumscribed_radius_);
   }
@@ -309,7 +308,6 @@ namespace NS_Planner
       time += dt;
     } // end for i < numsteps
 
-    //ROS_INFO("OccCost: %f, vx: %.2f, vy: %.2f, vtheta: %.2f", occ_cost, vx_samp, vy_samp, vtheta_samp);
 //    printf(
 //        "before compute cost OccCost: %f, vx: %.2f, vy: %.2f, vtheta: %.2f\n",
 //        occ_cost, vx_samp, vy_samp, vtheta_samp);
@@ -617,39 +615,39 @@ namespace NS_Planner
       }
 
       //only explore y velocities with holonomic robots
-      if(holonomic_robot_)
-      {
-        //explore trajectories that move forward but also strafe slightly
-        vx_samp = 0.1;
-        vy_samp = 0.1;
-        vtheta_samp = 0.0;
-        generateTrajectory(x, y, theta, vx, vy, vtheta, vx_samp, vy_samp,
-                           vtheta_samp, acc_x, acc_y, acc_theta,
-                           impossible_cost, *comp_traj);
-
-        //if the new trajectory is better... let's take it
-        if(comp_traj->cost_ >= 0 && (comp_traj->cost_ < best_traj->cost_ || best_traj->cost_ < 0))
-        {
-          swap = best_traj;
-          best_traj = comp_traj;
-          comp_traj = swap;
-        }
-
-        vx_samp = 0.1;
-        vy_samp = -0.1;
-        vtheta_samp = 0.0;
-        generateTrajectory(x, y, theta, vx, vy, vtheta, vx_samp, vy_samp,
-                           vtheta_samp, acc_x, acc_y, acc_theta,
-                           impossible_cost, *comp_traj);
-
-        //if the new trajectory is better... let's take it
-        if(comp_traj->cost_ >= 0 && (comp_traj->cost_ < best_traj->cost_ || best_traj->cost_ < 0))
-        {
-          swap = best_traj;
-          best_traj = comp_traj;
-          comp_traj = swap;
-        }
-      }
+//      if(holonomic_robot_)
+//      {
+//        //explore trajectories that move forward but also strafe slightly
+//        vx_samp = 0.1;
+//        vy_samp = 0.1;
+//        vtheta_samp = 0.0;
+//        generateTrajectory(x, y, theta, vx, vy, vtheta, vx_samp, vy_samp,
+//                           vtheta_samp, acc_x, acc_y, acc_theta,
+//                           impossible_cost, *comp_traj);
+//
+//        //if the new trajectory is better... let's take it
+//        if(comp_traj->cost_ >= 0 && (comp_traj->cost_ < best_traj->cost_ || best_traj->cost_ < 0))
+//        {
+//          swap = best_traj;
+//          best_traj = comp_traj;
+//          comp_traj = swap;
+//        }
+//
+//        vx_samp = 0.1;
+//        vy_samp = -0.1;
+//        vtheta_samp = 0.0;
+//        generateTrajectory(x, y, theta, vx, vy, vtheta, vx_samp, vy_samp,
+//                           vtheta_samp, acc_x, acc_y, acc_theta,
+//                           impossible_cost, *comp_traj);
+//
+//        //if the new trajectory is better... let's take it
+//        if(comp_traj->cost_ >= 0 && (comp_traj->cost_ < best_traj->cost_ || best_traj->cost_ < 0))
+//        {
+//          swap = best_traj;
+//          best_traj = comp_traj;
+//          comp_traj = swap;
+//        }
+//      }
     } // end if not escaping
 
     //next we want to generate trajectories for rotating in place
@@ -779,58 +777,58 @@ namespace NS_Planner
     }
 
     //only explore y velocities with holonomic robots
-    if(holonomic_robot_)
-    {
-      //if we can't rotate in place or move forward... maybe we can move sideways and rotate
-      vtheta_samp = min_vel_theta;
-      vx_samp = 0.0;
-
-      //loop through all y velocities
-      for(unsigned int i = 0; i < y_vels_.size(); ++i)
-      {
-        vtheta_samp = 0;
-        vy_samp = y_vels_[i];
-        //sample completely horizontal trajectories
-        generateTrajectory(x, y, theta, vx, vy, vtheta, vx_samp, vy_samp,
-                           vtheta_samp, acc_x, acc_y, acc_theta,
-                           impossible_cost, *comp_traj);
-
-        //if the new trajectory is better... let's take it
-        if(comp_traj->cost_ >= 0 && (comp_traj->cost_ <= best_traj->cost_ || best_traj->cost_ < 0))
-        {
-          double x_r, y_r, th_r;
-          comp_traj->getEndpoint(x_r, y_r, th_r);
-          x_r += heading_lookahead_ * cos(th_r);
-          y_r += heading_lookahead_ * sin(th_r);
-          unsigned int cell_x, cell_y;
-
-          //make sure that we'll be looking at a legal cell
-          if(costmap_.worldToMap(x_r, y_r, cell_x, cell_y))
-          {
-            double ahead_gdist = goal_map_(cell_x, cell_y).target_dist;
-            if(ahead_gdist < heading_dist)
-            {
-              //if we haven't already tried strafing left since we've moved forward
-              if(vy_samp > 0 && !stuck_left_strafe)
-              {
-                swap = best_traj;
-                best_traj = comp_traj;
-                comp_traj = swap;
-                heading_dist = ahead_gdist;
-              }
-              //if we haven't already tried rotating right since we've moved forward
-              else if(vy_samp < 0 && !stuck_right_strafe)
-              {
-                swap = best_traj;
-                best_traj = comp_traj;
-                comp_traj = swap;
-                heading_dist = ahead_gdist;
-              }
-            }
-          }
-        }
-      }
-    }
+//    if(holonomic_robot_)
+//    {
+//      //if we can't rotate in place or move forward... maybe we can move sideways and rotate
+//      vtheta_samp = min_vel_theta;
+//      vx_samp = 0.0;
+//
+//      //loop through all y velocities
+//      for(unsigned int i = 0; i < y_vels_.size(); ++i)
+//      {
+//        vtheta_samp = 0;
+//        vy_samp = y_vels_[i];
+//        //sample completely horizontal trajectories
+//        generateTrajectory(x, y, theta, vx, vy, vtheta, vx_samp, vy_samp,
+//                           vtheta_samp, acc_x, acc_y, acc_theta,
+//                           impossible_cost, *comp_traj);
+//
+//        //if the new trajectory is better... let's take it
+//        if(comp_traj->cost_ >= 0 && (comp_traj->cost_ <= best_traj->cost_ || best_traj->cost_ < 0))
+//        {
+//          double x_r, y_r, th_r;
+//          comp_traj->getEndpoint(x_r, y_r, th_r);
+//          x_r += heading_lookahead_ * cos(th_r);
+//          y_r += heading_lookahead_ * sin(th_r);
+//          unsigned int cell_x, cell_y;
+//
+//          //make sure that we'll be looking at a legal cell
+//          if(costmap_.worldToMap(x_r, y_r, cell_x, cell_y))
+//          {
+//            double ahead_gdist = goal_map_(cell_x, cell_y).target_dist;
+//            if(ahead_gdist < heading_dist)
+//            {
+//              //if we haven't already tried strafing left since we've moved forward
+//              if(vy_samp > 0 && !stuck_left_strafe)
+//              {
+//                swap = best_traj;
+//                best_traj = comp_traj;
+//                comp_traj = swap;
+//                heading_dist = ahead_gdist;
+//              }
+//              //if we haven't already tried rotating right since we've moved forward
+//              else if(vy_samp < 0 && !stuck_right_strafe)
+//              {
+//                swap = best_traj;
+//                best_traj = comp_traj;
+//                comp_traj = swap;
+//                heading_dist = ahead_gdist;
+//              }
+//            }
+//          }
+//        }
+//      }
+//    }
 
     //do we have a legal trajectory
     if(best_traj->cost_ >= 0)
@@ -900,6 +898,7 @@ namespace NS_Planner
       return *best_traj;
     }
 
+    logInfo << "nothing have been done , so move back slowly";
     //and finally, if we can't do anything else, we want to generate trajectories that move backwards slowly
     vtheta_samp = 0.0;
     vx_samp = backup_vel_;
@@ -1001,30 +1000,6 @@ namespace NS_Planner
                                          vel[2], acc_lim_x_, acc_lim_y_,
                                          acc_lim_theta_);
     printf("Trajectories created\n");
-    /*
-     //If we want to print a ppm file to draw goal dist
-     char buf[4096];
-     sprintf(buf, "base_local_planner.ppm");
-     FILE *fp = fopen(buf, "w");
-     if(fp){
-     fprintf(fp, "P3\n");
-     fprintf(fp, "%d %d\n", map_.size_x_, map_.size_y_);
-     fprintf(fp, "255\n");
-     for(int j = map_.size_y_ - 1; j >= 0; --j){
-     for(unsigned int i = 0; i < map_.size_x_; ++i){
-     int g_dist = 255 - int(map_(i, j).goal_dist);
-     int p_dist = 255 - int(map_(i, j).path_dist);
-     if(g_dist < 0)
-     g_dist = 0;
-     if(p_dist < 0)
-     p_dist = 0;
-     fprintf(fp, "%d 0 %d ", g_dist, 0);
-     }
-     fprintf(fp, "\n");
-     }
-     fclose(fp);
-     }
-     */
 
     if(best.cost_ < 0)
     {

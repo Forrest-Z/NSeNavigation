@@ -277,9 +277,6 @@ bool GlobalPlanner::getPlanFromPotential(double start_x, double start_y,
 				"This planner has not been initialized yet, but it is being used, please call initialize() before use\n");
 		return false;
 	}
-
-//    std::string global_frame = frame_id_;
-
 	//clear the plan, just in case
 	plan.clear();
 

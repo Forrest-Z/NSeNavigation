@@ -15,7 +15,8 @@ namespace NS_Navigation {
 NavigationApplication::NavigationApplication() :
 		new_global_plan_(false), runPlanner_(false) {
 	// TODO Auto-generated constructor stub
-
+	   goal_sub = new NS_DataSet::Subscriber< NS_DataType::PoseStamped >(
+	        "GOAL", boost::bind(&NavigationApplication::goalFromAPP, this, _1));
 }
 
 NavigationApplication::~NavigationApplication() {
@@ -55,7 +56,8 @@ void NavigationApplication::publishVelocity(double linear_x, double linear_y,
 }
 bool NavigationApplication::goalFromAPP(NS_DataType::PoseStamped& goal_from_app){
 	planner_mutex.lock();
-	    goal = goalToGlobalFrame(goal_from_app);
+//	    goal = goalToGlobalFrame(goal_from_app);
+		goal = goal_from_app;
 	    printf("goal_callback x = %.4f,y = %.4f, w = %.4f\n", goal.pose.position.x,
 	           goal.pose.position.y, goal.pose.orientation.w);
 	    new_goal_trigger = true;
@@ -69,6 +71,7 @@ bool NavigationApplication::goalFromAPP(NS_DataType::PoseStamped& goal_from_app)
 void NavigationApplication::controlLoop() {
 	while (running) {
 		NS_NaviCommon::Rate rate(controller_frequency_);
+		//TODO maybe controller_frequency should be used
 //		controller_mutex.lock();
 //		while ((state != CONTROLLING || global_planner_plan->size() == 0)
 //				&& running) {
@@ -118,6 +121,7 @@ void NavigationApplication::controlLoop() {
 			oscillation_pose_ = current_position;
 		}
 
+		logInfo << "control loop state ="<<state;
 		switch (state) {
 		case PLANNING:
 			logInfo<< "control loop state is planning";
@@ -196,10 +200,12 @@ void NavigationApplication::planLoop() {
 
 	while (running) {
 		planner_mutex.lock();
-		while (!new_goal_trigger && running && runPlanner_) {
-			planner_cond.timed_wait(planner_mutex,
-					(boost::get_system_time() + boost::posix_time::milliseconds(
-					PLANNER_LOOP_TIMEOUT)));
+		while (!new_goal_trigger && running && !runPlanner_) {
+//			planner_cond.timed_wait(planner_mutex,
+//					(boost::get_system_time() + boost::posix_time::milliseconds(
+//					PLANNER_LOOP_TIMEOUT)));
+			logInfo << "planner_condition waiting all long ";
+			planner_cond.wait(planner_mutex);
 		}
 		planner_mutex.unlock();
 

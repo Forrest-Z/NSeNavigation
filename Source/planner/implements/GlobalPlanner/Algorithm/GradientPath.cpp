@@ -223,8 +223,6 @@ namespace NS_Planner
 
       }
 
-      //printf("[Path] Pot: %0.1f  grad: %0.1f,%0.1f  pos: %0.1f,%0.1f\n",
-      //         potential[stc], dx, dy, path[npath-1].first, path[npath-1].second);
     }
 
     return false;

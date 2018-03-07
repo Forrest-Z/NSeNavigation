@@ -35,14 +35,16 @@ void CostmapWrapper::updateMap()
 
       layered_costmap->updateMap(x, y, yaw);
     }else{
-    	printf("failed to get robot pose so update map with 0,0,0\n");
+    	logWarn << "failed to get robot pose so update map with 0,0,0";
     	layered_costmap->updateMap();
     }
       NS_DataType::PolygonStamped footprint;
       footprint.header.stamp = NS_NaviCommon::Time::now();
 
       //by pengjiawei
+      logInfo <<"update map padded footprint size = "<<padded_footprint.size();
       transformFootprint(x, y, yaw, padded_footprint, footprint);
+
       footprint_for_trajectory = toPointVector(footprint.polygon);
 //      setPaddedRobotFootprint (toPointVector (footprint.polygon));
 //      setPaddedRobotFootprint (padded_footprint);
@@ -82,7 +84,7 @@ void CostmapWrapper::loadParameters()
 
    footprint_ = parameter.getParameter(
        "footprint",
-       "[[0.16, 0.16], [0.16, -0.16], [-0.16, -0.16], [-0.16, 0.16]]");
+       "[[0.16, 0.16], [0.16, -0.16], [-0.16, 0]]");
 
    footprint_radius = parameter.getParameter("footprint_radius", 0.16f);
 
@@ -224,14 +226,16 @@ void CostmapWrapper::initialize()
    x0 = layered_costmap->getCostmap()->getSizeInCellsX();
    y0 = layered_costmap->getCostmap()->getSizeInCellsY();
 
-//    if(!makeFootprintFromString(footprint_, footprint_from_param))
-//    {
-//      printf("Footprint parameter parse failure!\n");
-//      return;
-//    }
-   footprint_from_param = makeFootprintFromRadius(footprint_radius);
-   printf("footprint.size() = %d\n", footprint_from_param.size());
+    if(!makeFootprintFromString(footprint_, footprint_from_param))
+    {
+      printf("Footprint parameter parse failure!\n");
+      return;
+    }
+
+//   footprint_from_param = makeFootprintFromRadius(footprint_radius);
+   logInfo << "initial footprint.size() = "<<footprint_from_param.size();
    setPaddedRobotFootprint (footprint_from_param);
+
 
    layered_costmap->resizeMap((unsigned int)(map_width_meters_ / resolution_),
                               (unsigned int)(map_height_meters_ / resolution_),

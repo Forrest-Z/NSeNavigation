@@ -83,7 +83,6 @@ namespace NS_Planner
       }
 
       sim_period_ = parameter.getParameter("sim_period", 0.05f);
-      printf("Sim period is set to %.2f\n", sim_period_);
 
       sim_time = parameter.getParameter("sim_time", 4.0f);
       sim_granularity = parameter.getParameter("sim_granularity", 0.025f);
@@ -110,7 +109,7 @@ namespace NS_Planner
       {
         //if we use meter scoring, then we want to multiply the biases by the resolution of the costmap
         double resolution = costmap_->getResolution();
-        printf("meter_scoringis true and resolution = %.4f\n", resolution);
+        logInfo << "trajectoryLocalPlanner resolution = "<< resolution;
         gdist_scale *= resolution;
         pdist_scale *= resolution;
         occdist_scale *= resolution;
@@ -182,7 +181,10 @@ namespace NS_Planner
       world_model_ = new CostmapModel(*costmap_);
 
       footprint_spec_ = costmap->getRobotFootprint();
-      printf("footprint size = %d,onInitialized\n", footprint_spec_.size());
+      if(footprint_spec_.size() == 0){
+    	  logWarn << "footprint_spec_.size = 0 ";
+      }
+      logInfo << "footprint_spec_ size = "<<footprint_spec_.size();
       double circums_radius = costmap->getLayeredCostmap()->getCircumscribedRadius();
       double inscribe_radius = costmap->getLayeredCostmap()->getInscribedRadius();
       odom_helper_ = new OdometryHelper();
@@ -260,6 +262,8 @@ namespace NS_Planner
       cmd_vel.linear.y = vy;
       cmd_vel.angular.z = vth;
       return true;
+    }else {
+    	logInfo << "stop with acc limit failed";
     }
 
     cmd_vel.linear.x = 0.0;
@@ -318,6 +322,8 @@ namespace NS_Planner
     {
       cmd_vel.angular.z = v_theta_samp;
       return true;
+    }else {
+    	logInfo << "rotate to goal failed ";
     }
 
     cmd_vel.angular.z = 0.0;
@@ -379,32 +385,8 @@ namespace NS_Planner
     }
 
     std::vector < NS_DataType::PoseStamped > transformed_plan;
-    //get the global plan in our frame
-//    printf("====================computeVel=============================\n");
-//    for(int i = 0; i < global_plan_.size(); ++i)
-//    {
-//      printf("global plan x = %.4f , y = %.4f\n",
-//             global_plan_[i].pose.position.x, global_plan_[i].pose.position.y);
-//    }
 
-//    if(!transformGlobalPlan(global_plan_, global_pose, *costmap_,
-//                            transformed_plan))
-//    {
-//      printf(
-//          "Could not transform the global plan to the frame of the controller\n");
-//      return false;
-//    }
-
-//    for(int i = 0; i < transformed_plan.size(); ++i)
-//    {
-//      printf("transformed_plan x = %.4f,y = %.4f\n",
-//             transformed_plan[i].pose.position.x,
-//             transformed_plan[i].pose.position.y);
-//    }
-
-    //now we'll prune the plan based on the position of the robot
-//    if(prune_plan_)
-//      prunePlan(global_pose, transformed_plan, global_plan_);
+    logInfo<<"remove transformed plan,maybe prune_plan can be removed at the meantime";
 
     if(prune_plan_)
       prunePlan(global_pose, global_plan_, global_plan_);
@@ -413,7 +395,6 @@ namespace NS_Planner
            global_pose.getOrigin().x(), global_pose.getOrigin().y(),
            global_pose.getRotation().getW());
 
-//    printf("====================computeVel=============================\n");
 
     NS_Transform::Stamped < NS_Transform::Pose > drive_cmds;
 
@@ -425,9 +406,6 @@ namespace NS_Planner
         robot_vel.getOrigin().x(), robot_vel.getOrigin().y(),
         NS_Transform::getYaw(robot_vel.getRotation()), global_plan_.size());
 
-    //if the global plan passed in is empty... we won't do anything
-//    if(transformed_plan.empty())
-//      return false;
 
     if(global_plan_.empty())
     {
@@ -459,7 +437,6 @@ namespace NS_Planner
     if(xy_tolerance_latch_ || (getGoalPositionDistance(global_pose, goal_x,
                                                        goal_y) <= xy_goal_tolerance_))
     {
-
       //if the user wants to latch goal tolerance, if we ever reach the goal location, we'll
       //just rotate in place
       if(latch_xy_goal_tolerance_)
@@ -482,7 +459,6 @@ namespace NS_Planner
       {
         //we need to call the next two lines to make sure that the trajectory
         //planner updates its path distance and goal distance grids
-//        tc_->updatePlan(transformed_plan);
 
         tc_->updatePlan(global_plan_);
         Trajectory path = tc_->findBestPath(global_pose, robot_vel, drive_cmds);
@@ -517,20 +493,11 @@ namespace NS_Planner
       return true;
     }
 
-//    tc_->updatePlan(transformed_plan);
-
     tc_->updatePlan(global_plan_);
 
     //compute what trajectory to drive along
     Trajectory path = tc_->findBestPath(global_pose, robot_vel, drive_cmds);
 
-    /* For timing uncomment
-     gettimeofday(&end, NULL);
-     start_t = start.tv_sec + double(start.tv_usec) / 1e6;
-     end_t = end.tv_sec + double(end.tv_usec) / 1e6;
-     t_diff = end_t - start_t;
-     ROS_INFO("Cycle time: %.9f", t_diff);
-     */
 
     //pass along drive commands
     cmd_vel.linear.x = drive_cmds.getOrigin().getX();
@@ -562,7 +529,8 @@ namespace NS_Planner
       NS_Transform::poseStampedTFToMsg(p, pose);
       local_plan.push_back(pose);
     }
-
+    ///TODO need to be visualized
+    logInfo << "publish local plan from trajectory";
     return true;
   }
 

@@ -5,6 +5,9 @@
  *      Author: pengjiawei
  */
 
+#ifndef _LOG_TOOL_H_
+#define _LOG_TOOL_H_
+
 #include <iostream>
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
@@ -12,10 +15,11 @@
 #include <boost/log/sinks/text_file_backend.hpp>
 #include <boost/log/utility/setup/file.hpp>
 #include <boost/log/utility/setup/common_attributes.hpp>
+#include <boost/log/sinks/text_ostream_backend.hpp>
 #include <boost/log/sources/severity_logger.hpp>
 #include <boost/log/sources/record_ostream.hpp>
 #include <boost/log/support/date_time.hpp>
-
+#include <boost/log/utility/setup/console.hpp>
 using namespace std;
 
 namespace logging = boost::log;
@@ -24,6 +28,29 @@ namespace sinks = boost::log::sinks;
 namespace keywords = boost::log::keywords;
 namespace expr = boost::log::expressions;
 namespace attrs = boost::log::attributes;
+
+
+///* log formatter:
+//   * [TimeStamp] [ThreadId] [Severity Level] [Scope] Log message
+//   */
+//  auto fmtTimeStamp = boost::log::expressions::
+//      format_date_time<boost::posix_time::ptime>("TimeStamp", "%Y-%m-%d %H:%M:%S.%f");
+//  auto fmtThreadId = boost::log::expressions::
+//      attr<boost::log::attributes::current_thread_id::value_type>("ThreadID");
+//  auto fmtSeverity = boost::log::expressions::
+//      attr<boost::log::trivial::severity_level>("Severity");
+//  auto fmtScope = boost::log::expressions::format_named_scope("Scope",
+//      boost::log::keywords::format = "%n(%f:%l)",
+//      boost::log::keywords::iteration = boost::log::expressions::reverse,
+//      boost::log::keywords::depth = 2);
+//  boost::log::formatter logFmt =
+//      boost::log::expressions::format("[%1%] (%2%) [%3%] [%4%] %5%")
+//      % fmtTimeStamp % fmtThreadId % fmtSeverity % fmtScope
+//      % boost::log::expressions::smessage;
+
+  /* console sink */
+//  auto consoleSink = logging::add_console_log(std::clog);
+//  consoleSink->set_formatter(logFmt);
 
 #define logInfo BOOST_LOG_TRIVIAL(info)
 #define logDebug BOOST_LOG_TRIVIAL(debug)
@@ -49,16 +76,16 @@ enum severity_level {
 /**
  * info log filter
  */
-void addInfoFilter() {
+inline void addInfoFilter() {
 	logging::core::get()->set_filter(
 			logging::trivial::severity >= logging::trivial::info);
 }
 
-void addDebugFilter() {
+inline void addDebugFilter() {
 	logging::core::get()->set_filter(
 			logging::trivial::severity >= logging::trivial::debug);
 }
-void addFilter(){
+inline void addFilter(){
 	if(logLevel == 0){
 		logInfo << "level == debug";
 		addDebugFilter();
@@ -67,12 +94,12 @@ void addFilter(){
 		addInfoFilter();
 	}
 }
-
-void addFileLog(std::string file_path) {
+//boost::log::add_console_log(std::cout, boost::log::keywords::format = ">> %Message%");
+inline void addFileLog(std::string file_path) {
 
 	logging::add_common_attributes();
 
-	logging::add_file_log(keywords::file_path = "/tmp/NSeNavigation%N.log",
+	logging::add_file_log(keywords::file_name = "/tmp/NSeNavigation%N.log",
 			keywords::rotation_size = 10 * 1024 * 1024,		//rotate every 10 MB
 			keywords::time_based_rotation = sinks::file::rotation_at_time_point(
 					0, 0, 0),			//rotate at midnight
@@ -84,7 +111,7 @@ void addFileLog(std::string file_path) {
 
 					));
 }
-
+#endif
 //	int main() {
 //		BOOST_LOG_TRIVIAL(trace)<< "A trace severity message";
 //		BOOST_LOG_TRIVIAL(debug)<< "A debug severity message";

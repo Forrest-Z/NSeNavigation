@@ -8,7 +8,6 @@
 #include "Algorithm/Traceback.h"
 #include "Algorithm/OrientationFilter.h"
 
-#include "../../../log_tool.h"
 namespace NS_Planner
 {
 

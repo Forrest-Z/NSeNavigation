@@ -3,17 +3,11 @@
 
 #include <vector>
 #include <queue>
-#include <DataSet/DataType/Point.h>
+//#include <DataSet/DataType/Point.h>
+#include <sensor/lidar2d.h>
 #include <boost/thread.hpp>
 
 namespace NS_CostMap {
-
-// convenient for storing x/y point pairs
-struct MapLocation {
-	unsigned int x;
-	unsigned int y;
-};
-
 /**
  * costmap 的封装类
  */
@@ -200,7 +194,7 @@ public:
 //     * @return True if the polygon was filled... false if it could not be filled
 //     */
 //    bool
-//    setConvexPolygonCost(const std::vector< NS_DataType::Point >& polygon,
+//    setConvexPolygonCost(const std::vector< sgbot::sensor::Point2D >& polygon,
 //                         unsigned char cost_value);
 //
 //    /**

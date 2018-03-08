@@ -3,8 +3,7 @@
 
 #include <DataSet/DataType/Polygon.h>
 #include <DataSet/DataType/PolygonStamped.h>
-#include <DataSet/DataType/Point.h>
-#include <DataSet/DataType/Point32.h>
+#include <sensor/lidar2d.h>
 
 namespace NS_CostMap
 {
@@ -18,31 +17,20 @@ namespace NS_CostMap
    */
   void
   calculateMinAndMaxDistances(
-      const std::vector< NS_DataType::Point >& footprint, double& min_dist,
+      const std::vector< sgbot::sensor::Point2D >& footprint, double& min_dist,
       double& max_dist);
 
   /**
    * @brief Convert Point32 to Point
    */
-  NS_DataType::Point
+  sgbot::sensor::Point2D
   toPoint(NS_DataType::Point32 pt);
 
-  /**
-   * @brief Convert Point to Point32
-   */
-  NS_DataType::Point32
-  toPoint32(NS_DataType::Point pt);
-
-  /**
-   * @brief Convert vector of Points to Polygon msg
-   */
-  NS_DataType::Polygon
-  toPolygon(std::vector< NS_DataType::Point > pts);
 
   /**
    * @brief Convert Polygon msg to vector of Points.
    */
-  std::vector< NS_DataType::Point >
+  std::vector< sgbot::sensor::Point2D >
   toPointVector(NS_DataType::Polygon polygon);
 
   /**
@@ -55,8 +43,8 @@ namespace NS_CostMap
    */
   void
   transformFootprint(double x, double y, double theta,
-                     const std::vector< NS_DataType::Point >& footprint_spec,
-                     std::vector< NS_DataType::Point >& oriented_footprint);
+                     const std::vector< sgbot::sensor::Point2D >& footprint_spec,
+                     std::vector< sgbot::sensor::Point2D >& oriented_footprint);
 
   /**
    * @brief  Given a pose and base footprint, build the oriented footprint of the robot (PolygonStamped)
@@ -68,19 +56,19 @@ namespace NS_CostMap
    */
   void
   transformFootprint(double x, double y, double theta,
-                     const std::vector< NS_DataType::Point >& footprint_spec,
+                     const std::vector< sgbot::sensor::Point2D >& footprint_spec,
                      NS_DataType::PolygonStamped & oriented_footprint);
 
   /**
    * @brief Adds the specified amount of padding to the footprint (in place)
    */
   void
-  padFootprint(std::vector< NS_DataType::Point >& footprint, double padding);
+  padFootprint(std::vector< sgbot::sensor::Point2D >& footprint, double padding);
 
   /**
    * @brief Create a circular footprint from a given radius
    */
-  std::vector< NS_DataType::Point >
+  std::vector< sgbot::sensor::Point2D >
   makeFootprintFromRadius(double radius);
 
   /**
@@ -91,7 +79,7 @@ namespace NS_CostMap
    */
   bool
   makeFootprintFromString(const std::string& footprint_string,
-                          std::vector< NS_DataType::Point >& footprint);
+                          std::vector< sgbot::sensor::Point2D >& footprint);
 
 }  // end namespace costmap_2d
 

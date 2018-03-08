@@ -52,7 +52,7 @@ private:
 	 * update footprint
 	 */
 	void
-	setPaddedRobotFootprint(const std::vector<NS_DataType::Point>& points);
+	setPaddedRobotFootprint(const std::vector<sgbot::sensor::Point2D>& points);
 
 	/**
 	 * call layered_costmap.updateMap mainly
@@ -98,11 +98,11 @@ private:
 	///将costmap的0~255的值转为占据栅格图的-1~100
 	char* cost_translation_table;
 
-    std::vector< NS_DataType::Point > padded_footprint;
+    std::vector< sgbot::sensor::Point2D > padded_footprint;
 
-    std::vector< NS_DataType::Point > footprint_for_trajectory;
+    std::vector< sgbot::sensor::Point2D > footprint_for_trajectory;
 
-    std::vector< NS_DataType::Point > footprint_from_param;
+    std::vector< sgbot::sensor::Point2D > footprint_from_param;
 
     bool got_map;
 
@@ -121,7 +121,7 @@ public:
 		return layered_costmap->getCostmap();
 	}
 	;
-	std::vector<NS_DataType::Point> getRobotFootprint() {
+	std::vector<sgbot::sensor::Point2D> getRobotFootprint() {
 		//      return padded_footprint;
 		return footprint_for_trajectory;
 	}

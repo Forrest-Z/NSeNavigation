@@ -11,7 +11,7 @@ namespace NS_CostMap
 {
 
   void calculateMinAndMaxDistances(
-      const std::vector< NS_DataType::Point >& footprint, double& min_dist,
+      const std::vector< sgbot::sensor::Point2D >& footprint, double& min_dist,
       double& max_dist)
   {
     min_dist = std::numeric_limits< double >::max();
@@ -43,37 +43,19 @@ namespace NS_CostMap
     max_dist = std::max(max_dist, std::max(vertex_dist, edge_dist));
   }
 
-  NS_DataType::Point32 toPoint32(NS_DataType::Point pt)
-  {
-    NS_DataType::Point32 point32;
-    point32.x = pt.x;
-    point32.y = pt.y;
-    point32.z = pt.z;
-    return point32;
-  }
 
-  NS_DataType::Point toPoint(NS_DataType::Point32 pt)
+  sgbot::sensor::Point2D toPoint(NS_DataType::Point32 pt)
   {
-    NS_DataType::Point point;
+    sgbot::sensor::Point2D point;
     point.x = pt.x;
     point.y = pt.y;
-    point.z = pt.z;
     return point;
   }
 
-  NS_DataType::Polygon toPolygon(std::vector< NS_DataType::Point > pts)
-  {
-    NS_DataType::Polygon polygon;
-    for(int i = 0; i < pts.size(); i++)
-    {
-      polygon.points.push_back(toPoint32(pts[i]));
-    }
-    return polygon;
-  }
 
-  std::vector< NS_DataType::Point > toPointVector(NS_DataType::Polygon polygon)
+  std::vector< sgbot::sensor::Point2D > toPointVector(NS_DataType::Polygon polygon)
   {
-    std::vector < NS_DataType::Point > pts;
+    std::vector < sgbot::sensor::Point2D > pts;
     for(int i = 0; i < polygon.points.size(); i++)
     {
       pts.push_back(toPoint(polygon.points[i]));
@@ -83,8 +65,8 @@ namespace NS_CostMap
 
   void transformFootprint(
       double x, double y, double theta,
-      const std::vector< NS_DataType::Point >& footprint_spec,
-      std::vector< NS_DataType::Point >& oriented_footprint)
+      const std::vector< sgbot::sensor::Point2D >& footprint_spec,
+      std::vector< sgbot::sensor::Point2D >& oriented_footprint)
   {
     // build the oriented footprint at a given location
     oriented_footprint.clear();
@@ -92,7 +74,7 @@ namespace NS_CostMap
     double sin_th = sin(theta);
     for(unsigned int i = 0; i < footprint_spec.size(); ++i)
     {
-      NS_DataType::Point new_pt;
+      sgbot::sensor::Point2D new_pt;
       new_pt.x = x + (footprint_spec[i].x * cos_th - footprint_spec[i].y * sin_th);
       new_pt.y = y + (footprint_spec[i].x * sin_th + footprint_spec[i].y * cos_th);
       oriented_footprint.push_back(new_pt);
@@ -101,7 +83,7 @@ namespace NS_CostMap
 
   void transformFootprint(
       double x, double y, double theta,
-      const std::vector< NS_DataType::Point >& footprint_spec,
+      const std::vector< sgbot::sensor::Point2D >& footprint_spec,
       NS_DataType::PolygonStamped& oriented_footprint)
   {
     // build the oriented footprint at a given location
@@ -117,25 +99,25 @@ namespace NS_CostMap
     }
   }
 
-  void padFootprint(std::vector< NS_DataType::Point >& footprint,
+  void padFootprint(std::vector< sgbot::sensor::Point2D >& footprint,
                     double padding)
   {
     // pad footprint in place
     for(unsigned int i = 0; i < footprint.size(); i++)
     {
-      NS_DataType::Point& pt = footprint[i];
+      sgbot::sensor::Point2D& pt = footprint[i];
       pt.x += sign0(pt.x) * padding;
       pt.y += sign0(pt.y) * padding;
     }
   }
 
-  std::vector< NS_DataType::Point > makeFootprintFromRadius(double radius)
+  std::vector< sgbot::sensor::Point2D > makeFootprintFromRadius(double radius)
   {
-    std::vector < NS_DataType::Point > points;
+    std::vector < sgbot::sensor::Point2D > points;
 
     // Loop over 16 angles around a circle making a point each time
     int N = 16;
-    NS_DataType::Point pt;
+    sgbot::sensor::Point2D pt;
     for(int i = 0; i < N; ++i)
     {
       double angle = i * 2 * M_PI / N;
@@ -149,7 +131,7 @@ namespace NS_CostMap
   }
 
   bool makeFootprintFromString(const std::string& footprint_string,
-                               std::vector< NS_DataType::Point >& footprint)
+                               std::vector< sgbot::sensor::Point2D >& footprint)
   {
     std::string error;
     std::vector < std::vector< float > > vvf = parseVVF(footprint_string,
@@ -174,10 +156,9 @@ namespace NS_CostMap
     {
       if(vvf[i].size() == 2)
       {
-        NS_DataType::Point point;
+        sgbot::sensor::Point2D point;
         point.x = vvf[i][0];
         point.y = vvf[i][1];
-        point.z = 0;
         footprint.push_back(point);
       }
       else

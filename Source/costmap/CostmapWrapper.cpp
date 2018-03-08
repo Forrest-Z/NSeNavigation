@@ -185,7 +185,7 @@ bool CostmapWrapper::getRobotPose(
 
 
 void CostmapWrapper::setPaddedRobotFootprint(
-    const std::vector< NS_DataType::Point >& points)
+    const std::vector< sgbot::sensor::Point2D >& points)
 {
   padded_footprint = points;
   padFootprint(padded_footprint, footprint_padding_);

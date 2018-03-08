@@ -4,7 +4,7 @@
 #include <math.h>
 #include <algorithm>
 #include <vector>
-#include <DataSet/DataType/Point.h>
+#include <sensor/lidar2d.h>
 
 /** @brief Return -1 if x < 0, +1 otherwise. */
 inline double sign(double x)
@@ -28,11 +28,11 @@ distanceToLine(double pX, double pY, double x0, double y0, double x1,
                double y1);
 ///not used
 bool
-intersects(std::vector< NS_DataType::Point >& polygon, float testx,
+intersects(std::vector< sgbot::sensor::Point2D >& polygon, float testx,
            float testy);
 
 bool
-intersects(std::vector< NS_DataType::Point >& polygon1,
-           std::vector< NS_DataType::Point >& polygon2);
+intersects(std::vector< sgbot::sensor::Point2D >& polygon1,
+           std::vector< sgbot::sensor::Point2D >& polygon2);
 
 #endif  // COSTMAP_2D_COSTMAP_MATH_H_

@@ -29,7 +29,7 @@ namespace NS_CostMap
      onInitialize();
    }
 
-   const std::vector< NS_DataType::Point >&
+   const std::vector< sgbot::sensor::Point2D >&
    CostmapLayer::getFootprint() const
    {
      return layered_costmap_->getFootprint();

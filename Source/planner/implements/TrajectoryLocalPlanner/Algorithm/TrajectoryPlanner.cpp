@@ -58,7 +58,7 @@ namespace NS_Planner
 
   TrajectoryPlanner::TrajectoryPlanner(
       WorldModel& world_model, const Costmap2D& costmap,
-      std::vector< NS_DataType::Point > footprint_spec, double acc_lim_x,
+      std::vector< sgbot::sensor::Point2D > footprint_spec, double acc_lim_x,
       double acc_lim_y, double acc_lim_theta, double sim_time,
       double sim_granularity, int vx_samples, int vtheta_samples,
       double pdist_scale, double gdist_scale, double occdist_scale,

@@ -28,7 +28,7 @@ namespace NS_Planner
      */
     std::vector< NS_DataType::Position2DInt >
     getFootprintCells(Eigen::Vector3f pos,
-                      std::vector< NS_DataType::Point > footprint_spec,
+                      std::vector< sgbot::sensor::Point2D > footprint_spec,
                       const NS_CostMap::Costmap2D&, bool fill);
 
     /**

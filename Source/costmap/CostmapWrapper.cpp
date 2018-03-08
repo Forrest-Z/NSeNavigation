@@ -133,7 +133,7 @@ void CostmapWrapper::prepareMap()
 
 
 bool CostmapWrapper::getRobotPose(
-      NS_Transform::Stamped< NS_Transform::Pose >& global_pose) const
+      sgbot::tf::Pose2D& global_pose) const
   {
     NS_ServiceType::ServiceTransform odom_transform;
     NS_ServiceType::ServiceTransform map_transform;
@@ -175,7 +175,10 @@ bool CostmapWrapper::getRobotPose(
     NS_Transform::transformMsgToTF(odom_transform.transform, odom_tf);
     NS_Transform::transformMsgToTF(map_transform.transform, map_tf);
 
-    global_pose.setData(odom_tf * map_tf);
+//    global_pose.setData(odom_tf * map_tf);
+    global_pose.x = (odom_tf * map_tf).getOrigin().getX();
+    global_pose.y = (odom_tf * map_tf).getOrigin().getY();
+    global_pose.theta = (odom_tf * map_tf).getRotation().getAngle();
 
     logInfo << "get robot pose successfully";
     return true;

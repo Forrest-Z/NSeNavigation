@@ -25,14 +25,14 @@ namespace NS_Planner
     onInitialize();
 
     bool
-    makePlan(const NS_DataType::PoseStamped& start,
-             const NS_DataType::PoseStamped& goal,
-             std::vector< NS_DataType::PoseStamped >& plan);
+    makePlan(const sgbot::tf::Pose2D& start,
+             const sgbot::tf::Pose2D& goal,
+             std::vector< sgbot::tf::Pose2D >& plan);
 
     bool
     getPlanFromPotential(double start_x, double start_y, double end_x,
-                         double end_y, const NS_DataType::PoseStamped& goal,
-                         std::vector< NS_DataType::PoseStamped >& plan);
+                         double end_y, const sgbot::tf::Pose2D& goal,
+                         std::vector< sgbot::tf::Pose2D >& plan);
 
 
   protected:

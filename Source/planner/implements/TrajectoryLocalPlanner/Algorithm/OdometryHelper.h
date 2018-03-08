@@ -3,7 +3,7 @@
 
 #include <boost/thread.hpp>
 #include <DataSet/DataType/Odometry.h>
-#include <DataSet/DataType/PoseStamped.h>
+#include <transform/transform2d.h>
 #include <DataSet/DataType/Twist.h>
 #include <Transform/DataTypes.h>
 #include <Service/ServiceType/ServiceOdometry.h>
@@ -31,7 +31,7 @@ namespace NS_Planner
     getOdom(NS_DataType::Odometry& base_odom);
 
     void
-    getRobotVel(NS_Transform::Stamped< NS_Transform::Pose >& robot_vel);
+    getRobotVel(sgbot::tf::RobotVel& robot_vel);
 
   private:
     NS_DataType::Odometry base_odom_;

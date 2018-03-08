@@ -230,27 +230,27 @@ namespace NS_Planner
   }
 
   bool TrajectoryLocalPlanner::stopWithAccLimits(
-      const NS_Transform::Stamped< NS_Transform::Pose >& global_pose,
-      const NS_Transform::Stamped< NS_Transform::Pose >& robot_vel,
+      const sgbot::tf::Pose2D& global_pose,
+      const sgbot::tf::RobotVel& robot_vel,
       NS_DataType::Twist& cmd_vel)
   {
     //slow down with the maximum possible acceleration... we should really use the frequency that we're running at to determine what is feasible
     //but we'll use a tenth of a second to be consistent with the implementation of the local planner.
-    double vx = sign(robot_vel.getOrigin().x()) * std::max(
-        0.0, (fabs(robot_vel.getOrigin().x()) - acc_lim_x_ * sim_period_));
-    double vy = sign(robot_vel.getOrigin().y()) * std::max(
-        0.0, (fabs(robot_vel.getOrigin().y()) - acc_lim_y_ * sim_period_));
-
-    double vel_yaw = NS_Transform::getYaw(robot_vel.getRotation());
+    double vx = sign(robot_vel.linear_vel) * std::max(
+        0.0, (fabs(robot_vel.linear_vel) - acc_lim_x_ * sim_period_));
+//    double vy = sign(robot_vel.getOrigin().y()) * std::max(
+//        0.0, (fabs(robot_vel.getOrigin().y()) - acc_lim_y_ * sim_period_));
+    double vy = 0.0;
+    double vel_yaw = robot_vel.angular_vel;
     double vth = sign(vel_yaw) * std::max(
         0.0, (fabs(vel_yaw) - acc_lim_theta_ * sim_period_));
 
     //we do want to check whether or not the command is valid
-    double yaw = NS_Transform::getYaw(global_pose.getRotation());
-    bool valid_cmd = tc_->checkTrajectory(global_pose.getOrigin().getX(),
-                                          global_pose.getOrigin().getY(), yaw,
-                                          robot_vel.getOrigin().getX(),
-                                          robot_vel.getOrigin().getY(), vel_yaw,
+    double yaw = global_pose.theta;
+    bool valid_cmd = tc_->checkTrajectory(global_pose.x,
+                                          global_pose.y, yaw,
+                                          robot_vel.linear_vel,
+                                          0.0, vel_yaw,
                                           vx, vy, vth);
 
     //if we have a valid command, we'll pass it on, otherwise we'll command all zeros
@@ -273,12 +273,12 @@ namespace NS_Planner
   }
 
   bool TrajectoryLocalPlanner::rotateToGoal(
-      const NS_Transform::Stamped< NS_Transform::Pose >& global_pose,
-      const NS_Transform::Stamped< NS_Transform::Pose >& robot_vel,
+      const sgbot::tf::Pose2D& global_pose,
+      const sgbot::tf::RobotVel& robot_vel,
       double goal_th, NS_DataType::Twist& cmd_vel)
   {
-    double yaw = NS_Transform::getYaw(global_pose.getRotation());
-    double vel_yaw = NS_Transform::getYaw(robot_vel.getRotation());
+    double yaw = global_pose.theta;
+    double vel_yaw = robot_vel.angular_vel;
     cmd_vel.linear.x = 0;
     cmd_vel.linear.y = 0;
     double ang_diff = NS_Geometry::NS_Angles::shortest_angular_distance(
@@ -309,10 +309,10 @@ namespace NS_Planner
             min_vel_th_, std::min(-1.0 * min_in_place_vel_th_, v_theta_samp));
 
     //we still want to lay down the footprint of the robot and check if the action is legal
-    bool valid_cmd = tc_->checkTrajectory(global_pose.getOrigin().getX(),
-                                          global_pose.getOrigin().getY(), yaw,
-                                          robot_vel.getOrigin().getX(),
-                                          robot_vel.getOrigin().getY(), vel_yaw,
+    bool valid_cmd = tc_->checkTrajectory(global_pose.x,
+                                          global_pose.y, yaw,
+                                          robot_vel.linear_vel,
+                                          0.0, vel_yaw,
                                           0.0, 0.0, v_theta_samp);
 
     printf("Moving to desired goal orientation, th cmd: %.2f, valid_cmd: %d\n",
@@ -332,7 +332,7 @@ namespace NS_Planner
   }
 
   bool TrajectoryLocalPlanner::setPlan(
-      const std::vector< NS_DataType::PoseStamped >& orig_global_plan)
+      const std::vector< sgbot::tf::Pose2D >& orig_global_plan)
   {
     if(!isInitialized())
     {
@@ -362,8 +362,8 @@ namespace NS_Planner
       return false;
     }
 
-    std::vector < NS_DataType::PoseStamped > local_plan;
-    NS_Transform::Stamped < NS_Transform::Pose > global_pose;
+    std::vector < sgbot::tf::Pose2D > local_plan;
+    sgbot::tf::Pose2D global_pose;
 
     int times = 0;
     bool getRobotPoseReady = 0;
@@ -384,7 +384,7 @@ namespace NS_Planner
       return false;
     }
 
-    std::vector < NS_DataType::PoseStamped > transformed_plan;
+    std::vector < sgbot::tf::Pose2D > transformed_plan;
 
     logInfo<<"remove transformed plan,maybe prune_plan can be removed at the meantime";
 
@@ -392,19 +392,19 @@ namespace NS_Planner
       prunePlan(global_pose, global_plan_, global_plan_);
 
     printf("compute vel global_pose x = %.4f,y = %.4f,w = %.4f\n",
-           global_pose.getOrigin().x(), global_pose.getOrigin().y(),
-           global_pose.getRotation().getW());
+           global_pose.x, global_pose.y,
+           global_pose.theta);
 
 
-    NS_Transform::Stamped < NS_Transform::Pose > drive_cmds;
+    sgbot::tf::RobotVel drive_cmds;
 
-    NS_Transform::Stamped < NS_Transform::Pose > robot_vel;
+    sgbot::tf::RobotVel robot_vel;
     odom_helper_->getRobotVel(robot_vel);
 
     printf(
         "odom_helper.get robot_vel x = %.4f, y = %.4f , yaw = %.4f , global_plan size = %d\n",
-        robot_vel.getOrigin().x(), robot_vel.getOrigin().y(),
-        NS_Transform::getYaw(robot_vel.getRotation()), global_plan_.size());
+        robot_vel.linear_vel, 0.0,
+        robot_vel.angular_vel, global_plan_.size());
 
 
     if(global_plan_.empty())
@@ -415,21 +415,21 @@ namespace NS_Planner
 //    NS_Transform::Stamped < NS_Transform::Pose > goal_point;
 //    NS_Transform::poseStampedMsgToTF(transformed_plan.back(), goal_point);
 
-    NS_Transform::Stamped < NS_Transform::Pose > goal_point;
-    NS_Transform::poseStampedMsgToTF(global_plan_.back(), goal_point);
+    sgbot::tf::Pose2D goal_point = global_plan_.back();
+
 
     //we assume the global goal is the last point in the global plan
-    double goal_x = goal_point.getOrigin().getX();
-    double goal_y = goal_point.getOrigin().getY();
+    double goal_x = goal_point.x;
+    double goal_y = goal_point.y;
     printf("compute vel goal_x = %.4f,goal_y = %.4f\n", goal_x, goal_y);
-    double yaw = NS_Transform::getYaw(goal_point.getRotation());
+    double yaw = goal_point.theta;
 
-    FILE* global_pose_file;
-    global_pose_file = fopen("/tmp/global_pose.log", "a+");
-    fprintf(global_pose_file, "%.4f %.4f %.4f\n", global_pose.getOrigin().x(),
-            global_pose.getOrigin().y(),
-            NS_Transform::getYaw(global_pose.getRotation()));
-    fclose(global_pose_file);
+//    FILE* global_pose_file;
+//    global_pose_file = fopen("/tmp/global_pose.log", "a+");
+//    fprintf(global_pose_file, "%.4f %.4f %.4f\n", global_pose.getOrigin().x(),
+//            global_pose.getOrigin().y(),
+//            NS_Transform::getYaw(global_pose.getRotation()));
+//    fclose(global_pose_file);
 
     double goal_th = yaw;
 
@@ -500,9 +500,9 @@ namespace NS_Planner
 
 
     //pass along drive commands
-    cmd_vel.linear.x = drive_cmds.getOrigin().getX();
-    cmd_vel.linear.y = drive_cmds.getOrigin().getY();
-    cmd_vel.angular.z = NS_Transform::getYaw(drive_cmds.getRotation());
+    cmd_vel.linear.x = drive_cmds.linear_vel;
+    cmd_vel.linear.y = 0.0;
+    cmd_vel.angular.z = drive_cmds.angular_vel;
 
     //if we cannot move... tell someone
     if(path.cost_ < 0)
@@ -522,11 +522,13 @@ namespace NS_Planner
     {
       double p_x, p_y, p_th;
       path.getPoint(i, p_x, p_y, p_th);
-      NS_Transform::Stamped < NS_Transform::Pose > p = NS_Transform::Stamped < NS_Transform::Pose > (NS_Transform::Pose(
-          NS_Transform::createQuaternionFromYaw(p_th),
-          NS_Transform::Point(p_x, p_y, 0.0)), NS_NaviCommon::Time::now(), "");
-      NS_DataType::PoseStamped pose;
-      NS_Transform::poseStampedTFToMsg(p, pose);
+//      NS_Transform::Stamped < NS_Transform::Pose > p = NS_Transform::Stamped < NS_Transform::Pose > (NS_Transform::Pose(
+//          NS_Transform::createQuaternionFromYaw(p_th),
+//          NS_Transform::Point(p_x, p_y, 0.0)), NS_NaviCommon::Time::now(), "");
+      sgbot::tf::Pose2D pose;
+      pose.x = p_x;
+      pose.y = p_y;
+      pose.theta = p_th;
       local_plan.push_back(pose);
     }
     ///TODO need to be visualized
@@ -538,17 +540,17 @@ namespace NS_Planner
                                                double vtheta_samp,
                                                bool update_map)
   {
-    NS_Transform::Stamped < NS_Transform::Pose > global_pose;
+	sgbot::tf::Pose2D global_pose;
     if(costmap->getRobotPose(global_pose))
     {
       if(update_map)
       {
         //we need to give the planne some sort of global plan, since we're only checking for legality
         //we'll just give the robots current position
-        std::vector < NS_DataType::PoseStamped > plan;
-        NS_DataType::PoseStamped pose_msg;
-        NS_Transform::poseStampedTFToMsg(global_pose, pose_msg);
-        plan.push_back(pose_msg);
+        std::vector < sgbot::tf::Pose2D > plan;
+//        sgbot::tf::Pose2D pose_msg;
+//        NS_Transform::poseStampedTFToMsg(global_pose, pose_msg);
+        plan.push_back(global_pose);
         tc_->updatePlan(plan, true);
       }
 
@@ -560,8 +562,8 @@ namespace NS_Planner
       }
 
       return tc_->checkTrajectory(
-          global_pose.getOrigin().x(), global_pose.getOrigin().y(),
-          NS_Transform::getYaw(global_pose.getRotation()),
+          global_pose.x, global_pose.y,
+          global_pose.theta,
           base_odom.twist.linear.x, base_odom.twist.linear.y,
           base_odom.twist.angular.z, vx_samp, vy_samp, vtheta_samp);
 
@@ -576,17 +578,17 @@ namespace NS_Planner
                                                  bool update_map)
   {
     // Copy of checkTrajectory that returns a score instead of True / False
-    NS_Transform::Stamped < NS_Transform::Pose > global_pose;
+	  sgbot::tf::Pose2D global_pose;
     if(costmap->getRobotPose(global_pose))
     {
       if(update_map)
       {
         //we need to give the planne some sort of global plan, since we're only checking for legality
         //we'll just give the robots current position
-        std::vector < NS_DataType::PoseStamped > plan;
-        NS_DataType::PoseStamped pose_msg;
-        NS_Transform::poseStampedTFToMsg(global_pose, pose_msg);
-        plan.push_back(pose_msg);
+        std::vector < sgbot::tf::Pose2D > plan;
+//        sgbot::tf::Pose2D pose_msg;
+//        NS_Transform::poseStampedTFToMsg(global_pose, pose_msg);
+        plan.push_back(global_pose);
         tc_->updatePlan(plan, true);
       }
 
@@ -598,8 +600,8 @@ namespace NS_Planner
       }
 
       return tc_->scoreTrajectory(
-          global_pose.getOrigin().x(), global_pose.getOrigin().y(),
-          NS_Transform::getYaw(global_pose.getRotation()),
+          global_pose.x, global_pose.y,
+          global_pose.theta,
           base_odom.twist.linear.x, base_odom.twist.linear.y,
           base_odom.twist.angular.z, vx_samp, vy_samp, vtheta_samp);
 

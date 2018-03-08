@@ -6,6 +6,7 @@
 #include <vector>
 #include <sensor/lidar2d.h>
 
+//TODO replace below several functions
 /** @brief Return -1 if x < 0, +1 otherwise. */
 inline double sign(double x)
 {

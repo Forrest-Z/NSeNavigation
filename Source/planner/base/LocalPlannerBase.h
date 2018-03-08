@@ -8,7 +8,7 @@
 #ifndef _LOCALPLANNERBASE_H_
 #define _LOCALPLANNERBASE_H_
 
-#include <DataSet/DataType/PoseStamped.h>
+#include <transform/transform2d.h>
 #include <DataSet/DataType/Twist.h>
 
 #include "../../costmap/CostmapWrapper.h"
@@ -46,7 +46,7 @@ namespace NS_Planner
     isGoalReached() = 0;
 
     virtual bool
-    setPlan(const std::vector< NS_DataType::PoseStamped >& plan) = 0;
+    setPlan(const std::vector< sgbot::tf::Pose2D >& plan) = 0;
 
   protected:
     NS_CostMap::CostmapWrapper* costmap;

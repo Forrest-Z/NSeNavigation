@@ -3,27 +3,29 @@
 
 #include <math.h>
 
-#include <DataSet/DataType/PoseStamped.h>
+#include <transform/transform2d.h>
 #include <Transform/DataTypes.h>
 
 namespace NS_Planner
 {
 
-  void set_angle(NS_DataType::PoseStamped* pose, double angle)
+  void set_angle(sgbot::tf::Pose2D* pose, double angle)
   {
     //pose->pose.orientation = tf::createQuaternionMsgFromYaw(angle);
-    pose->pose.orientation = NS_Transform::createQuaternionMsgFromYaw(angle);
+//    pose->pose.orientation = NS_Transform::createQuaternionMsgFromYaw(angle);
+	  pose->theta = angle;
   }
 
-  double getYaw(NS_DataType::PoseStamped pose)
+  double getYaw(sgbot::tf::Pose2D pose)
   {
     //return tf::getYaw(pose.pose.orientation);
-    return NS_Transform::getYaw(pose.pose.orientation);
+//    return NS_Transform::getYaw(pose.pose.orientation);
+	  return pose.theta;
   }
 
   void OrientationFilter::processPath(
-      const NS_DataType::PoseStamped& start,
-      std::vector< NS_DataType::PoseStamped >& path)
+      const sgbot::tf::Pose2D& start,
+      std::vector< sgbot::tf::Pose2D >& path)
   {
     int n = path.size();
     switch(omode_)
@@ -35,7 +37,7 @@ namespace NS_Planner
         }
         break;
       case INTERPOLATE:
-        path[0].pose.orientation = start.pose.orientation;
+        path[0].theta = start.theta;
         interpolate(path, 0, n - 1);
         break;
       case FORWARDTHENINTERPOLATE:
@@ -58,25 +60,25 @@ namespace NS_Planner
             i--;
         }
 
-        path[0].pose.orientation = start.pose.orientation;
+        path[0].theta = start.theta;
         interpolate(path, i, n - 1);
         break;
     }
   }
 
   void OrientationFilter::pointToNext(
-      std::vector< NS_DataType::PoseStamped >& path, int index)
+      std::vector< sgbot::tf::Pose2D >& path, int index)
   {
-    double x0 = path[index].pose.position.x, y0 = path[index].pose.position.y,
-        x1 = path[index + 1].pose.position.x,
-        y1 = path[index + 1].pose.position.y;
+    double x0 = path[index].x, y0 = path[index].y,
+        x1 = path[index + 1].x,
+        y1 = path[index + 1].y;
 
     double angle = atan2(y1 - y0, x1 - x0);
     set_angle(&path[index], angle);
   }
 
   void OrientationFilter::interpolate(
-      std::vector< NS_DataType::PoseStamped >& path, int start_index,
+      std::vector< sgbot::tf::Pose2D >& path, int start_index,
       int end_index)
   {
     double start_yaw = getYaw(path[start_index]), end_yaw = getYaw(

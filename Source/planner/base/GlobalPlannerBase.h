@@ -8,7 +8,7 @@
 #ifndef _GLOBALPLANNERBASE_H_
 #define _GLOBALPLANNERBASE_H_
 
-#include <DataSet/DataType/PoseStamped.h>
+#include <transform/transform2d.h>
 #include "../../costmap/CostmapWrapper.h"
 
 namespace NS_Planner
@@ -38,13 +38,13 @@ namespace NS_Planner
     onInitialize() = 0;
 
     virtual bool
-    makePlan(const NS_DataType::PoseStamped& start,
-             const NS_DataType::PoseStamped& goal,
-             std::vector< NS_DataType::PoseStamped >& plan) = 0;
+    makePlan(const sgbot::tf::Pose2D& start,
+             const sgbot::tf::Pose2D& goal,
+             std::vector< sgbot::tf::Pose2D >& plan) = 0;
 
-    virtual bool makePlan(const NS_DataType::PoseStamped& start,
-                          const NS_DataType::PoseStamped& goal,
-                          std::vector< NS_DataType::PoseStamped >& plan,
+    virtual bool makePlan(const sgbot::tf::Pose2D& start,
+                          const sgbot::tf::Pose2D& goal,
+                          std::vector< sgbot::tf::Pose2D >& plan,
                           double& cost)
     {
       cost = 0;

@@ -114,7 +114,7 @@ public:
 	}
 	;
 	bool
-	getRobotPose(NS_Transform::Stamped<NS_Transform::Pose>& global_pose) const;
+	getRobotPose(sgbot::tf::Pose2D& global_pose) const;
 
 	Costmap2D*
 	getCostmap() {

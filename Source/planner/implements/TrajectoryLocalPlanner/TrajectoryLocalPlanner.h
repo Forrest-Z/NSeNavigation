@@ -11,7 +11,7 @@
 #include <Transform/DataTypes.h>
 
 #include <DataSet/DataType/Odometry.h>
-#include <DataSet/DataType/PoseStamped.h>
+#include <transform/transform2d.h>
 #include <DataSet/DataType/Twist.h>
 #include <DataSet/DataType/Point.h>
 
@@ -68,7 +68,7 @@ namespace NS_Planner
      * @return True if the plan was updated successfully, false otherwise
      */
     virtual bool
-    setPlan(const std::vector< NS_DataType::PoseStamped >& orig_global_plan);
+    setPlan(const std::vector< sgbot::tf::Pose2D >& orig_global_plan);
 
     /**
      * @brief  Check if the goal pose has been achieved
@@ -130,8 +130,8 @@ namespace NS_Planner
      * @return  True if a valid trajectory was found, false otherwise
      */
     bool
-    rotateToGoal(const NS_Transform::Stamped< NS_Transform::Pose >& global_pose,
-                 const NS_Transform::Stamped< NS_Transform::Pose >& robot_vel,
+    rotateToGoal(const sgbot::tf::Pose2D& global_pose,
+                 const sgbot::tf::RobotVel& robot_vel,
                  double goal_th, NS_DataType::Twist& cmd_vel);
 
     /**
@@ -143,8 +143,8 @@ namespace NS_Planner
      */
     bool
     stopWithAccLimits(
-        const NS_Transform::Stamped< NS_Transform::Pose >& global_pose,
-        const NS_Transform::Stamped< NS_Transform::Pose >& robot_vel,
+        const sgbot::tf::Pose2D& global_pose,
+        const sgbot::tf::RobotVel& robot_vel,
         NS_DataType::Twist& cmd_vel);
 
     double sign(double x)
@@ -164,7 +164,7 @@ namespace NS_Planner
 
     double rot_stopped_velocity_, trans_stopped_velocity_;
     double xy_goal_tolerance_, yaw_goal_tolerance_, min_in_place_vel_th_;
-    std::vector< NS_DataType::PoseStamped > global_plan_;
+    std::vector< sgbot::tf::Pose2D > global_plan_;
     bool prune_plan_;
     boost::recursive_mutex odom_lock_;
 

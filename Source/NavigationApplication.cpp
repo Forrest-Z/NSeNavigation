@@ -15,7 +15,7 @@ namespace NS_Navigation {
 NavigationApplication::NavigationApplication() :
 		new_global_plan_(false), runPlanner_(false) {
 	// TODO Auto-generated constructor stub
-	   goal_sub = new NS_DataSet::Subscriber< NS_DataType::PoseStamped >(
+	   goal_sub = new NS_DataSet::Subscriber< sgbot::tf::Pose2D >(
 	        "GOAL", boost::bind(&NavigationApplication::goalFromAPP, this, _1));
 }
 
@@ -54,7 +54,7 @@ void NavigationApplication::publishVelocity(double linear_x, double linear_y,
 	vel.angular.z = angular_z;
 	twist_pub->publish(vel);
 }
-bool NavigationApplication::goalFromAPP(NS_DataType::PoseStamped& goal_from_app){
+bool NavigationApplication::goalFromAPP(sgbot::tf::Pose2D& goal_from_app){
 	planner_mutex.lock();
 //	    goal = goalToGlobalFrame(goal_from_app);
 		goal = goal_from_app;
@@ -111,7 +111,7 @@ void NavigationApplication::controlLoop() {
 				global_pose.getOrigin().x(), global_pose.getOrigin().y(),
 				global_pose.getRotation().w(), state);
 
-		NS_DataType::PoseStamped current_position;
+		sgbot::tf::Pose2D current_position;
 		NS_Transform::poseStampedTFToMsg(global_pose, current_position);
 
 		if (distance(current_position, oscillation_pose_)
@@ -237,12 +237,12 @@ void NavigationApplication::planLoop() {
 			rate.sleep();
 	}
 }
-NS_DataType::PoseStamped NavigationApplication::goalToGlobalFrame(
-		NS_DataType::PoseStamped& goal) {
+sgbot::tf::Pose2D NavigationApplication::goalToGlobalFrame(
+		sgbot::tf::Pose2D& goal) {
 
 }
-bool NavigationApplication::makePlan(const NS_DataType::PoseStamped& goal,
-		std::vector<NS_DataType::PoseStamped>& plan) {
+bool NavigationApplication::makePlan(const sgbot::tf::Pose2D& goal,
+		std::vector<sgbot::tf::Pose2D>& plan) {
 
 	boost::unique_lock<NS_CostMap::Costmap2D::mutex_t> lock(
 			*(global_costmap->getLayeredCostmap()->getCostmap()->getMutex()));
@@ -257,7 +257,7 @@ bool NavigationApplication::makePlan(const NS_DataType::PoseStamped& goal,
 		return false;
 	}
 
-	NS_DataType::PoseStamped start;
+	sgbot::tf::Pose2D start;
 	NS_Transform::poseStampedTFToMsg(global_pose, start);
 
 	//if the planner fails or returns a zero length plan, planning failed
@@ -279,8 +279,8 @@ bool NavigationApplication::makePlan(const NS_DataType::PoseStamped& goal,
 	return true;
 
 }
-double NavigationApplication::distance(const NS_DataType::PoseStamped& p1,
-		const NS_DataType::PoseStamped& p2) {
+double NavigationApplication::distance(const sgbot::tf::Pose2D& p1,
+		const sgbot::tf::Pose2D& p2) {
 	return hypot(p1.pose.position.x - p2.pose.position.x,
 			p1.pose.position.y - p2.pose.position.y);
 }
@@ -288,8 +288,8 @@ void NavigationApplication::run() {
 	loadParameters();
 
 	//set up plan triple buffer
-	global_planner_plan = new std::vector<NS_DataType::PoseStamped>();
-	latest_plan = new std::vector<NS_DataType::PoseStamped>();
+	global_planner_plan = new std::vector<sgbot::tf::Pose2D>();
+	latest_plan = new std::vector<sgbot::tf::Pose2D>();
 
 	/*
 	 * make global planner and global costmap

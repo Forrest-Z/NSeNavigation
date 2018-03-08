@@ -3,7 +3,7 @@
 
 #include <DataSet/DataType/Odometry.h>
 #include <DataSet/DataType/Path.h>
-#include <DataSet/DataType/PoseStamped.h>
+#include <transform/transform2d.h>
 #include <DataSet/DataType/Twist.h>
 #include <DataSet/DataType/Point.h>
 
@@ -26,7 +26,7 @@ namespace NS_Planner
    */
   double
   getGoalPositionDistance(
-      const NS_Transform::Stamped< NS_Transform::Pose >& global_pose,
+      const sgbot::tf::Pose2D& global_pose,
       double goal_x, double goal_y);
 
   /**
@@ -38,7 +38,7 @@ namespace NS_Planner
    */
   double
   getGoalOrientationAngleDifference(
-      const NS_Transform::Stamped< NS_Transform::Pose >& global_pose,
+      const sgbot::tf::Pose2D& global_pose,
       double goal_th);
 
   /**
@@ -48,26 +48,10 @@ namespace NS_Planner
    * @param global_plan The plan to be pruned in the frame of the planner
    */
   void
-  prunePlan(const NS_Transform::Stamped< NS_Transform::Pose >& global_pose,
-            std::vector< NS_DataType::PoseStamped >& plan,
-            std::vector< NS_DataType::PoseStamped >& global_plan);
+  prunePlan(const sgbot::tf::Pose2D& global_pose,
+            std::vector< sgbot::tf::Pose2D >& plan,
+            std::vector< sgbot::tf::Pose2D >& global_plan);
 
-  /**
-   * @brief  Transforms the global plan of the robot from the planner frame to the frame of the costmap,
-   * selects only the (first) part of the plan that is within the costmap area.
-   * @param tf A reference to a transform listener
-   * @param global_plan The plan to be transformed
-   * @param robot_pose The pose of the robot in the global frame (same as costmap)
-   * @param costmap A reference to the costmap being used so the window size for transforming can be computed
-   * @param global_frame The frame to transform the plan to
-   * @param transformed_plan Populated with the transformed plan
-   */
-  bool
-  transformGlobalPlan(
-      const std::vector< NS_DataType::PoseStamped >& global_plan,
-      const NS_Transform::Stamped< NS_Transform::Pose >& global_robot_pose,
-      const NS_CostMap::Costmap2D& costmap,
-      std::vector< NS_DataType::PoseStamped >& transformed_plan);
 
   /**
    * @brief  Returns last pose in plan
@@ -78,8 +62,8 @@ namespace NS_Planner
    * @return True if achieved, false otherwise
    */
   bool
-  getGoalPose(const std::vector< NS_DataType::PoseStamped >& global_plan,
-              NS_Transform::Stamped< NS_Transform::Pose > &goal_pose);
+  getGoalPose(const std::vector< sgbot::tf::Pose2D >& global_plan,
+              sgbot::tf::Pose2D &goal_pose);
 
   /**
    * @brief  Check if the goal pose has been achieved
@@ -95,9 +79,9 @@ namespace NS_Planner
    * @return True if achieved, false otherwise
    */
   bool
-  isGoalReached(const std::vector< NS_DataType::PoseStamped >& global_plan,
+  isGoalReached(const std::vector< sgbot::tf::Pose2D >& global_plan,
                 const NS_CostMap::Costmap2D& costmap,
-                NS_Transform::Stamped< NS_Transform::Pose >& global_pose,
+                sgbot::tf::Pose2D& global_pose,
                 const NS_DataType::Odometry& base_odom, double rot_stopped_vel,
                 double trans_stopped_vel, double xy_goal_tolerance,
                 double yaw_goal_tolerance);

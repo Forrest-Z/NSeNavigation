@@ -116,9 +116,9 @@ void GlobalPlanner::onInitialize() {
 	}
 }
 
-bool GlobalPlanner::makePlan(const NS_DataType::PoseStamped& start,
-		const NS_DataType::PoseStamped& goal,
-		std::vector<NS_DataType::PoseStamped>& plan) {
+bool GlobalPlanner::makePlan(const sgbot::tf::Pose2D& start,
+		const sgbot::tf::Pose2D& goal,
+		std::vector<sgbot::tf::Pose2D>& plan) {
 	logInfo<< "global planner start make plan";
 	boost::mutex::scoped_lock lock(mutex_);
 
@@ -130,8 +130,8 @@ bool GlobalPlanner::makePlan(const NS_DataType::PoseStamped& start,
 	// 先把 plan 清空
 	plan.clear();
 
-	double wx = start.pose.position.x;
-	double wy = start.pose.position.y;
+	double wx = start.x;
+	double wy = start.y;
 
 	logInfo << "start world wx = " << wx << " wy = " << wy;
 	/*
@@ -155,8 +155,8 @@ bool GlobalPlanner::makePlan(const NS_DataType::PoseStamped& start,
 	/*
 	 * 处理 goal
 	 */
-	wx = goal.pose.position.x;
-	wy = goal.pose.position.y;
+	wx = goal.x;
+	wy = goal.y;
 
 	logInfo << "goal world wx = " << wx << " wy = " << wy << "\n";
 
@@ -220,9 +220,9 @@ bool GlobalPlanner::makePlan(const NS_DataType::PoseStamped& start,
 			//make sure the goal we push on has the same timestamp as the rest of the plan
 			//geometry_msgs::PoseStamped goal_copy = goal;
 
-			NS_DataType::PoseStamped goal_copy = goal;
+			sgbot::tf::Pose2D goal_copy = goal;
 
-			goal_copy.header.stamp = NS_NaviCommon::Time::now();
+//			goal_copy.header.stamp = NS_NaviCommon::Time::now();
 			plan.push_back(goal_copy);
 		} else {
 			// 错误提示
@@ -242,10 +242,10 @@ bool GlobalPlanner::makePlan(const NS_DataType::PoseStamped& start,
 		for (size_t i = 0; i < plan.size(); i++) {
 //        console.debug("[%d] x = %lf, y = %lf", (i + 1), plan[i].pose.position.x,
 //                      plan[i].pose.position.y);
-			printf("%lf,%lf,\n", plan[i].pose.position.x,
-					plan[i].pose.position.y);
+			printf("%lf,%lf,\n", plan[i].x,
+					plan[i].y);
 			double map_x, map_y;
-			worldToMap(plan[i].pose.position.x, plan[i].pose.position.y, map_x,
+			worldToMap(plan[i].x, plan[i].y, map_x,
 					map_y);
 			fprintf(file, "%lf %lf\n", map_x, map_y);
 		}
@@ -269,8 +269,8 @@ void GlobalPlanner::clearRobotCell(unsigned int mx, unsigned int my) {
 }
 
 bool GlobalPlanner::getPlanFromPotential(double start_x, double start_y,
-		double goal_x, double goal_y, const NS_DataType::PoseStamped& goal,
-		std::vector<NS_DataType::PoseStamped>& plan) {
+		double goal_x, double goal_y, const sgbot::tf::Pose2D& goal,
+		std::vector<sgbot::tf::Pose2D>& plan) {
 	if (!initialized_) {
 		// 错误提示
 		printf(
@@ -296,17 +296,20 @@ bool GlobalPlanner::getPlanFromPotential(double start_x, double start_y,
 		double world_x, world_y;
 		mapToWorld(point.first, point.second, world_x, world_y);
 
-		NS_DataType::PoseStamped pose;
+		sgbot::tf::Pose2D pose;
 
-		pose.header.stamp = plan_time;
+//		pose.header.stamp = plan_time;
 //        pose.header.frame_id = global_frame;
-		pose.pose.position.x = world_x;
-		pose.pose.position.y = world_y;
-		pose.pose.position.z = 0.0;
-		pose.pose.orientation.x = 0.0;
-		pose.pose.orientation.y = 0.0;
-		pose.pose.orientation.z = 0.0;
-		pose.pose.orientation.w = 1.0;
+//		pose.pose.position.x = world_x;
+//		pose.pose.position.y = world_y;
+//		pose.pose.position.z = 0.0;
+//		pose.pose.orientation.x = 0.0;
+//		pose.pose.orientation.y = 0.0;
+//		pose.pose.orientation.z = 0.0;
+//		pose.pose.orientation.w = 1.0;
+		pose.x = world_x;
+		pose.y = world_y;
+		pose.theta = 0.0;
 		plan.push_back(pose);
 	}
 

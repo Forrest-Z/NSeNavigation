@@ -5,7 +5,7 @@
 #include <iostream>
 #include "MapCell.h"
 #include "../../../../costmap/costmap_2d/CostMap2D.h"
-#include <DataSet/DataType/PoseStamped.h>
+#include <transform/transform2d.h>
 #include "MapCell.h"
 #include "TrajectoryInc.h"
 
@@ -143,8 +143,8 @@ namespace NS_Planner
      */
     static void
     adjustPlanResolution(
-        const std::vector< NS_DataType::PoseStamped >& global_plan_in,
-        std::vector< NS_DataType::PoseStamped >& global_plan_out,
+        const std::vector< sgbot::tf::Pose2D >& global_plan_in,
+        std::vector< sgbot::tf::Pose2D >& global_plan_out,
         double resolution);
 
     /**
@@ -168,14 +168,14 @@ namespace NS_Planner
      */
     void
     setTargetCells(const NS_CostMap::Costmap2D& costmap,
-                   const std::vector< NS_DataType::PoseStamped >& global_plan);
+                   const std::vector< sgbot::tf::Pose2D >& global_plan);
 
     /**
      * @brief Update what cell is considered the next local goal
      */
     void
     setLocalGoal(const NS_CostMap::Costmap2D& costmap,
-                 const std::vector< NS_DataType::PoseStamped >& global_plan);
+                 const std::vector< sgbot::tf::Pose2D >& global_plan);
 
     double goal_x_, goal_y_; /**< @brief The goal distance was last computed from */
 

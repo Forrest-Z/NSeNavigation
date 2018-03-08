@@ -11,7 +11,7 @@
 #include <DataSet/DataType/Position2DInt.h>
 
 //we'll take in a path as a vector of poses
-#include <DataSet/DataType/PoseStamped.h>
+#include <transform/transform2d.h>
 #include <DataSet/DataType/Point.h>
 
 //for some datatypes
@@ -117,9 +117,9 @@ namespace NS_Planner
      * @return The selected path or trajectory
      */
     Trajectory
-    findBestPath(NS_Transform::Stamped< NS_Transform::Pose > global_pose,
-                 NS_Transform::Stamped< NS_Transform::Pose > global_vel,
-                 NS_Transform::Stamped< NS_Transform::Pose >& drive_velocities);
+    findBestPath(sgbot::tf::Pose2D global_pose,
+    		sgbot::tf::RobotVel global_vel,
+			sgbot::tf::RobotVel& drive_velocities);
 
     /**
      * @brief  Update the plan that the controller is following
@@ -127,7 +127,7 @@ namespace NS_Planner
      * @param compute_dists Wheter or not to compute path/goal distances when a plan is updated
      */
     void
-    updatePlan(const std::vector< NS_DataType::PoseStamped >& new_plan,
+    updatePlan(const std::vector< sgbot::tf::Pose2D >& new_plan,
                bool compute_dists = false);
 
     /**
@@ -261,7 +261,7 @@ namespace NS_Planner
 
     std::vector< sgbot::sensor::Point2D > footprint_spec_; ///< @brief The footprint specification of the robot
 
-    std::vector< NS_DataType::PoseStamped > global_plan_; ///< @brief The global path for the robot to follow
+    std::vector< sgbot::tf::Pose2D > global_plan_; ///< @brief The global path for the robot to follow
 
     bool stuck_left, stuck_right; ///< @brief Booleans to keep the robot from oscillating during rotation
     bool rotating_left, rotating_right; ///< @brief Booleans to keep track of the direction of rotation for the robot

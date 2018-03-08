@@ -1,7 +1,7 @@
 #ifndef _ORIENTATION_FILTER_H_
 #define _ORIENTATION_FILTER_H_
 
-#include <DataSet/DataType/PoseStamped.h>
+#include <transform/transform2d.h>
 
 namespace NS_Planner
 {
@@ -23,13 +23,13 @@ namespace NS_Planner
     }
 
     virtual void
-    processPath(const NS_DataType::PoseStamped& start,
-                std::vector< NS_DataType::PoseStamped >& path);
+    processPath(const sgbot::tf::Pose2D& start,
+                std::vector< sgbot::tf::Pose2D >& path);
 
     void
-    pointToNext(std::vector< NS_DataType::PoseStamped >& path, int index);
+    pointToNext(std::vector< sgbot::tf::Pose2D >& path, int index);
     void
-    interpolate(std::vector< NS_DataType::PoseStamped >& path, int start_index,
+    interpolate(std::vector< sgbot::tf::Pose2D >& path, int start_index,
                 int end_index);
 
     void setMode(OrientationMode new_mode)

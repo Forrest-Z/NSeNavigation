@@ -2,6 +2,7 @@
 #include <DataSet/DataType/Odometry.h>
 #include "OdometryHelper.h"
 
+#include <transform/transform2d.h>
 namespace NS_Planner
 {
 
@@ -17,7 +18,7 @@ namespace NS_Planner
   }
 
   void OdometryHelper::getRobotVel(
-      NS_Transform::Stamped< NS_Transform::Pose >& robot_vel)
+		  sgbot::tf::RobotVel& robot_vel)
   {
     // Set current velocities from odometry
     NS_DataType::Twist global_vel;
@@ -32,12 +33,14 @@ namespace NS_Planner
       global_vel.linear.y = base_odom_.twist.linear.y;
       global_vel.angular.z = base_odom_.twist.angular.z;
 
-      robot_vel.setData(
-          NS_Transform::Transform(
-              NS_Transform::createQuaternionFromYaw(global_vel.angular.z),
-              NS_Transform::Vector3(global_vel.linear.x, global_vel.linear.y,
-                                    0)));
-      robot_vel.stamp_ = NS_NaviCommon::Time();
+//      robot_vel.setData(
+//          NS_Transform::Transform(
+//              NS_Transform::createQuaternionFromYaw(global_vel.angular.z),
+//              NS_Transform::Vector3(global_vel.linear.x, global_vel.linear.y,
+//                                    0)));
+      robot_vel.linear_vel = global_vel.linear.x;
+      robot_vel.angular_vel = global_vel.angular.z;
+
     }
   }
 

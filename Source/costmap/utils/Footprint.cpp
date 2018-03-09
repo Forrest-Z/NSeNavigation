@@ -52,17 +52,6 @@ namespace NS_CostMap
     return point;
   }
 
-
-  std::vector< sgbot::sensor::Point2D > toPointVector(NS_DataType::Polygon polygon)
-  {
-    std::vector < sgbot::sensor::Point2D > pts;
-    for(int i = 0; i < polygon.points.size(); i++)
-    {
-      pts.push_back(toPoint(polygon.points[i]));
-    }
-    return pts;
-  }
-
   void transformFootprint(
       double x, double y, double theta,
       const std::vector< sgbot::sensor::Point2D >& footprint_spec,
@@ -81,23 +70,6 @@ namespace NS_CostMap
     }
   }
 
-  void transformFootprint(
-      double x, double y, double theta,
-      const std::vector< sgbot::sensor::Point2D >& footprint_spec,
-      NS_DataType::PolygonStamped& oriented_footprint)
-  {
-    // build the oriented footprint at a given location
-    oriented_footprint.polygon.points.clear();
-    double cos_th = cos(theta);
-    double sin_th = sin(theta);
-    for(unsigned int i = 0; i < footprint_spec.size(); ++i)
-    {
-      NS_DataType::Point32 new_pt;
-      new_pt.x = x + (footprint_spec[i].x * cos_th - footprint_spec[i].y * sin_th);
-      new_pt.y = y + (footprint_spec[i].x * sin_th + footprint_spec[i].y * cos_th);
-      oriented_footprint.polygon.points.push_back(new_pt);
-    }
-  }
 
   void padFootprint(std::vector< sgbot::sensor::Point2D >& footprint,
                     double padding)

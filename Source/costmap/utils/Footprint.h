@@ -1,8 +1,6 @@
 #ifndef _COSTMAP_FOOTPRINT_H_
 #define _COSTMAP_FOOTPRINT_H_
 
-#include <DataSet/DataType/Polygon.h>
-#include <DataSet/DataType/PolygonStamped.h>
 #include <sensor/lidar2d.h>
 
 namespace NS_CostMap
@@ -27,11 +25,6 @@ namespace NS_CostMap
   toPoint(NS_DataType::Point32 pt);
 
 
-  /**
-   * @brief Convert Polygon msg to vector of Points.
-   */
-  std::vector< sgbot::sensor::Point2D >
-  toPointVector(NS_DataType::Polygon polygon);
 
   /**
    * @brief  Given a pose and base footprint, build the oriented footprint of the robot (list of Points)
@@ -46,18 +39,7 @@ namespace NS_CostMap
                      const std::vector< sgbot::sensor::Point2D >& footprint_spec,
                      std::vector< sgbot::sensor::Point2D >& oriented_footprint);
 
-  /**
-   * @brief  Given a pose and base footprint, build the oriented footprint of the robot (PolygonStamped)
-   * @param  x The x position of the robot
-   * @param  y The y position of the robot
-   * @param  theta The orientation of the robot
-   * @param  footprint_spec Basic shape of the footprint
-   * @param  oriented_footprint Will be filled with the points in the oriented footprint of the robot
-   */
-  void
-  transformFootprint(double x, double y, double theta,
-                     const std::vector< sgbot::sensor::Point2D >& footprint_spec,
-                     NS_DataType::PolygonStamped & oriented_footprint);
+
 
   /**
    * @brief Adds the specified amount of padding to the footprint (in place)

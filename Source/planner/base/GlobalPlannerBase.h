@@ -8,6 +8,7 @@
 #ifndef _GLOBALPLANNERBASE_H_
 #define _GLOBALPLANNERBASE_H_
 
+#include <DataSet/DataType/PoseStamped.h>
 #include <transform/transform2d.h>
 #include "../../costmap/CostmapWrapper.h"
 

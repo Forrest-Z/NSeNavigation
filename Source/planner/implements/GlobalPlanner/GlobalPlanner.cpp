@@ -11,7 +11,7 @@
 #include "Algorithm/GradientPath.h"
 #include "Algorithm/Dijkstra.h"
 
-#include <DataSet/DataType/OccupancyGrid.h>
+//#include <DataSet/DataType/OccupancyGrid.h>
 #include <Parameter/Parameter.h>
 
 #include <Console/Console.h>

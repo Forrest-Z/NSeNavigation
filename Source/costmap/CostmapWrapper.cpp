@@ -26,12 +26,12 @@ CostmapWrapper::~CostmapWrapper() {
 void CostmapWrapper::updateMap()
   {
     // get global pose
-    NS_Transform::Stamped < NS_Transform::Pose > pose;
+	sgbot::tf::Pose2D pose;
     double x = 0.0,y = 0.0,yaw = 0.0;
     if(getRobotPose (pose))
     {
-      x = pose.getOrigin().x(), y = pose.getOrigin().y(),
-          yaw = NS_Transform::getYaw(pose.getRotation());
+      x = pose.x, y = pose.y,
+          yaw = pose.theta;
 
       layered_costmap->updateMap(x, y, yaw);
     }else{

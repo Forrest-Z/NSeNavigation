@@ -14,8 +14,27 @@
 #include <Service/ServiceType/ServiceBase.h>
 #include <Service/ServiceType/ServiceTransform.h>
 #include <Service/Client.h>
-#include <vector>
+#include <DataSet/DataType/Pose.h>
 #include "log_tool.h"
+#include "transform/transform2d.h"
+//class MapMetaData{
+//public:
+//	MapMetaData():  resolution(0.0), width(0), height(0), origin(){
+//
+//	}
+//	NS_DataType::Pose origin;
+//	   float resolution;
+//	    int16_t width;
+//	    int16_t height;
+//};
+//class OccupancyGrid{
+//	public:
+//	OccupancyGrid():info(), data(){
+//
+//	}
+//	std::vector<char> data;
+//	MapMetaData info;
+//};
 namespace NS_CostMap {
 
 /*

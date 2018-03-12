@@ -173,67 +173,6 @@ namespace NS_CostMap
     costmap_[getIndex(mx, my)] = cost;
   }
 
-//  void Costmap2D::mapToWorld(unsigned int mx, unsigned int my, double& wx,
-//                             double& wy) const
-//  {
-//    wx = origin_x_ + (mx + 0.5) * resolution_;
-//    wy = origin_y_ + (my + 0.5) * resolution_;
-//  }
-//
-//  bool Costmap2D::worldToMap(double wx, double wy, unsigned int& mx,
-//                             unsigned int& my) const
-//  {
-//    if(wx < origin_x_ || wy < origin_y_)
-//      return false;
-//
-//    mx = (int)((wx - origin_x_) / resolution_);
-//    my = (int)((wy - origin_y_) / resolution_);
-//
-//    if(mx < size_x_ && my < size_y_)
-//      return true;
-//
-//    return false;
-//  }
-
-//  void Costmap2D::worldToMapNoBounds(double wx, double wy, int& mx,
-//                                     int& my) const
-//  {
-//    mx = (int)((wx - origin_x_) / resolution_);
-//    my = (int)((wy - origin_y_) / resolution_);
-//  }
-//
-//  void Costmap2D::worldToMapEnforceBounds(double wx, double wy, int& mx,
-//                                          int& my) const
-//  {
-//    // Here we avoid doing any math to wx,wy before comparing them to
-//    // the bounds, so their values can go out to the max and min values
-//    // of double floating point.
-//    if(wx < origin_x_)
-//    {
-//      mx = 0;
-//    }
-//    else if(wx > resolution_ * size_x_ + origin_x_)
-//    {
-//      mx = size_x_ - 1;
-//    }
-//    else
-//    {
-//      mx = (int)((wx - origin_x_) / resolution_);
-//    }
-//
-//    if(wy < origin_y_)
-//    {
-//      my = 0;
-//    }
-//    else if(wy > resolution_ * size_y_ + origin_y_)
-//    {
-//      my = size_y_ - 1;
-//    }
-//    else
-//    {
-//      my = (int)((wy - origin_y_) / resolution_);
-//    }
-//  }
 
   void Costmap2D::updateOrigin(double new_origin_x, double new_origin_y)
   {

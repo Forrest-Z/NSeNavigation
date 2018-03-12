@@ -44,13 +44,6 @@ namespace NS_CostMap
   }
 
 
-  sgbot::sensor::Point2D toPoint(NS_DataType::Point32 pt)
-  {
-    sgbot::sensor::Point2D point;
-    point.x = pt.x;
-    point.y = pt.y;
-    return point;
-  }
 
   void transformFootprint(
       double x, double y, double theta,

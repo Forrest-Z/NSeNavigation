@@ -38,14 +38,15 @@ void CostmapWrapper::updateMap()
     	logWarn << "failed to get robot pose so update map with 0,0,0";
     	layered_costmap->updateMap();
     }
-      NS_DataType::PolygonStamped footprint;
-      footprint.header.stamp = NS_NaviCommon::Time::now();
+    std::vector< sgbot::sensor::Point2D > footprint;
+
 
       //by pengjiawei
       logInfo <<"update map padded footprint size = "<<padded_footprint.size();
       transformFootprint(x, y, yaw, padded_footprint, footprint);
 
-      footprint_for_trajectory = toPointVector(footprint.polygon);
+      footprint_for_trajectory = footprint;
+//      footprint_for_trajectory = toPointVector(footprint.polygon);
 //      setPaddedRobotFootprint (toPointVector (footprint.polygon));
 //      setPaddedRobotFootprint (padded_footprint);
       setPaddedRobotFootprint (footprint_from_param);

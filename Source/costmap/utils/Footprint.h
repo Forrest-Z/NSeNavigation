@@ -1,6 +1,7 @@
 #ifndef _COSTMAP_FOOTPRINT_H_
 #define _COSTMAP_FOOTPRINT_H_
 
+#include <string>
 #include <sensor/lidar2d.h>
 
 namespace NS_CostMap
@@ -18,11 +19,6 @@ namespace NS_CostMap
       const std::vector< sgbot::sensor::Point2D >& footprint, double& min_dist,
       double& max_dist);
 
-  /**
-   * @brief Convert Point32 to Point
-   */
-  sgbot::sensor::Point2D
-  toPoint(NS_DataType::Point32 pt);
 
 
 

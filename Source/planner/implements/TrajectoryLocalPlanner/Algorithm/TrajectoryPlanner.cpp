@@ -966,10 +966,10 @@ namespace NS_Planner
 	  sgbot::tf::RobotVel& drive_velocities)
   {
 
-    Eigen::Vector3f pos(global_pose.x,
+    Vector3f pos(global_pose.x,
                         global_pose.y,
                         global_pose.theta);
-    Eigen::Vector3f vel(global_vel.linear_vel,
+    Vector3f vel(global_vel.linear_vel,
                         0.0f,
                         global_vel.angular_vel);
 

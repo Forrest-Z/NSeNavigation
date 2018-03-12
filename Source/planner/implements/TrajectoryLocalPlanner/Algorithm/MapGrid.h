@@ -7,7 +7,7 @@
 #include "../../../../costmap/costmap_2d/CostMap2D.h"
 #include <transform/transform2d.h>
 #include "MapCell.h"
-#include "TrajectoryInc.h"
+
 
 namespace NS_Planner
 {

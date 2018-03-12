@@ -5,12 +5,12 @@
 
 #include "../../../../costmap/costmap_2d/CostMap2D.h"
 #include <DataSet/DataType/Point.h>
-#include <Eigen/Core>
+#include <linear-algebra/vector.h>
 #include <DataSet/DataType/Position2DInt.h>
 
 namespace NS_Planner
 {
-
+	typedef sgbot::la::Vector3f Vector3f;
   class FootprintHelper
   {
   public:
@@ -27,7 +27,7 @@ namespace NS_Planner
      * @return The cells that make up either the outline or entire footprint of the robot depending on fill
      */
     std::vector< NS_DataType::Position2DInt >
-    getFootprintCells(Eigen::Vector3f pos,
+    getFootprintCells(Vector3f pos,
                       std::vector< sgbot::sensor::Point2D > footprint_spec,
                       const NS_CostMap::Costmap2D&, bool fill);
 

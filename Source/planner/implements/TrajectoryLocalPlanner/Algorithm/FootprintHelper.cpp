@@ -160,7 +160,7 @@ namespace NS_Planner
    * get the cellsof a footprint at a given position
    */
   std::vector< NS_DataType::Position2DInt > FootprintHelper::getFootprintCells(
-      Eigen::Vector3f pos, std::vector< sgbot::sensor::Point2D > footprint_spec,
+      Vector3f pos, std::vector< sgbot::sensor::Point2D > footprint_spec,
       const NS_CostMap::Costmap2D& costmap, bool fill)
   {
     double x_i = pos[0];

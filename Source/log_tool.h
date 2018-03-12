@@ -111,6 +111,8 @@ inline void addFileLog(std::string file_path) {
 
 					));
 }
+
+
 #endif
 //	int main() {
 //		BOOST_LOG_TRIVIAL(trace)<< "A trace severity message";

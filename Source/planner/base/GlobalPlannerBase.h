@@ -8,7 +8,9 @@
 #ifndef _GLOBALPLANNERBASE_H_
 #define _GLOBALPLANNERBASE_H_
 
+///some dependency error makes this can not be removed
 #include <DataSet/DataType/PoseStamped.h>
+
 #include <transform/transform2d.h>
 #include "../../costmap/CostmapWrapper.h"
 

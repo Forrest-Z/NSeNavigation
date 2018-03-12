@@ -10,12 +10,12 @@
 #include "costmap_2d/CostMapLayer.h"
 #include <Parameter/Parameter.h>
 #include <DataSet/DataType/OccupancyGrid.h>
-#include <Transform/DataTypes.h>
+
 #include <Service/ServiceType/ServiceBase.h>
 #include <Service/ServiceType/ServiceTransform.h>
 #include <Service/Client.h>
-#include <DataSet/DataType/Pose.h>
 #include "log_tool.h"
+#include "socket_tool.h"
 #include "transform/transform2d.h"
 //class MapMetaData{
 //public:
@@ -84,6 +84,10 @@ private:
 	void
 	updateCostmap();
 
+	void
+	updateMapLoop(double frequency);
+
+	void visualizeForRviz();
 private:
 	///决定costmap的默认值为未知还是空白
 	bool track_unknown_space_;
@@ -107,8 +111,6 @@ private:
 
 	LayeredCostmap* layered_costmap;
 
-	void
-	updateMapLoop(double frequency);
 
 	boost::thread update_map_thread;
 

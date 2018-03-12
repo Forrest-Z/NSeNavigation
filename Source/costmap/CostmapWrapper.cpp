@@ -9,7 +9,6 @@
 #include "layers/StaticLayer.h"
 #include "layers/InflationLayer.h"
 
-#include <DataSet/DataType/PolygonStamped.h>
 #include <Time/Rate.h>
 #include "utils/Footprint.h"
 namespace NS_CostMap {
@@ -53,7 +52,7 @@ void CostmapWrapper::updateMap()
 
   }
 void CostmapWrapper::updateCostmap(){
-
+	prepareMap();
 }
 void CostmapWrapper::updateMapLoop(double frequency)
 {
@@ -73,6 +72,25 @@ void CostmapWrapper::updateMapLoop(double frequency)
   }
 }
 
+void CostmapWrapper::visualizeForRviz(){
+	unsigned int width = getCostmap()->size_x_,height = getCostmap()->size_y_;
+	double resolution = getCostmap()->resolution_;
+	logInfo << "width = "<<width <<" height = "<<height<<" resolution = "<<resolution;
+	std::string file_name = "/tmp/write_archive.txt";
+	std::ofstream ofile(file_name,"w");
+	boost::archive::binary_oarchive oa(ofile);
+	oa << width << height << resolution;
+	unsigned char* char_map = getCostmap()->getCharMap();
+	int index = 0;
+	for (unsigned int i = 0; i < height; ++i) {
+		for (unsigned int j = 0; j < width; ++j) {
+			oa << char_map[index];
+			++index;
+		}
+	}
+	ofile.close();
+	SocketSend("127.0.0.1","12345",file_name);
+}
 void CostmapWrapper::loadParameters()
  {
    NS_NaviCommon::Parameter parameter;
@@ -132,57 +150,57 @@ void CostmapWrapper::prepareMap()
     }
   }
 
-
+///TODO change the data structure of service transform
 bool CostmapWrapper::getRobotPose(
       sgbot::tf::Pose2D& global_pose) const
   {
-    NS_ServiceType::ServiceTransform odom_transform;
-    NS_ServiceType::ServiceTransform map_transform;
-
-    int times = 0;
-    while(times != 3)
-    {
-      NS_Service::Client < NS_ServiceType::ServiceTransform > map_tf_cli(
-          "ODOM_MAP_TF");
-      if(map_tf_cli.call(map_transform) == true)
-      {
-        break;
-      }
-      ++times;
-    }
-    if(times == 3)
-    {
-      return false;
-    }
-
-    times = 0;
-    while(times != 3)
-    {
-      NS_Service::Client < NS_ServiceType::ServiceTransform > odom_tf_cli(
-          "BASE_ODOM_TF");
-      if(odom_tf_cli.call(odom_transform) == true)
-      {
-        break;
-      }
-      ++times;
-    }
-    if(times == 3)
-    {
-      return false;
-    }
-
-    //TODO: not verify code for transform
-    NS_Transform::Transform odom_tf, map_tf;
-    NS_Transform::transformMsgToTF(odom_transform.transform, odom_tf);
-    NS_Transform::transformMsgToTF(map_transform.transform, map_tf);
-
-//    global_pose.setData(odom_tf * map_tf);
-    global_pose.x = (odom_tf * map_tf).getOrigin().getX();
-    global_pose.y = (odom_tf * map_tf).getOrigin().getY();
-    global_pose.theta = (odom_tf * map_tf).getRotation().getAngle();
-
-    logInfo << "get robot pose successfully";
-    return true;
+//    NS_ServiceType::ServiceTransform odom_transform;
+//    NS_ServiceType::ServiceTransform map_transform;
+//
+//    int times = 0;
+//    while(times != 3)
+//    {
+//      NS_Service::Client < NS_ServiceType::ServiceTransform > map_tf_cli(
+//          "ODOM_MAP_TF");
+//      if(map_tf_cli.call(map_transform) == true)
+//      {
+//        break;
+//      }
+//      ++times;
+//    }
+//    if(times == 3)
+//    {
+//      return false;
+//    }
+//
+//    times = 0;
+//    while(times != 3)
+//    {
+//      NS_Service::Client < NS_ServiceType::ServiceTransform > odom_tf_cli(
+//          "BASE_ODOM_TF");
+//      if(odom_tf_cli.call(odom_transform) == true)
+//      {
+//        break;
+//      }
+//      ++times;
+//    }
+//    if(times == 3)
+//    {
+//      return false;
+//    }
+//
+//    //TODO: not verify code for transform
+//    NS_Transform::Transform odom_tf, map_tf;
+//    NS_Transform::transformMsgToTF(odom_transform.transform, odom_tf);
+//    NS_Transform::transformMsgToTF(map_transform.transform, map_tf);
+//
+////    global_pose.setData(odom_tf * map_tf);
+//    global_pose.x = (odom_tf * map_tf).getOrigin().getX();
+//    global_pose.y = (odom_tf * map_tf).getOrigin().getY();
+//    global_pose.theta = (odom_tf * map_tf).getRotation().getAngle();
+//
+//    logInfo << "get robot pose successfully";
+//    return true;
   }
 
 

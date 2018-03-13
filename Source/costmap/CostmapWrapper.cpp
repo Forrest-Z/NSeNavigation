@@ -11,6 +11,7 @@
 
 #include <Time/Rate.h>
 #include "utils/Footprint.h"
+#include "socket_tool.h"
 namespace NS_CostMap {
 
 CostmapWrapper::CostmapWrapper() {
@@ -52,7 +53,7 @@ void CostmapWrapper::updateMap()
 
   }
 void CostmapWrapper::updateCostmap(){
-	prepareMap();
+//	prepareMap();
 }
 void CostmapWrapper::updateMapLoop(double frequency)
 {

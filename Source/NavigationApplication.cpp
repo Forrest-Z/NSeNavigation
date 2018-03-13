@@ -21,6 +21,7 @@ NavigationApplication::NavigationApplication() :
 
 NavigationApplication::~NavigationApplication() {
 	// TODO Auto-generated destructor stub
+	delete goal_sub;
 }
 void NavigationApplication::loadParameters() {
 	NS_NaviCommon::Parameter parameter;

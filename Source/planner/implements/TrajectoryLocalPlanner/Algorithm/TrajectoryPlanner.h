@@ -117,9 +117,9 @@ namespace NS_Planner
      * @return The selected path or trajectory
      */
     Trajectory
-    findBestPath(sgbot::tf::Pose2D global_pose,
-    		sgbot::tf::RobotVel global_vel,
-			sgbot::tf::RobotVel& drive_velocities);
+    findBestPath(Pose2D global_pose,
+    		RobotVel global_vel,
+			RobotVel& drive_velocities);
 
     /**
      * @brief  Update the plan that the controller is following
@@ -127,7 +127,7 @@ namespace NS_Planner
      * @param compute_dists Wheter or not to compute path/goal distances when a plan is updated
      */
     void
-    updatePlan(const std::vector< sgbot::tf::Pose2D >& new_plan,
+    updatePlan(const std::vector< Pose2D >& new_plan,
                bool compute_dists = false);
 
     /**
@@ -261,7 +261,7 @@ namespace NS_Planner
 
     std::vector< sgbot::sensor::Point2D > footprint_spec_; ///< @brief The footprint specification of the robot
 
-    std::vector< sgbot::tf::Pose2D > global_plan_; ///< @brief The global path for the robot to follow
+    std::vector< Pose2D > global_plan_; ///< @brief The global path for the robot to follow
 
     bool stuck_left, stuck_right; ///< @brief Booleans to keep the robot from oscillating during rotation
     bool rotating_left, rotating_right; ///< @brief Booleans to keep track of the direction of rotation for the robot

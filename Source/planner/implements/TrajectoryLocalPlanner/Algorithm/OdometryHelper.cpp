@@ -18,7 +18,7 @@ namespace NS_Planner
   }
 
   void OdometryHelper::getRobotVel(
-		  sgbot::tf::RobotVel& robot_vel)
+		  RobotVel& robot_vel)
   {
     // Set current velocities from odometry
     NS_DataType::Twist global_vel;
@@ -38,8 +38,8 @@ namespace NS_Planner
 //              NS_Transform::createQuaternionFromYaw(global_vel.angular.z),
 //              NS_Transform::Vector3(global_vel.linear.x, global_vel.linear.y,
 //                                    0)));
-      robot_vel.linear_vel = global_vel.linear.x;
-      robot_vel.angular_vel = global_vel.angular.z;
+      robot_vel.setLinear_vel(global_vel.linear.x);
+      robot_vel.setAngular_vel(global_vel.angular.z);
 
     }
   }

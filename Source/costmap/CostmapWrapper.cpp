@@ -25,12 +25,12 @@ CostmapWrapper::~CostmapWrapper() {
 void CostmapWrapper::updateMap()
   {
     // get global pose
-	sgbot::tf::Pose2D pose;
+	Pose2D pose;
     double x = 0.0,y = 0.0,yaw = 0.0;
     if(getRobotPose (pose))
     {
-      x = pose.x, y = pose.y,
-          yaw = pose.theta;
+      x = pose.getX(), y = pose.getY(),
+          yaw = pose.getTheta();
 
       layered_costmap->updateMap(x, y, yaw);
     }else{
@@ -73,11 +73,11 @@ void CostmapWrapper::updateMapLoop(double frequency)
 }
 
 void CostmapWrapper::visualizeForRviz(){
-	unsigned int width = getCostmap()->size_x_,height = getCostmap()->size_y_;
-	double resolution = getCostmap()->resolution_;
+	unsigned int width = getCostmap()->getSizeInCellsX(),height = getCostmap()->getSizeInCellsY();
+	double resolution = getCostmap()->getResolution();
 	logInfo << "width = "<<width <<" height = "<<height<<" resolution = "<<resolution;
 	std::string file_name = "/tmp/write_archive.txt";
-	std::ofstream ofile(file_name,"w");
+	std::ofstream ofile(file_name,fstream::out);
 	boost::archive::binary_oarchive oa(ofile);
 	oa << width << height << resolution;
 	unsigned char* char_map = getCostmap()->getCharMap();
@@ -152,7 +152,7 @@ void CostmapWrapper::prepareMap()
 
 ///TODO change the data structure of service transform
 bool CostmapWrapper::getRobotPose(
-      sgbot::tf::Pose2D& global_pose) const
+      Pose2D& global_pose) const
   {
 //    NS_ServiceType::ServiceTransform odom_transform;
 //    NS_ServiceType::ServiceTransform map_transform;

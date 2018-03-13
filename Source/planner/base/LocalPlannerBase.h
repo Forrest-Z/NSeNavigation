@@ -46,7 +46,7 @@ namespace NS_Planner
     isGoalReached() = 0;
 
     virtual bool
-    setPlan(const std::vector< sgbot::tf::Pose2D >& plan) = 0;
+    setPlan(const std::vector< Pose2D >& plan) = 0;
 
   protected:
     NS_CostMap::CostmapWrapper* costmap;

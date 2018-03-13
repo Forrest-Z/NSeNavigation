@@ -17,6 +17,7 @@
 #include "log_tool.h"
 #include "socket_tool.h"
 #include "transform/transform2d.h"
+#include <common/datatype.h>
 //class MapMetaData{
 //public:
 //	MapMetaData():  resolution(0.0), width(0), height(0), origin(){
@@ -135,7 +136,7 @@ public:
 	}
 	;
 	bool
-	getRobotPose(sgbot::tf::Pose2D& global_pose) const;
+	getRobotPose(Pose2D& global_pose) const;
 
 	Costmap2D*
 	getCostmap() {

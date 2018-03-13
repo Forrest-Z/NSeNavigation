@@ -26,7 +26,7 @@ namespace NS_Planner
    */
   double
   getGoalPositionDistance(
-      const sgbot::tf::Pose2D& global_pose,
+      const Pose2D& global_pose,
       double goal_x, double goal_y);
 
   /**
@@ -38,7 +38,7 @@ namespace NS_Planner
    */
   double
   getGoalOrientationAngleDifference(
-      const sgbot::tf::Pose2D& global_pose,
+      const Pose2D& global_pose,
       double goal_th);
 
   /**
@@ -48,9 +48,9 @@ namespace NS_Planner
    * @param global_plan The plan to be pruned in the frame of the planner
    */
   void
-  prunePlan(const sgbot::tf::Pose2D& global_pose,
-            std::vector< sgbot::tf::Pose2D >& plan,
-            std::vector< sgbot::tf::Pose2D >& global_plan);
+  prunePlan(const Pose2D& global_pose,
+            std::vector< Pose2D >& plan,
+            std::vector< Pose2D >& global_plan);
 
 
   /**
@@ -62,8 +62,8 @@ namespace NS_Planner
    * @return True if achieved, false otherwise
    */
   bool
-  getGoalPose(const std::vector< sgbot::tf::Pose2D >& global_plan,
-              sgbot::tf::Pose2D &goal_pose);
+  getGoalPose(const std::vector< Pose2D >& global_plan,
+              Pose2D &goal_pose);
 
   /**
    * @brief  Check if the goal pose has been achieved
@@ -79,9 +79,9 @@ namespace NS_Planner
    * @return True if achieved, false otherwise
    */
   bool
-  isGoalReached(const std::vector< sgbot::tf::Pose2D >& global_plan,
+  isGoalReached(const std::vector< Pose2D >& global_plan,
                 const NS_CostMap::Costmap2D& costmap,
-                sgbot::tf::Pose2D& global_pose,
+                Pose2D& global_pose,
                 const NS_DataType::Odometry& base_odom, double rot_stopped_vel,
                 double trans_stopped_vel, double xy_goal_tolerance,
                 double yaw_goal_tolerance);

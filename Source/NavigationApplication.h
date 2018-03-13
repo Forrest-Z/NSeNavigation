@@ -47,8 +47,8 @@ private:
 	 * 全局规划器计算路径
 	 */
 	bool
-	makePlan(const sgbot::tf::Pose2D& goal,
-			std::vector<sgbot::tf::Pose2D>& plan);
+	makePlan(const Pose2D& goal,
+			std::vector<Pose2D>& plan);
 
 	void
 	planLoop();
@@ -56,20 +56,20 @@ private:
 	void
 	controlLoop();
 
-	bool goalFromAPP(sgbot::tf::Pose2D& goal_from_app);
+	bool goalFromAPP(Pose2D& goal_from_app);
 	//TODO not sure how to implement this
-	void visualizedGlobalGoal(sgbot::tf::Pose2D& global_goal_);
+	void visualizedGlobalGoal(Pose2D& global_goal_);
 	//TODO not sure how to implement this
-	void visualizedCurrentPose(sgbot::tf::Pose2D& current_pose);
+	void visualizedCurrentPose(Pose2D& current_pose);
 	//TODO not sure how to implement this
-	void visualizedPlan(std::vector<sgbot::tf::Pose2D>& plan_);
+	void visualizedPlan(std::vector<Pose2D>& plan_);
 	/**
 	 * transform the goal in robot frame to global frame
 	 * @param goal,pose in robot frame
 	 * @return pose in global frame
 	 */
-	sgbot::tf::Pose2D
-	goalToGlobalFrame(sgbot::tf::Pose2D& goal);
+	Pose2D
+	goalToGlobalFrame(Pose2D& goal);
 	/**
 	 * to stop the robot
 	 */
@@ -93,8 +93,8 @@ private:
 	resetState();
 
     double
-    distance(const sgbot::tf::Pose2D& p1,
-             const sgbot::tf::Pose2D& p2);
+    distance(const Pose2D& p1,
+             const Pose2D& p2);
 
 private:
 	std::string global_planner_type_;
@@ -111,10 +111,10 @@ private:
 	double planner_patience_, controller_patience_;
 	double oscillation_timeout_, oscillation_distance_;
 private:
-	std::vector<sgbot::tf::Pose2D>* global_planner_plan;
-	std::vector<sgbot::tf::Pose2D>* latest_plan;
+	std::vector<Pose2D>* global_planner_plan;
+	std::vector<Pose2D>* latest_plan;
 
-	sgbot::tf::Pose2D oscillation_pose_;
+	Pose2D oscillation_pose_;
 
 	NS_CostMap::CostmapWrapper* global_costmap;
 
@@ -124,7 +124,7 @@ private:
 
 	NS_Planner::LocalPlannerBase* local_planner;
 
-	sgbot::tf::Pose2D goal;
+	Pose2D goal;
 
 	bool new_goal_trigger;
 	/// for local planner set plan
@@ -145,16 +145,16 @@ private:
 	///publish velocity to controller
 	NS_DataSet::Publisher<NS_DataType::Twist>* twist_pub;
 	///subscribe the goal from other
-	NS_DataSet::Subscriber<sgbot::tf::Pose2D>* goal_sub;
+	NS_DataSet::Subscriber<Pose2D>* goal_sub;
 	///global goal for visualized
-	NS_Service::Server<sgbot::tf::Pose2D>* global_goal_srv;
-	sgbot::tf::Pose2D global_goal;
+	NS_Service::Server<Pose2D>* global_goal_srv;
+	Pose2D global_goal;
 	///current pose for visualized
-	NS_Service::Server<sgbot::tf::Pose2D>* current_pose_srv;
-	sgbot::tf::Pose2D current_pose;
+	NS_Service::Server<Pose2D>* current_pose_srv;
+	Pose2D current_pose;
 	///plan for visualized
-	NS_Service::Server<std::vector<sgbot::tf::Pose2D> >* plan_srv;
-	std::vector<sgbot::tf::Pose2D> global_plan;
+	NS_Service::Server<std::vector<Pose2D> >* plan_srv;
+	std::vector<Pose2D> global_plan;
 
 	///TODO not sure how to do this
 	NS_DataSet::Publisher<bool>* explore_pub;

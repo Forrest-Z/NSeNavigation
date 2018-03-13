@@ -15,7 +15,7 @@ namespace NS_Navigation {
 NavigationApplication::NavigationApplication() :
 		new_global_plan_(false), runPlanner_(false) {
 	// TODO Auto-generated constructor stub
-	   goal_sub = new NS_DataSet::Subscriber< sgbot::tf::Pose2D >(
+	   goal_sub = new NS_DataSet::Subscriber< Pose2D >(
 	        "GOAL", boost::bind(&NavigationApplication::goalFromAPP, this, _1));
 }
 
@@ -54,12 +54,12 @@ void NavigationApplication::publishVelocity(double linear_x, double linear_y,
 	vel.angular.z = angular_z;
 	twist_pub->publish(vel);
 }
-bool NavigationApplication::goalFromAPP(sgbot::tf::Pose2D& goal_from_app){
+bool NavigationApplication::goalFromAPP(Pose2D& goal_from_app){
 	planner_mutex.lock();
 //	    goal = goalToGlobalFrame(goal_from_app);
 		goal = goal_from_app;
-	    printf("goal_callback x = %.4f,y = %.4f, theta = %.4f\n", goal.x,
-	           goal.y, goal.theta);
+	    printf("goal_callback x = %.4f,y = %.4f, theta = %.4f\n", goal.getX(),
+	           goal.getY(), goal.getTheta());
 	    new_goal_trigger = true;
 	    state = PLANNING;
 	    planner_cond.notify_one();
@@ -104,14 +104,14 @@ void NavigationApplication::controlLoop() {
 		NS_NaviCommon::Time last_valid_control;
 
 		//update feedback to correspond to our curent position
-		sgbot::tf::Pose2D global_pose;
+		Pose2D global_pose;
 		global_costmap->getRobotPose(global_pose);
 
 		printf("global_pose x = %.4f,y = %.4f, w = %.4f ,state = %d\n",
-				global_pose.x, global_pose.y,
-				global_pose.theta, state);
+				global_pose.getX(), global_pose.getY(),
+				global_pose.getTheta(), state);
 
-		sgbot::tf::Pose2D current_position;
+		Pose2D current_position;
 //		NS_Transform::poseStampedTFToMsg(global_pose, current_position);
 		current_position = global_pose;
 
@@ -238,12 +238,12 @@ void NavigationApplication::planLoop() {
 			rate.sleep();
 	}
 }
-sgbot::tf::Pose2D NavigationApplication::goalToGlobalFrame(
-		sgbot::tf::Pose2D& goal) {
+Pose2D NavigationApplication::goalToGlobalFrame(
+		Pose2D& goal) {
 
 }
-bool NavigationApplication::makePlan(const sgbot::tf::Pose2D& goal,
-		std::vector<sgbot::tf::Pose2D>& plan) {
+bool NavigationApplication::makePlan(const Pose2D& goal,
+		std::vector<Pose2D>& plan) {
 
 	boost::unique_lock<NS_CostMap::Costmap2D::mutex_t> lock(
 			*(global_costmap->getLayeredCostmap()->getCostmap()->getMutex()));
@@ -251,46 +251,46 @@ bool NavigationApplication::makePlan(const sgbot::tf::Pose2D& goal,
 	plan.clear();
 
 	//get the starting pose of the robot
-	sgbot::tf::Pose2D global_pose;
+	Pose2D global_pose;
 	if (!global_costmap->getRobotPose(global_pose)) {
 		console.error(
 				"Unable to get starting pose of robot, unable to create global plan");
 		return false;
 	}
 
-	sgbot::tf::Pose2D start = global_pose;
+	Pose2D start = global_pose;
 
 	//if the planner fails or returns a zero length plan, planning failed
 	if (!global_planner->makePlan(start, goal, plan) || plan.empty()) {
 		console.warning("Failed to find a  plan to point (%.2f, %.2f)",
-				goal.x, goal.y);
+				goal.getX(), goal.getY());
 		return false;
 	}
 
 	console.debug("Plans computed, %d points to go...", plan.size());
 	global_plan.resize(plan.size());
 	for (size_t i = 0; i < plan.size(); i++) {
-		console.debug("[%d] x = %lf, y = %lf", (i + 1), plan[i].x,
-				plan[i].y);
+		console.debug("[%d] x = %lf, y = %lf", (i + 1), plan[i].getX(),
+				plan[i].getY());
 		global_plan[i] = plan[i];
-		printf("%lf,%lf,\n", plan[i].x, plan[i].y);
+		printf("%lf,%lf,\n", plan[i].getX(), plan[i].getY());
 	}
 	printf("global_plan is assigned and size = %d\n", global_plan.size());
 	return true;
 
 }
 //TODO change implement ways
-double NavigationApplication::distance(const sgbot::tf::Pose2D& p1,
-		const sgbot::tf::Pose2D& p2) {
-	return hypot(p1.x - p2.x,
-			p1.y - p2.y);
+double NavigationApplication::distance(const Pose2D& p1,
+		const Pose2D& p2) {
+	return hypot(p1.getX() - p2.getX(),
+			p1.getY() - p2.getY());
 }
 void NavigationApplication::run() {
 	loadParameters();
 
 	//set up plan triple buffer
-	global_planner_plan = new std::vector<sgbot::tf::Pose2D>();
-	latest_plan = new std::vector<sgbot::tf::Pose2D>();
+	global_planner_plan = new std::vector<Pose2D>();
+	latest_plan = new std::vector<Pose2D>();
 
 	/*
 	 * make global planner and global costmap

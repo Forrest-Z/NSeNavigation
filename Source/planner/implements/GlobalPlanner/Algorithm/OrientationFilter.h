@@ -23,13 +23,13 @@ namespace NS_Planner
     }
 
     virtual void
-    processPath(const sgbot::tf::Pose2D& start,
-                std::vector< sgbot::tf::Pose2D >& path);
+    processPath(const Pose2D& start,
+                std::vector< Pose2D >& path);
 
     void
-    pointToNext(std::vector< sgbot::tf::Pose2D >& path, int index);
+    pointToNext(std::vector< Pose2D >& path, int index);
     void
-    interpolate(std::vector< sgbot::tf::Pose2D >& path, int start_index,
+    interpolate(std::vector< Pose2D >& path, int start_index,
                 int end_index);
 
     void setMode(OrientationMode new_mode)

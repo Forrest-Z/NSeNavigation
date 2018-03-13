@@ -252,7 +252,7 @@ namespace NS_Planner
       //do we want to follow blindly
       if(simple_attractor_)
       {
-        goal_dist = (x_i - global_plan_[global_plan_.size() - 1].x) * (x_i - global_plan_[global_plan_.size() - 1].x) + (y_i - global_plan_[global_plan_.size() - 1].y) * (y_i - global_plan_[global_plan_.size() - 1].y);
+        goal_dist = (x_i - global_plan_[global_plan_.size() - 1].getX()) * (x_i - global_plan_[global_plan_.size() - 1].getX()) + (y_i - global_plan_[global_plan_.size() - 1].getY()) * (y_i - global_plan_[global_plan_.size() - 1].getY());
       }
       else
       {
@@ -332,8 +332,8 @@ namespace NS_Planner
     // find a clear line of sight from the robot's cell to a farthest point on the path
     for(int i = global_plan_.size() - 1; i >= 0; --i)
     {
-      if(costmap_.worldToMap(global_plan_[i].x,
-                             global_plan_[i].y, goal_cell_x,
+      if(costmap_.worldToMap(global_plan_[i].getX(),
+                             global_plan_[i].getY(), goal_cell_x,
                              goal_cell_y))
       {
         if(lineCost(cell_x, goal_cell_x, cell_y, goal_cell_y) >= 0)
@@ -446,7 +446,7 @@ namespace NS_Planner
   }
 
   void TrajectoryPlanner::updatePlan(
-      const vector< sgbot::tf::Pose2D >& new_plan, bool compute_dists)
+      const vector< Pose2D >& new_plan, bool compute_dists)
   {
     global_plan_.resize(new_plan.size());
     for(unsigned int i = 0; i < new_plan.size(); ++i)
@@ -456,9 +456,9 @@ namespace NS_Planner
 
     if(global_plan_.size() > 0)
     {
-      sgbot::tf::Pose2D& final_goal_pose = global_plan_[global_plan_.size() - 1];
-      final_goal_x_ = final_goal_pose.x;
-      final_goal_y_ = final_goal_pose.y;
+      Pose2D& final_goal_pose = global_plan_[global_plan_.size() - 1];
+      final_goal_x_ = final_goal_pose.getX();
+      final_goal_y_ = final_goal_pose.getY();
       final_goal_position_valid_ = true;
     }
     else
@@ -961,17 +961,17 @@ namespace NS_Planner
 
   //given the current state of the robot, find a good trajectory
   Trajectory TrajectoryPlanner::findBestPath(
-      sgbot::tf::Pose2D global_pose,
-	  sgbot::tf::RobotVel global_vel,
-	  sgbot::tf::RobotVel& drive_velocities)
+      Pose2D global_pose,
+	  RobotVel global_vel,
+	  RobotVel& drive_velocities)
   {
 
-    Vector3f pos(global_pose.x,
-                        global_pose.y,
-                        global_pose.theta);
-    Vector3f vel(global_vel.linear_vel,
+    Vector3f pos(global_pose.getX(),
+                        global_pose.getY(),
+                        global_pose.getTheta());
+    Vector3f vel(global_vel.getLinear_vel(),
                         0.0f,
-                        global_vel.angular_vel);
+                        global_vel.getAngular_vel());
 
     //reset the map for new operations
     path_map_.resetPathDist();
@@ -1014,8 +1014,8 @@ namespace NS_Planner
 //      drive_velocities.setBasis(matrix);
 //    }
     if(best.cost_ < 0){
-    	drive_velocities.angular_vel = 0.0;
-    	drive_velocities.linear_vel = 0.0;
+    	drive_velocities.setAngular_vel(0.0f);
+    	drive_velocities.setLinear_vel(0.0f);
     }else{
 
     }

@@ -22,7 +22,7 @@
 #include <sstream>
 
 
-void SocketSend(const std::string& ip,const std::string& port,std::string& file_name) const{
+void SocketSend(const std::string& ip,const std::string& port,std::string& file_name){
 	const int BUFF_SIZE = 1024;
 	char buff[BUFF_SIZE];
     int sock_id;

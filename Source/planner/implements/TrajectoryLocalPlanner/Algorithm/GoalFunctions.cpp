@@ -9,41 +9,41 @@ namespace NS_Planner
 {
 
   double getGoalPositionDistance(
-      const sgbot::tf::Pose2D& global_pose,
+      const Pose2D& global_pose,
       double goal_x, double goal_y)
   {
-    return hypot(goal_x - global_pose.x,
-                 goal_y - global_pose.y);
+    return hypot(goal_x - global_pose.getX(),
+                 goal_y - global_pose.getY());
   }
 
   double getGoalOrientationAngleDifference(
-      const sgbot::tf::Pose2D& global_pose,
+      const Pose2D& global_pose,
       double goal_th)
   {
 //    double yaw = NS_Transform::getYaw(global_pose);
-	  double yaw = global_pose.theta;
+	  double yaw = global_pose.getTheta();
     return NS_Geometry::NS_Angles::shortest_angular_distance(yaw, goal_th);
   }
 
-  void prunePlan(const sgbot::tf::Pose2D& global_pose,
-                 std::vector< sgbot::tf::Pose2D >& plan,
-                 std::vector< sgbot::tf::Pose2D >& global_plan)
+  void prunePlan(const Pose2D& global_pose,
+                 std::vector< Pose2D >& plan,
+                 std::vector< Pose2D >& global_plan)
   {
     assert(global_plan.size() >= plan.size());
-    std::vector< sgbot::tf::Pose2D >::iterator it = plan.begin();
-    std::vector< sgbot::tf::Pose2D >::iterator global_it = global_plan.begin();
+    std::vector< Pose2D >::iterator it = plan.begin();
+    std::vector< Pose2D >::iterator global_it = global_plan.begin();
     while(it != plan.end())
     {
-      const sgbot::tf::Pose2D& w = *it;
+      const Pose2D& w = *it;
       // Fixed error bound of 2 meters for now. Can reduce to a portion of the map size or based on the resolution
-      double x_diff = global_pose.x - w.x;
-      double y_diff = global_pose.y - w.y;
+      double x_diff = global_pose.getX() - w.getX();
+      double y_diff = global_pose.getY() - w.getY();
       double distance_sq = x_diff * x_diff + y_diff * y_diff;
       if(distance_sq < 1)
       {
         printf("Nearest waypoint to <%f, %f> is <%f, %f>\n",
-               global_pose.x, global_pose.y,
-               w.x, w.y);
+               global_pose.getX(), global_pose.getY(),
+               w.getX(), w.getY());
         break;
       }
       it = plan.erase(it);
@@ -52,8 +52,8 @@ namespace NS_Planner
   }
 
 
-  bool getGoalPose(const std::vector< sgbot::tf::Pose2D >& global_plan,
-                   sgbot::tf::Pose2D& goal_pose)
+  bool getGoalPose(const std::vector< Pose2D >& global_plan,
+                   Pose2D& goal_pose)
   {
     if(global_plan.empty())
     {
@@ -103,20 +103,20 @@ namespace NS_Planner
   }
 
   bool isGoalReached(
-      const std::vector< sgbot::tf::Pose2D >& global_plan,
+      const std::vector< Pose2D >& global_plan,
       const NS_CostMap::Costmap2D& costmap __attribute__((unused)),
-      sgbot::tf::Pose2D& global_pose,
+      Pose2D& global_pose,
       const NS_DataType::Odometry& base_odom, double rot_stopped_vel,
       double trans_stopped_vel, double xy_goal_tolerance,
       double yaw_goal_tolerance)
   {
     //we assume the global goal is the last point in the global plan
-	sgbot::tf::Pose2D goal_pose;
+	Pose2D goal_pose;
     getGoalPose(global_plan, goal_pose);
 
-    double goal_x = goal_pose.x;
-    double goal_y = goal_pose.y;
-    double goal_th = goal_pose.theta;
+    double goal_x = goal_pose.getX();
+    double goal_y = goal_pose.getY();
+    double goal_th = goal_pose.getTheta();
 
     //check to see if we've reached the goal position
     if(getGoalPositionDistance(global_pose, goal_x, goal_y) <= xy_goal_tolerance)

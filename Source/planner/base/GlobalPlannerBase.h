@@ -41,13 +41,13 @@ namespace NS_Planner
     onInitialize() = 0;
 
     virtual bool
-    makePlan(const sgbot::tf::Pose2D& start,
-             const sgbot::tf::Pose2D& goal,
-             std::vector< sgbot::tf::Pose2D >& plan) = 0;
+    makePlan(const Pose2D& start,
+             const Pose2D& goal,
+             std::vector< Pose2D >& plan) = 0;
 
-    virtual bool makePlan(const sgbot::tf::Pose2D& start,
-                          const sgbot::tf::Pose2D& goal,
-                          std::vector< sgbot::tf::Pose2D >& plan,
+    virtual bool makePlan(const Pose2D& start,
+                          const Pose2D& goal,
+                          std::vector< Pose2D >& plan,
                           double& cost)
     {
       cost = 0;

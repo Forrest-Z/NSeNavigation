@@ -9,23 +9,23 @@
 namespace NS_Planner
 {
 
-  void set_angle(sgbot::tf::Pose2D* pose, double angle)
+  void set_angle(Pose2D* pose, double angle)
   {
     //pose->pose.orientation = tf::createQuaternionMsgFromYaw(angle);
 //    pose->pose.orientation = NS_Transform::createQuaternionMsgFromYaw(angle);
-	  pose->theta = angle;
+	  pose->setTheta(angle);
   }
 
-  double getYaw(sgbot::tf::Pose2D pose)
+  double getYaw(Pose2D pose)
   {
     //return tf::getYaw(pose.pose.orientation);
 //    return NS_Transform::getYaw(pose.pose.orientation);
-	  return pose.theta;
+	  return pose.getTheta();
   }
 
   void OrientationFilter::processPath(
-      const sgbot::tf::Pose2D& start,
-      std::vector< sgbot::tf::Pose2D >& path)
+      const Pose2D& start,
+      std::vector< Pose2D >& path)
   {
     int n = path.size();
     switch(omode_)
@@ -37,7 +37,7 @@ namespace NS_Planner
         }
         break;
       case INTERPOLATE:
-        path[0].theta = start.theta;
+        path[0].setTheta(start.getTheta());
         interpolate(path, 0, n - 1);
         break;
       case FORWARDTHENINTERPOLATE:
@@ -60,25 +60,25 @@ namespace NS_Planner
             i--;
         }
 
-        path[0].theta = start.theta;
+        path[0].setTheta(start.getTheta());
         interpolate(path, i, n - 1);
         break;
     }
   }
 
   void OrientationFilter::pointToNext(
-      std::vector< sgbot::tf::Pose2D >& path, int index)
+      std::vector< Pose2D >& path, int index)
   {
-    double x0 = path[index].x, y0 = path[index].y,
-        x1 = path[index + 1].x,
-        y1 = path[index + 1].y;
+    double x0 = path[index].getX(), y0 = path[index].getY(),
+        x1 = path[index + 1].getX(),
+        y1 = path[index + 1].getY();
 
     double angle = atan2(y1 - y0, x1 - x0);
     set_angle(&path[index], angle);
   }
 
   void OrientationFilter::interpolate(
-      std::vector< sgbot::tf::Pose2D >& path, int start_index,
+      std::vector< Pose2D >& path, int start_index,
       int end_index)
   {
     double start_yaw = getYaw(path[start_index]), end_yaw = getYaw(

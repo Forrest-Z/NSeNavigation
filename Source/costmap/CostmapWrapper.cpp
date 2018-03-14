@@ -70,27 +70,32 @@ void CostmapWrapper::updateMapLoop(double frequency)
       updateCostmap();
     }
     rate.sleep();
+    visualizeForRviz();
   }
 }
 
 void CostmapWrapper::visualizeForRviz(){
-	unsigned int width = getCostmap()->getSizeInCellsX(),height = getCostmap()->getSizeInCellsY();
+	int width = getCostmap()->getSizeInCellsX(),height = getCostmap()->getSizeInCellsY();
 	double resolution = getCostmap()->getResolution();
-	logInfo << "width = "<<width <<" height = "<<height<<" resolution = "<<resolution;
+	logInfo << "visualize for rviz width = "<<width <<" height = "<<height<<" resolution = "<<resolution;
 	std::string file_name = "/tmp/write_archive.txt";
 	std::ofstream ofile(file_name,fstream::out);
 	boost::archive::binary_oarchive oa(ofile);
 	oa << width << height << resolution;
 	unsigned char* char_map = getCostmap()->getCharMap();
+	FILE* file;
+	file = fopen("/tmp/rviz_costmap.log","w");
 	int index = 0;
-	for (unsigned int i = 0; i < height; ++i) {
-		for (unsigned int j = 0; j < width; ++j) {
+	for ( int i = 0; i < height; ++i) {
+		for ( int j = 0; j < width; ++j) {
 			oa << char_map[index];
+			fprintf(file,"%d\n",char_map[index]);
 			++index;
 		}
 	}
+	fclose(file);
 	ofile.close();
-	SocketSend("127.0.0.1","12345",file_name);
+	SocketSend("10.0.1.17","12345",file_name);
 }
 void CostmapWrapper::loadParameters()
  {

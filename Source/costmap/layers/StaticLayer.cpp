@@ -27,7 +27,7 @@ void StaticLayer::loopStaticMap() {
 		NS_ServiceType::ServiceMap srv_map;
 
 		if (simulated) {
-			std::string file_path = "/home/pengjiawei/map.pgm";
+			std::string file_path = "/home/pengjiawei/test_map.pgm";
 			logInfo << "simulated so please located pgm file in path = "<<file_path;
 			srv_map.map.info.resolution = 0.1;
 			srv_map.map.info.origin.position.x = 0.0;
@@ -151,7 +151,7 @@ void StaticLayer::processMap(const NS_DataType::OccupancyGrid& new_map) {
 	for (unsigned int i = 0; i < size_y; ++i) {
 		for (unsigned int j = 0; j < size_x; ++j) {
 			unsigned char value = new_map.data[index];
-			costmap_[index] = interpretValue(value);
+				costmap_[index] = interpretValue(value);
 			++index;
 		}
 	}
@@ -216,7 +216,7 @@ void StaticLayer::updateCosts(Costmap2D& master_grid, int min_i, int min_j,
 //      updateWithMax(master_grid, min_i, min_j, max_i, max_j);
 }
 void StaticLayer::readPgm(std::string pgm_file_path, int16_t& width,
-		int16_t& height, std::vector<char>& value_vec) {
+		int16_t& height, std::vector< char>& value_vec) {
 	int row = 0, col = 0;
 	ifstream infile(pgm_file_path);
 	stringstream ss;
@@ -254,6 +254,14 @@ void StaticLayer::readPgm(std::string pgm_file_path, int16_t& width,
 		for (col = 0; col < width; ++col) {
 			ss >> pixel;
 			array[row][col] = pixel;
+			///transfer value of pgm to occupancy grid
+			    if(pixel == 255){
+			    	pixel = 0;
+			    }else if(pixel == 205){
+			    	pixel = -1;
+			    }else if(pixel == 0){
+			    	pixel = 100;
+			    }
 			value_vec.push_back(pixel);
 		}
 	}

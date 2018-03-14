@@ -7,7 +7,7 @@
 #include <DataSet/DataType/OccupancyGridUpdate.h>
 #include <boost/thread/thread.hpp>
 #include <queue>
-
+#include <log_tool.h>
 namespace NS_CostMap
 {
   /**

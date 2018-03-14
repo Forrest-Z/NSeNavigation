@@ -20,9 +20,10 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <fstream>
 #include <sstream>
-
+#include <log_tool.h>
 
 void SocketSend(const std::string& ip,const std::string& port,std::string& file_name){
+	logInfo << "ip : port = "<<ip<<":"<<port<<" . file name = "<<file_name;
 	const int BUFF_SIZE = 1024;
 	char buff[BUFF_SIZE];
     int sock_id;
@@ -65,8 +66,9 @@ void SocketSend(const std::string& ip,const std::string& port,std::string& file_
     FILE* file = fopen(file_name.c_str(),"r");
     memset(buff,0,sizeof(buff));
     size_t file_block_length = 0;
+    size_t file_total_length = 0;
     while ((file_block_length = fread(buff,sizeof(char),BUFF_SIZE,file)) > 0){
-        printf("file block length = %d\n",file_block_length);
+    	file_total_length += file_block_length;
         if (send(sock_id, buff, file_block_length, 0) < 0){
             printf("send failed\n");
             break;
@@ -75,6 +77,7 @@ void SocketSend(const std::string& ip,const std::string& port,std::string& file_
     }
     fclose(file);
     end = clock();
+    printf("file total length = %d\n",file_total_length);
     cout<<"execute time = "<<end-start<<endl;
     close(sock_id);
 }

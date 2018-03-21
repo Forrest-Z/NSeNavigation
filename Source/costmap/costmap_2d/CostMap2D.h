@@ -6,7 +6,10 @@
 //#include <DataSet/DataType/Point.h>
 #include <sensor/lidar2d.h>
 #include <boost/thread.hpp>
-
+#include <type/pose2d.h>
+#include <type/point2d.h>
+#include <linear-algebra/vector.h>
+using namespace sgbot;
 namespace NS_CostMap {
 /**
  * costmap 的封装类
@@ -194,7 +197,7 @@ public:
 //     * @return True if the polygon was filled... false if it could not be filled
 //     */
 //    bool
-//    setConvexPolygonCost(const std::vector< sgbot::sensor::Point2D >& polygon,
+//    setConvexPolygonCost(const std::vector< Point2D >& polygon,
 //                         unsigned char cost_value);
 //
 //    /**

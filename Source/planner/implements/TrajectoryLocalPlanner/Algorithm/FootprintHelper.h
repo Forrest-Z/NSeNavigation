@@ -10,7 +10,7 @@
 
 namespace NS_Planner
 {
-	typedef sgbot::la::Vector3f Vector3f;
+	typedef sgbot::la::Vector<float ,3> Vector3f;
   class FootprintHelper
   {
   public:
@@ -28,7 +28,7 @@ namespace NS_Planner
      */
     std::vector< NS_DataType::Position2DInt >
     getFootprintCells(Vector3f pos,
-                      std::vector< sgbot::sensor::Point2D > footprint_spec,
+                      std::vector< Point2D > footprint_spec,
                       const NS_CostMap::Costmap2D&, bool fill);
 
     /**

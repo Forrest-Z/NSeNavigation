@@ -73,7 +73,7 @@ namespace NS_Planner
      */
     TrajectoryPlanner(WorldModel& world_model,
                       const NS_CostMap::Costmap2D& costmap,
-                      std::vector< sgbot::sensor::Point2D > footprint_spec,
+                      std::vector< Point2D > footprint_spec,
                       double acc_lim_x = 1.0, double acc_lim_y = 1.0,
                       double acc_lim_theta = 1.0, double sim_time = 1.0,
                       double sim_granularity = 0.025, int vx_samples = 20,
@@ -189,12 +189,12 @@ namespace NS_Planner
                  float &occ_cost, float &total_cost);
 
     /** @brief Set the footprint specification of the robot. */
-    void setFootprint(std::vector< sgbot::sensor::Point2D > footprint)
+    void setFootprint(std::vector< Point2D > footprint)
     {
       footprint_spec_ = footprint;
     }
 
-    std::vector< sgbot::sensor::Point2D > getFootprint() const
+    std::vector< Point2D > getFootprint() const
     {
       return footprint_spec_;
     }
@@ -259,7 +259,7 @@ namespace NS_Planner
     const NS_CostMap::Costmap2D& costmap_; ///< @brief Provides access to cost map information
     WorldModel& world_model_; ///< @brief The world model that the controller uses for collision detection
 
-    std::vector< sgbot::sensor::Point2D > footprint_spec_; ///< @brief The footprint specification of the robot
+    std::vector< Point2D > footprint_spec_; ///< @brief The footprint specification of the robot
 
     std::vector< Pose2D > global_plan_; ///< @brief The global path for the robot to follow
 

@@ -16,7 +16,7 @@ namespace NS_CostMap
    */
   void
   calculateMinAndMaxDistances(
-      const std::vector< sgbot::sensor::Point2D >& footprint, double& min_dist,
+      const std::vector< Point2D >& footprint, double& min_dist,
       double& max_dist);
 
 
@@ -32,8 +32,8 @@ namespace NS_CostMap
    */
   void
   transformFootprint(double x, double y, double theta,
-                     const std::vector< sgbot::sensor::Point2D >& footprint_spec,
-                     std::vector< sgbot::sensor::Point2D >& oriented_footprint);
+                     const std::vector< Point2D >& footprint_spec,
+                     std::vector< Point2D >& oriented_footprint);
 
 
 
@@ -41,12 +41,12 @@ namespace NS_CostMap
    * @brief Adds the specified amount of padding to the footprint (in place)
    */
   void
-  padFootprint(std::vector< sgbot::sensor::Point2D >& footprint, double padding);
+  padFootprint(std::vector< Point2D >& footprint, double padding);
 
   /**
    * @brief Create a circular footprint from a given radius
    */
-  std::vector< sgbot::sensor::Point2D >
+  std::vector< Point2D >
   makeFootprintFromRadius(double radius);
 
   /**
@@ -57,7 +57,7 @@ namespace NS_CostMap
    */
   bool
   makeFootprintFromString(const std::string& footprint_string,
-                          std::vector< sgbot::sensor::Point2D >& footprint);
+                          std::vector< Point2D >& footprint);
 
 }  // end namespace costmap_2d
 

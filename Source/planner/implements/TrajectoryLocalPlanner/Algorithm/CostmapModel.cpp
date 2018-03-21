@@ -14,8 +14,8 @@ namespace NS_Planner
   }
 
   double CostmapModel::footprintCost(
-      const sgbot::sensor::Point2D& position,
-      const std::vector< sgbot::sensor::Point2D >& footprint,
+      const Point2D& position,
+      const std::vector< Point2D >& footprint,
       double inscribed_radius, double circumscribed_radius)
   {
 

@@ -58,7 +58,7 @@ namespace NS_Planner
 
   TrajectoryPlanner::TrajectoryPlanner(
       WorldModel& world_model, const Costmap2D& costmap,
-      std::vector< sgbot::sensor::Point2D > footprint_spec, double acc_lim_x,
+      std::vector< Point2D > footprint_spec, double acc_lim_x,
       double acc_lim_y, double acc_lim_theta, double sim_time,
       double sim_granularity, int vx_samples, int vtheta_samples,
       double pdist_scale, double gdist_scale, double occdist_scale,
@@ -252,7 +252,7 @@ namespace NS_Planner
       //do we want to follow blindly
       if(simple_attractor_)
       {
-        goal_dist = (x_i - global_plan_[global_plan_.size() - 1].getX()) * (x_i - global_plan_[global_plan_.size() - 1].getX()) + (y_i - global_plan_[global_plan_.size() - 1].getY()) * (y_i - global_plan_[global_plan_.size() - 1].getY());
+        goal_dist = (x_i - global_plan_[global_plan_.size() - 1].x) * (x_i - global_plan_[global_plan_.size() - 1].x) + (y_i - global_plan_[global_plan_.size() - 1].y) * (y_i - global_plan_[global_plan_.size() - 1].y);
       }
       else
       {
@@ -332,8 +332,8 @@ namespace NS_Planner
     // find a clear line of sight from the robot's cell to a farthest point on the path
     for(int i = global_plan_.size() - 1; i >= 0; --i)
     {
-      if(costmap_.worldToMap(global_plan_[i].getX(),
-                             global_plan_[i].getY(), goal_cell_x,
+      if(costmap_.worldToMap(global_plan_[i].x,
+                             global_plan_[i].y, goal_cell_x,
                              goal_cell_y))
       {
         if(lineCost(cell_x, goal_cell_x, cell_y, goal_cell_y) >= 0)
@@ -457,8 +457,8 @@ namespace NS_Planner
     if(global_plan_.size() > 0)
     {
       Pose2D& final_goal_pose = global_plan_[global_plan_.size() - 1];
-      final_goal_x_ = final_goal_pose.getX();
-      final_goal_y_ = final_goal_pose.getY();
+      final_goal_x_ = final_goal_pose.x;
+      final_goal_y_ = final_goal_pose.y;
       final_goal_position_valid_ = true;
     }
     else
@@ -966,9 +966,9 @@ namespace NS_Planner
 	  RobotVel& drive_velocities)
   {
 
-    Vector3f pos(global_pose.getX(),
-                        global_pose.getY(),
-                        global_pose.getTheta());
+    Vector3f pos(global_pose.x,
+                        global_pose.y,
+                        global_pose.theta);
     Vector3f vel(global_vel.getLinear_vel(),
                         0.0f,
                         global_vel.getAngular_vel());

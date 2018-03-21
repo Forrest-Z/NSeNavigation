@@ -30,15 +30,15 @@ void CostmapWrapper::updateMap()
     double x = 0.0,y = 0.0,yaw = 0.0;
     if(getRobotPose (pose))
     {
-      x = pose.getX(), y = pose.getY(),
-          yaw = pose.getTheta();
+      x = pose.x, y = pose.y,
+          yaw = pose.theta;
 
       layered_costmap->updateMap(x, y, yaw);
     }else{
     	logWarn << "failed to get robot pose so update map with 0,0,0";
     	layered_costmap->updateMap();
     }
-    std::vector< sgbot::sensor::Point2D > footprint;
+    std::vector< Point2D > footprint;
 
 
       //by pengjiawei
@@ -201,8 +201,8 @@ bool CostmapWrapper::getRobotPose(
 //    NS_Transform::transformMsgToTF(map_transform.transform, map_tf);
 //
 ////    global_pose.setData(odom_tf * map_tf);
-//    global_pose.x = (odom_tf * map_tf).getOrigin().getX();
-//    global_pose.y = (odom_tf * map_tf).getOrigin().getY();
+//    global_pose.x = (odom_tf * map_tf).getOrigin().x;
+//    global_pose.y = (odom_tf * map_tf).getOrigin().y;
 //    global_pose.theta = (odom_tf * map_tf).getRotation().getAngle();
 //
 //    logInfo << "get robot pose successfully";
@@ -213,7 +213,7 @@ bool CostmapWrapper::getRobotPose(
 
 
 void CostmapWrapper::setPaddedRobotFootprint(
-    const std::vector< sgbot::sensor::Point2D >& points)
+    const std::vector< Point2D >& points)
 {
   padded_footprint = points;
   padFootprint(padded_footprint, footprint_padding_);

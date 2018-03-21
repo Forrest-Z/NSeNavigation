@@ -59,8 +59,8 @@ bool NavigationApplication::goalFromAPP(Pose2D& goal_from_app){
 	planner_mutex.lock();
 //	    goal = goalToGlobalFrame(goal_from_app);
 		goal = goal_from_app;
-	    printf("goal_callback x = %.4f,y = %.4f, theta = %.4f\n", goal.getX(),
-	           goal.getY(), goal.getTheta());
+	    printf("goal_callback x = %.4f,y = %.4f, theta = %.4f\n", goal.x,
+	           goal.y, goal.theta);
 	    new_goal_trigger = true;
 	    state = PLANNING;
 	    planner_cond.notify_one();
@@ -109,8 +109,8 @@ void NavigationApplication::controlLoop() {
 		global_costmap->getRobotPose(global_pose);
 
 		printf("global_pose x = %.4f,y = %.4f, w = %.4f ,state = %d\n",
-				global_pose.getX(), global_pose.getY(),
-				global_pose.getTheta(), state);
+				global_pose.x, global_pose.y,
+				global_pose.theta, state);
 
 		Pose2D current_position;
 //		NS_Transform::poseStampedTFToMsg(global_pose, current_position);
@@ -264,17 +264,17 @@ bool NavigationApplication::makePlan(const Pose2D& goal,
 	//if the planner fails or returns a zero length plan, planning failed
 	if (!global_planner->makePlan(start, goal, plan) || plan.empty()) {
 		console.warning("Failed to find a  plan to point (%.2f, %.2f)",
-				goal.getX(), goal.getY());
+				goal.x, goal.y);
 		return false;
 	}
 
 	console.debug("Plans computed, %d points to go...", plan.size());
 	global_plan.resize(plan.size());
 	for (size_t i = 0; i < plan.size(); i++) {
-		console.debug("[%d] x = %lf, y = %lf", (i + 1), plan[i].getX(),
-				plan[i].getY());
+		console.debug("[%d] x = %lf, y = %lf", (i + 1), plan[i].x,
+				plan[i].y);
 		global_plan[i] = plan[i];
-		printf("%lf,%lf,\n", plan[i].getX(), plan[i].getY());
+		printf("%lf,%lf,\n", plan[i].x, plan[i].y);
 	}
 	printf("global_plan is assigned and size = %d\n", global_plan.size());
 	return true;
@@ -283,8 +283,8 @@ bool NavigationApplication::makePlan(const Pose2D& goal,
 //TODO change implement ways
 double NavigationApplication::distance(const Pose2D& p1,
 		const Pose2D& p2) {
-	return hypot(p1.getX() - p2.getX(),
-			p1.getY() - p2.getY());
+	return hypot(p1.x - p2.x,
+			p1.y - p2.y);
 }
 void NavigationApplication::run() {
 	loadParameters();

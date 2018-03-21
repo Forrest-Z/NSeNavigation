@@ -53,7 +53,7 @@ public:
 	}
 
 	/** @brief just for layered_costmap_->getFootprint(). */
-	const std::vector<sgbot::sensor::Point2D>&
+	const std::vector<Point2D>&
 	getFootprint() const;
 
 	/** @brief called when the foorprint is changed , called in LayeredCostmap::setFootprint())  */
@@ -80,7 +80,7 @@ protected:
 	///actually we have never used the extra bound so we don't need
 	///extra_min_x_, extra_max_x_, extra_min_y_, extra_max_y_;
 private:
-	std::vector<sgbot::sensor::Point2D> footprint_spec_;
+	std::vector<Point2D> footprint_spec_;
 };
 
 }  // namespace costmap_2d

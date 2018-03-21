@@ -12,8 +12,8 @@ namespace NS_Planner
       const Pose2D& global_pose,
       double goal_x, double goal_y)
   {
-    return hypot(goal_x - global_pose.getX(),
-                 goal_y - global_pose.getY());
+    return hypot(goal_x - global_pose.x,
+                 goal_y - global_pose.y);
   }
 
   double getGoalOrientationAngleDifference(
@@ -21,7 +21,7 @@ namespace NS_Planner
       double goal_th)
   {
 //    double yaw = NS_Transform::getYaw(global_pose);
-	  double yaw = global_pose.getTheta();
+	  double yaw = global_pose.theta;
     return NS_Geometry::NS_Angles::shortest_angular_distance(yaw, goal_th);
   }
 
@@ -36,14 +36,14 @@ namespace NS_Planner
     {
       const Pose2D& w = *it;
       // Fixed error bound of 2 meters for now. Can reduce to a portion of the map size or based on the resolution
-      double x_diff = global_pose.getX() - w.getX();
-      double y_diff = global_pose.getY() - w.getY();
+      double x_diff = global_pose.x - w.x;
+      double y_diff = global_pose.y - w.y;
       double distance_sq = x_diff * x_diff + y_diff * y_diff;
       if(distance_sq < 1)
       {
         printf("Nearest waypoint to <%f, %f> is <%f, %f>\n",
-               global_pose.getX(), global_pose.getY(),
-               w.getX(), w.getY());
+               global_pose.x, global_pose.y,
+               w.x, w.y);
         break;
       }
       it = plan.erase(it);
@@ -114,9 +114,9 @@ namespace NS_Planner
 	Pose2D goal_pose;
     getGoalPose(global_plan, goal_pose);
 
-    double goal_x = goal_pose.getX();
-    double goal_y = goal_pose.getY();
-    double goal_th = goal_pose.getTheta();
+    double goal_x = goal_pose.x;
+    double goal_y = goal_pose.y;
+    double goal_th = goal_pose.theta;
 
     //check to see if we've reached the goal position
     if(getGoalPositionDistance(global_pose, goal_x, goal_y) <= xy_goal_tolerance)

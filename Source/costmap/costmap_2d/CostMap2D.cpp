@@ -228,7 +228,7 @@ namespace NS_CostMap
   }
 
 //  bool Costmap2D::setConvexPolygonCost(
-//      const std::vector< sgbot::sensor::Point2D >& polygon,
+//      const std::vector< Point2D >& polygon,
 //      unsigned char cost_value)
 //  {
 //    // we assume the polygon is given in the global_frame... we need to transform it to map coordinates

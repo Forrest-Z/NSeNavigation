@@ -33,7 +33,7 @@ double distanceToLine(double pX, double pY, double x0, double y0, double x1,
   return distance(pX, pY, xx, yy);
 }
 ///not used
-bool intersects(std::vector< sgbot::sensor::Point2D >& polygon, float testx,
+bool intersects(std::vector< Point2D >& polygon, float testx,
                 float testy)
 {
   bool c = false;
@@ -49,8 +49,8 @@ bool intersects(std::vector< sgbot::sensor::Point2D >& polygon, float testx,
   return c;
 }
 ///not used
-bool intersects_helper(std::vector< sgbot::sensor::Point2D >& polygon1,
-                       std::vector< sgbot::sensor::Point2D >& polygon2)
+bool intersects_helper(std::vector< Point2D >& polygon1,
+                       std::vector< Point2D >& polygon2)
 {
   for(unsigned int i = 0; i < polygon1.size(); i++)
     if(intersects(polygon2, polygon1[i].x, polygon1[i].y))
@@ -58,8 +58,8 @@ bool intersects_helper(std::vector< sgbot::sensor::Point2D >& polygon1,
   return false;
 }
 
-bool intersects(std::vector< sgbot::sensor::Point2D >& polygon1,
-                std::vector< sgbot::sensor::Point2D >& polygon2)
+bool intersects(std::vector< Point2D >& polygon1,
+                std::vector< Point2D >& polygon2)
 {
   return intersects_helper(polygon1, polygon2) || intersects_helper(polygon2,
                                                                     polygon1);

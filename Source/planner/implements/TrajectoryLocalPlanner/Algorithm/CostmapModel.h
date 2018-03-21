@@ -38,8 +38,8 @@ namespace NS_Planner
      * @return Positive if all the points lie outside the footprint, negative otherwise
      */
     virtual double
-    footprintCost(const sgbot::sensor::Point2D& position,
-                  const std::vector< sgbot::sensor::Point2D >& footprint,
+    footprintCost(const Point2D& position,
+                  const std::vector< Point2D >& footprint,
                   double inscribed_radius, double circumscribed_radius);
 
   private:

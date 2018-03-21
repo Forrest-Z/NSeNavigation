@@ -29,11 +29,11 @@ distanceToLine(double pX, double pY, double x0, double y0, double x1,
                double y1);
 ///not used
 bool
-intersects(std::vector< sgbot::sensor::Point2D >& polygon, float testx,
+intersects(std::vector< Point2D >& polygon, float testx,
            float testy);
 
 bool
-intersects(std::vector< sgbot::sensor::Point2D >& polygon1,
-           std::vector< sgbot::sensor::Point2D >& polygon2);
+intersects(std::vector< Point2D >& polygon1,
+           std::vector< Point2D >& polygon2);
 
 #endif  // COSTMAP_2D_COSTMAP_MATH_H_

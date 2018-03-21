@@ -101,10 +101,10 @@ namespace NS_CostMap
      * and inscribed radius, and calls onFootprintChanged() in all
      * layers. */
     void
-    setFootprint(const std::vector< sgbot::sensor::Point2D >& footprint_spec);
+    setFootprint(const std::vector< Point2D >& footprint_spec);
 
     /** @brief Returns the latest footprint stored with setFootprint(). */
-    const std::vector< sgbot::sensor::Point2D >&
+    const std::vector< Point2D >&
     getFootprint()
     {
       return footprint_;
@@ -142,7 +142,7 @@ namespace NS_CostMap
     bool initialized_;
     bool size_locked_;
     double circumscribed_radius_, inscribed_radius_;
-    std::vector< sgbot::sensor::Point2D > footprint_;
+    std::vector< Point2D > footprint_;
   };
 
 }  // namespace costmap_2d

@@ -180,7 +180,7 @@ namespace NS_Planner
     bool initialized_;
 
     int request_times;
-    std::vector< sgbot::sensor::Point2D > footprint_spec_;
+    std::vector< Point2D > footprint_spec_;
 
   };
 }

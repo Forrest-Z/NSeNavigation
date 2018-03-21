@@ -20,7 +20,7 @@ namespace NS_Planner
   {
     //return tf::getYaw(pose.pose.orientation);
 //    return NS_Transform::getYaw(pose.pose.orientation);
-	  return pose.getTheta();
+	  return pose.theta;
   }
 
   void OrientationFilter::processPath(
@@ -37,7 +37,7 @@ namespace NS_Planner
         }
         break;
       case INTERPOLATE:
-        path[0].setTheta(start.getTheta());
+        path[0].setTheta(start.theta);
         interpolate(path, 0, n - 1);
         break;
       case FORWARDTHENINTERPOLATE:
@@ -60,7 +60,7 @@ namespace NS_Planner
             i--;
         }
 
-        path[0].setTheta(start.getTheta());
+        path[0].setTheta(start.theta);
         interpolate(path, i, n - 1);
         break;
     }
@@ -69,9 +69,9 @@ namespace NS_Planner
   void OrientationFilter::pointToNext(
       std::vector< Pose2D >& path, int index)
   {
-    double x0 = path[index].getX(), y0 = path[index].getY(),
-        x1 = path[index + 1].getX(),
-        y1 = path[index + 1].getY();
+    double x0 = path[index].x, y0 = path[index].y,
+        x1 = path[index + 1].x,
+        y1 = path[index + 1].y;
 
     double angle = atan2(y1 - y0, x1 - x0);
     set_angle(&path[index], angle);

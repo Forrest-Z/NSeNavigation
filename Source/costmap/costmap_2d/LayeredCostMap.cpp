@@ -115,7 +115,7 @@ namespace NS_CostMap
   }
 
   void LayeredCostmap::setFootprint(
-      const std::vector< sgbot::sensor::Point2D >& footprint_spec)
+      const std::vector< Point2D >& footprint_spec)
   {
     footprint_ = footprint_spec;
     calculateMinAndMaxDistances(footprint_spec, inscribed_radius_,

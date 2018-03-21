@@ -24,28 +24,28 @@ namespace NS_Planner
      * @return Positive if all the points lie outside the footprint, negative otherwise
      */
     virtual double
-    footprintCost(const sgbot::sensor::Point2D& position,
-                  const std::vector< sgbot::sensor::Point2D >& footprint,
+    footprintCost(const Point2D& position,
+                  const std::vector< Point2D >& footprint,
                   double inscribed_radius, double circumscribed_radius) = 0;
 
     double footprintCost(
         double x, double y, double theta,
-        const std::vector< sgbot::sensor::Point2D >& footprint_spec,
+        const std::vector< Point2D >& footprint_spec,
         double inscribed_radius = 0.0, double circumscribed_radius = 0.0)
     {
 
       double cos_th = cos(theta);
       double sin_th = sin(theta);
-      std::vector< sgbot::sensor::Point2D > oriented_footprint;
+      std::vector< Point2D > oriented_footprint;
       for(unsigned int i = 0; i < footprint_spec.size(); ++i)
       {
-        sgbot::sensor::Point2D new_pt;
+        Point2D new_pt;
         new_pt.x = x + (footprint_spec[i].x * cos_th - footprint_spec[i].y * sin_th);
         new_pt.y = y + (footprint_spec[i].x * sin_th + footprint_spec[i].y * cos_th);
         oriented_footprint.push_back(new_pt);
       }
 
-      sgbot::sensor::Point2D robot_position;
+      Point2D robot_position;
       robot_position.x = x;
       robot_position.y = y;
 
@@ -68,8 +68,8 @@ namespace NS_Planner
      * @param  circumscribed_radius The radius of the circumscribed circle of the robot
      * @return Positive if all the points lie outside the footprint, negative otherwise
      */
-    double footprintCost(const sgbot::sensor::Point2D& position,
-                         const std::vector< sgbot::sensor::Point2D >& footprint,
+    double footprintCost(const Point2D& position,
+                         const std::vector< Point2D >& footprint,
                          double inscribed_radius, double circumscribed_radius,
                          double extra)
     {

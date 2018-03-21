@@ -246,9 +246,9 @@ namespace NS_Planner
         0.0, (fabs(vel_yaw) - acc_lim_theta_ * sim_period_));
 
     //we do want to check whether or not the command is valid
-    double yaw = global_pose.getTheta();
-    bool valid_cmd = tc_->checkTrajectory(global_pose.getX(),
-                                          global_pose.getY(), yaw,
+    double yaw = global_pose.theta;
+    bool valid_cmd = tc_->checkTrajectory(global_pose.x,
+                                          global_pose.y, yaw,
                                           robot_vel.getLinear_vel(),
                                           0.0, vel_yaw,
                                           vx, vy, vth);
@@ -277,7 +277,7 @@ namespace NS_Planner
       const RobotVel& robot_vel,
       double goal_th, NS_DataType::Twist& cmd_vel)
   {
-    double yaw = global_pose.getTheta();
+    double yaw = global_pose.theta;
     double vel_yaw = robot_vel.getAngular_vel();
     cmd_vel.linear.x = 0;
     cmd_vel.linear.y = 0;
@@ -309,8 +309,8 @@ namespace NS_Planner
             min_vel_th_, std::min(-1.0 * min_in_place_vel_th_, v_theta_samp));
 
     //we still want to lay down the footprint of the robot and check if the action is legal
-    bool valid_cmd = tc_->checkTrajectory(global_pose.getX(),
-                                          global_pose.getY(), yaw,
+    bool valid_cmd = tc_->checkTrajectory(global_pose.x,
+                                          global_pose.y, yaw,
                                           robot_vel.getLinear_vel(),
                                           0.0, vel_yaw,
                                           0.0, 0.0, v_theta_samp);
@@ -392,8 +392,8 @@ namespace NS_Planner
       prunePlan(global_pose, global_plan_, global_plan_);
 
     printf("compute vel global_pose x = %.4f,y = %.4f,w = %.4f\n",
-           global_pose.getX(), global_pose.getY(),
-           global_pose.getTheta());
+           global_pose.x, global_pose.y,
+           global_pose.theta);
 
 
     RobotVel drive_cmds;
@@ -419,10 +419,10 @@ namespace NS_Planner
 
 
     //we assume the global goal is the last point in the global plan
-    double goal_x = goal_point.getX();
-    double goal_y = goal_point.getY();
+    double goal_x = goal_point.x;
+    double goal_y = goal_point.y;
     printf("compute vel goal_x = %.4f,goal_y = %.4f\n", goal_x, goal_y);
-    double yaw = goal_point.getTheta();
+    double yaw = goal_point.theta;
 
 //    FILE* global_pose_file;
 //    global_pose_file = fopen("/tmp/global_pose.log", "a+");
@@ -562,8 +562,8 @@ namespace NS_Planner
       }
 
       return tc_->checkTrajectory(
-          global_pose.getX(), global_pose.getY(),
-          global_pose.getTheta(),
+          global_pose.x, global_pose.y,
+          global_pose.theta,
           base_odom.twist.linear.x, base_odom.twist.linear.y,
           base_odom.twist.angular.z, vx_samp, vy_samp, vtheta_samp);
 
@@ -600,8 +600,8 @@ namespace NS_Planner
       }
 
       return tc_->scoreTrajectory(
-          global_pose.getX(), global_pose.getY(),
-          global_pose.getTheta(),
+          global_pose.x, global_pose.y,
+          global_pose.theta,
           base_odom.twist.linear.x, base_odom.twist.linear.y,
           base_odom.twist.angular.z, vx_samp, vy_samp, vtheta_samp);
 

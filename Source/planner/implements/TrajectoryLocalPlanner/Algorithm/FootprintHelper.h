@@ -10,7 +10,7 @@
 
 namespace NS_Planner
 {
-	typedef sgbot::la::Vector<float ,3> Vector3f;
+//	typedef sgbot::la::Vector<float ,3> Vector3f;
   class FootprintHelper
   {
   public:
@@ -27,7 +27,7 @@ namespace NS_Planner
      * @return The cells that make up either the outline or entire footprint of the robot depending on fill
      */
     std::vector< NS_DataType::Position2DInt >
-    getFootprintCells(Vector3f pos,
+    getFootprintCells(std::vector<float> pos,
                       std::vector< Point2D > footprint_spec,
                       const NS_CostMap::Costmap2D&, bool fill);
 

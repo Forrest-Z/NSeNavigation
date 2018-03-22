@@ -131,7 +131,7 @@ namespace NS_Planner
      */
     bool
     rotateToGoal(const Pose2D& global_pose,
-                 const RobotVel& robot_vel,
+                 const Velocity2D& robot_vel,
                  double goal_th, NS_DataType::Twist& cmd_vel);
 
     /**
@@ -144,7 +144,7 @@ namespace NS_Planner
     bool
     stopWithAccLimits(
         const Pose2D& global_pose,
-        const RobotVel& robot_vel,
+        const Velocity2D& robot_vel,
         NS_DataType::Twist& cmd_vel);
 
     double sign(double x)

@@ -13,7 +13,7 @@ namespace NS_Planner
   {
     //pose->pose.orientation = tf::createQuaternionMsgFromYaw(angle);
 //    pose->pose.orientation = NS_Transform::createQuaternionMsgFromYaw(angle);
-	  pose->setTheta(angle);
+	  pose->theta = angle;
   }
 
   double getYaw(Pose2D pose)
@@ -37,7 +37,7 @@ namespace NS_Planner
         }
         break;
       case INTERPOLATE:
-        path[0].setTheta(start.theta);
+        path[0].theta = start.theta;
         interpolate(path, 0, n - 1);
         break;
       case FORWARDTHENINTERPOLATE:
@@ -60,7 +60,7 @@ namespace NS_Planner
             i--;
         }
 
-        path[0].setTheta(start.theta);
+        path[0].theta = start.theta;
         interpolate(path, i, n - 1);
         break;
     }

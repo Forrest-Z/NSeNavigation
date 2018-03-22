@@ -962,16 +962,16 @@ namespace NS_Planner
   //given the current state of the robot, find a good trajectory
   Trajectory TrajectoryPlanner::findBestPath(
       Pose2D global_pose,
-	  RobotVel global_vel,
-	  RobotVel& drive_velocities)
+	  Velocity2D global_vel,
+	  Velocity2D& drive_velocities)
   {
 
     Vector3f pos(global_pose.x,
                         global_pose.y,
                         global_pose.theta);
-    Vector3f vel(global_vel.getLinear_vel(),
+    Vector3f vel(global_vel.linear,
                         0.0f,
-                        global_vel.getAngular_vel());
+                        global_vel.angular);
 
     //reset the map for new operations
     path_map_.resetPathDist();
@@ -996,8 +996,8 @@ namespace NS_Planner
     printf("Path/Goal distance computed\n");
 
     //rollout trajectories and find the minimum cost one
-    Trajectory best = createTrajectories(pos[0], pos[1], pos[2], vel[0], vel[1],
-                                         vel[2], acc_lim_x_, acc_lim_y_,
+    Trajectory best = createTrajectories(pos(0), pos(1), pos(2), vel(0), vel(1),
+                                         vel(2), acc_lim_x_, acc_lim_y_,
                                          acc_lim_theta_);
     printf("Trajectories created\n");
 
@@ -1014,8 +1014,8 @@ namespace NS_Planner
 //      drive_velocities.setBasis(matrix);
 //    }
     if(best.cost_ < 0){
-    	drive_velocities.setAngular_vel(0.0f);
-    	drive_velocities.setLinear_vel(0.0f);
+    	drive_velocities.angular = 0.0f;
+    	drive_velocities.linear = 0.0f;
     }else{
 
     }

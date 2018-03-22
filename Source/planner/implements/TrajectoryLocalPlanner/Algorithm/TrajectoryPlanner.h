@@ -118,8 +118,8 @@ namespace NS_Planner
      */
     Trajectory
     findBestPath(Pose2D global_pose,
-    		RobotVel global_vel,
-			RobotVel& drive_velocities);
+    		Velocity2D global_vel,
+			Velocity2D& drive_velocities);
 
     /**
      * @brief  Update the plan that the controller is following

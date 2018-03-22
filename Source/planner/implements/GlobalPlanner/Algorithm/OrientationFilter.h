@@ -3,6 +3,7 @@
 
 #include <transform/transform2d.h>
 
+using namespace sgbot;
 namespace NS_Planner
 {
 

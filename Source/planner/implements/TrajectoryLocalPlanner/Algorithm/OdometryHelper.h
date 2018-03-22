@@ -31,7 +31,7 @@ namespace NS_Planner
     getOdom(NS_DataType::Odometry& base_odom);
 
     void
-    getRobotVel(RobotVel& robot_vel);
+    getRobotVel(Velocity2D& robot_vel);
 
   private:
     NS_DataType::Odometry base_odom_;

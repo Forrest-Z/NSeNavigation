@@ -307,9 +307,9 @@ bool GlobalPlanner::getPlanFromPotential(double start_x, double start_y,
 //		pose.pose.orientation.y = 0.0;
 //		pose.pose.orientation.z = 0.0;
 //		pose.pose.orientation.w = 1.0;
-		pose.setX(world_x);
-		pose.setY(world_y);
-		pose.setTheta(0.0);
+		pose.x = world_x;
+		pose.y = world_y;
+		pose.theta = 0;
 		plan.push_back(pose);
 	}
 

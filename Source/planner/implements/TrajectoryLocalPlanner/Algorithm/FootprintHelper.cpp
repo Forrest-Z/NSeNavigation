@@ -163,9 +163,9 @@ namespace NS_Planner
       Vector3f pos, std::vector< Point2D > footprint_spec,
       const NS_CostMap::Costmap2D& costmap, bool fill)
   {
-    double x_i = pos[0];
-    double y_i = pos[1];
-    double theta_i = pos[2];
+    double x_i = pos(0);
+    double y_i = pos(1);
+    double theta_i = pos(2);
     std::vector< NS_DataType::Position2DInt > footprint_cells;
 
     //if we have no footprint... do nothing

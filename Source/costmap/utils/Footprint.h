@@ -2,8 +2,8 @@
 #define _COSTMAP_FOOTPRINT_H_
 
 #include <string>
-#include <sensor/lidar2d.h>
-
+#include <type/point2d.h>
+using namespace sgbot;
 namespace NS_CostMap
 {
 

@@ -231,17 +231,17 @@ namespace NS_Planner
 
   bool TrajectoryLocalPlanner::stopWithAccLimits(
       const Pose2D& global_pose,
-      const RobotVel& robot_vel,
+      const Velocity2D& robot_vel,
       NS_DataType::Twist& cmd_vel)
   {
     //slow down with the maximum possible acceleration... we should really use the frequency that we're running at to determine what is feasible
     //but we'll use a tenth of a second to be consistent with the implementation of the local planner.
-    double vx = sign(robot_vel.getLinear_vel()) * std::max(
-        0.0, (fabs(robot_vel.getLinear_vel()) - acc_lim_x_ * sim_period_));
+    double vx = sign(robot_vel.linear) * std::max(
+        0.0, (fabs(robot_vel.linear) - acc_lim_x_ * sim_period_));
 //    double vy = sign(robot_vel.getOrigin().y()) * std::max(
 //        0.0, (fabs(robot_vel.getOrigin().y()) - acc_lim_y_ * sim_period_));
     double vy = 0.0;
-    double vel_yaw = robot_vel.getAngular_vel();
+    double vel_yaw = robot_vel.angular;
     double vth = sign(vel_yaw) * std::max(
         0.0, (fabs(vel_yaw) - acc_lim_theta_ * sim_period_));
 
@@ -249,7 +249,7 @@ namespace NS_Planner
     double yaw = global_pose.theta;
     bool valid_cmd = tc_->checkTrajectory(global_pose.x,
                                           global_pose.y, yaw,
-                                          robot_vel.getLinear_vel(),
+                                          robot_vel.linear,
                                           0.0, vel_yaw,
                                           vx, vy, vth);
 
@@ -274,11 +274,11 @@ namespace NS_Planner
 
   bool TrajectoryLocalPlanner::rotateToGoal(
       const Pose2D& global_pose,
-      const RobotVel& robot_vel,
+      const Velocity2D& robot_vel,
       double goal_th, NS_DataType::Twist& cmd_vel)
   {
     double yaw = global_pose.theta;
-    double vel_yaw = robot_vel.getAngular_vel();
+    double vel_yaw = robot_vel.angular;
     cmd_vel.linear.x = 0;
     cmd_vel.linear.y = 0;
     double ang_diff = NS_Geometry::NS_Angles::shortest_angular_distance(
@@ -311,7 +311,7 @@ namespace NS_Planner
     //we still want to lay down the footprint of the robot and check if the action is legal
     bool valid_cmd = tc_->checkTrajectory(global_pose.x,
                                           global_pose.y, yaw,
-                                          robot_vel.getLinear_vel(),
+                                          robot_vel.linear,
                                           0.0, vel_yaw,
                                           0.0, 0.0, v_theta_samp);
 
@@ -396,15 +396,15 @@ namespace NS_Planner
            global_pose.theta);
 
 
-    RobotVel drive_cmds;
+    Velocity2D drive_cmds;
 
-    RobotVel robot_vel;
+    Velocity2D robot_vel;
     odom_helper_->getRobotVel(robot_vel);
 
     printf(
         "odom_helper.get robot_vel x = %.4f, y = %.4f , yaw = %.4f , global_plan size = %d\n",
-        robot_vel.getLinear_vel(), 0.0,
-        robot_vel.getAngular_vel(), global_plan_.size());
+        robot_vel.linear, 0.0,
+        robot_vel.angular, global_plan_.size());
 
 
     if(global_plan_.empty())
@@ -500,9 +500,9 @@ namespace NS_Planner
 
 
     //pass along drive commands
-    cmd_vel.linear.x = drive_cmds.getLinear_vel();
+    cmd_vel.linear.x = drive_cmds.linear;
     cmd_vel.linear.y = 0.0;
-    cmd_vel.angular.z = drive_cmds.getAngular_vel();
+    cmd_vel.angular.z = drive_cmds.angular;
 
     //if we cannot move... tell someone
     if(path.cost_ < 0)
@@ -526,9 +526,9 @@ namespace NS_Planner
 //          NS_Transform::createQuaternionFromYaw(p_th),
 //          NS_Transform::Point(p_x, p_y, 0.0)), NS_NaviCommon::Time::now(), "");
       Pose2D pose;
-      pose.setX(p_x);
-      pose.setY(p_y);
-      pose.setTheta(p_th);
+      pose.x = p_x;
+      pose.y = p_y;
+      pose.theta = p_th;
       local_plan.push_back(pose);
     }
     ///TODO need to be visualized

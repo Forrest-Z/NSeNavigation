@@ -49,10 +49,10 @@ void NavigationApplication::publishZeroVelocity() {
 }
 void NavigationApplication::publishVelocity(double linear_x, double linear_y,
 		double angular_z) {
-	NS_DataType::Twist vel;
-	vel.linear.x = linear_x;
-	vel.linear.y = linear_y;
-	vel.angular.z = angular_z;
+	Velocity2D vel;
+	vel.linear = linear_x;
+//	vel.linear.y = linear_y;
+	vel.angular = angular_z;
 	twist_pub->publish(vel);
 }
 bool NavigationApplication::goalFromAPP(Pose2D& goal_from_app){
@@ -101,7 +101,7 @@ void NavigationApplication::controlLoop() {
 			logInfo<< "no new global plan do not set plan";
 		}
 
-		NS_DataType::Twist cmd_vel;
+		Velocity2D cmd_vel;
 		NS_NaviCommon::Time last_valid_control;
 
 		//update feedback to correspond to our curent position
@@ -153,11 +153,11 @@ void NavigationApplication::controlLoop() {
 			if(local_planner->computeVelocityCommands(cmd_vel))
 			{
 				console.debug(
-						"Got velocity data : l_x=%.3lf, l_y=%.3lf, a_z=%.3lf!",
-						cmd_vel.linear.x, cmd_vel.linear.y, cmd_vel.angular.z);
+						"Got velocity data : l_x=%.3lf, l_y=0.0f, a_z=%.3lf!",
+						cmd_vel.linear, cmd_vel.angular);
 				last_valid_control = NS_NaviCommon::Time::now();
-				publishVelocity(cmd_vel.linear.x, cmd_vel.linear.y,
-						cmd_vel.angular.z);
+				publishVelocity(cmd_vel.linear,0.0,
+						cmd_vel.angular);
 				end = clock();
 			}
 			else

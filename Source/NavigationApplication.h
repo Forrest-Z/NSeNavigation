@@ -143,7 +143,7 @@ private:
 	NaviState state;
 
 	///publish velocity to controller
-	NS_DataSet::Publisher<NS_DataType::Twist>* twist_pub;
+	NS_DataSet::Publisher<Velocity2D>* twist_pub;
 	///subscribe the goal from other
 	NS_DataSet::Subscriber<Pose2D>* goal_sub;
 	///global goal for visualized

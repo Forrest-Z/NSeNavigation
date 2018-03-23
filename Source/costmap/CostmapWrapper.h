@@ -16,9 +16,6 @@
 #include <Service/Client.h>
 #include "log_tool.h"
 
-#include "transform/transform2d.h"
-#include <type/pose2d.h>
-#include <type/point2d.h>
 //class MapMetaData{
 //public:
 //	MapMetaData():  resolution(0.0), width(0), height(0), origin(){

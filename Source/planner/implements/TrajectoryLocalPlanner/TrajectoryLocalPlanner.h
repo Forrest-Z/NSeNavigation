@@ -12,7 +12,7 @@
 
 #include <DataSet/DataType/Odometry.h>
 #include <transform/transform2d.h>
-#include <DataSet/DataType/Twist.h>
+
 #include <DataSet/DataType/Point.h>
 
 #include <boost/thread.hpp>
@@ -60,7 +60,7 @@ namespace NS_Planner
      * @return True if a valid trajectory was found, false otherwise
      */
     virtual bool
-    computeVelocityCommands(NS_DataType::Twist& cmd_vel);
+    computeVelocityCommands(Velocity2D& cmd_vel);
 
     /**
      * @brief  Set the plan that the controller is following
@@ -132,7 +132,7 @@ namespace NS_Planner
     bool
     rotateToGoal(const Pose2D& global_pose,
                  const Velocity2D& robot_vel,
-                 double goal_th, NS_DataType::Twist& cmd_vel);
+                 double goal_th, Velocity2D& cmd_vel);
 
     /**
      * @brief Stop the robot taking into account acceleration limits
@@ -145,7 +145,7 @@ namespace NS_Planner
     stopWithAccLimits(
         const Pose2D& global_pose,
         const Velocity2D& robot_vel,
-        NS_DataType::Twist& cmd_vel);
+        Velocity2D& cmd_vel);
 
     double sign(double x)
     {

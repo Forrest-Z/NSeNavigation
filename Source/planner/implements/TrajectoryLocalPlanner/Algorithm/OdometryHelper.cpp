@@ -21,7 +21,7 @@ namespace NS_Planner
 		  Velocity2D& robot_vel)
   {
     // Set current velocities from odometry
-    NS_DataType::Twist global_vel;
+    Velocity2D global_vel;
 
     NS_ServiceType::ServiceOdometry odom_rep;
 
@@ -29,17 +29,17 @@ namespace NS_Planner
     {
       base_odom_ = odom_rep.odom;
 
-      global_vel.linear.x = base_odom_.twist.linear.x;
-      global_vel.linear.y = base_odom_.twist.linear.y;
-      global_vel.angular.z = base_odom_.twist.angular.z;
+      global_vel.linear = base_odom_.twist.linear.x;
+//      global_vel.linear.y = base_odom_.twist.linear.y;
+      global_vel.angular = base_odom_.twist.angular.z;
 
 //      robot_vel.setData(
 //          NS_Transform::Transform(
 //              NS_Transform::createQuaternionFromYaw(global_vel.angular.z),
 //              NS_Transform::Vector3(global_vel.linear.x, global_vel.linear.y,
 //                                    0)));
-      robot_vel.linear = global_vel.linear.x;
-      robot_vel.angular = global_vel.angular.z;
+      robot_vel.linear = global_vel.linear;
+      robot_vel.angular = global_vel.angular;
 
     }
   }

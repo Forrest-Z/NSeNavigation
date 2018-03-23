@@ -8,11 +8,10 @@
 #ifndef _LOCALPLANNERBASE_H_
 #define _LOCALPLANNERBASE_H_
 
-#include <transform/transform2d.h>
-#include <DataSet/DataType/Twist.h>
 
 #include "../../costmap/CostmapWrapper.h"
-
+#include <type/velocity2d.h>
+using namespace sgbot;
 namespace NS_Planner
 {
 
@@ -40,7 +39,7 @@ namespace NS_Planner
     onInitialize() = 0;
 
     virtual bool
-    computeVelocityCommands(NS_DataType::Twist& cmd_vel) = 0;
+    computeVelocityCommands(Velocity2D& cmd_vel) = 0;
 
     virtual bool
     isGoalReached() = 0;

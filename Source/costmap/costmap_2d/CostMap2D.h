@@ -4,7 +4,6 @@
 #include <vector>
 #include <queue>
 //#include <DataSet/DataType/Point.h>
-#include <sensor/lidar2d.h>
 #include <boost/thread.hpp>
 #include <type/pose2d.h>
 #include <type/point2d.h>

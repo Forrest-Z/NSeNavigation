@@ -3,7 +3,7 @@
 #include <sys/time.h>
 #include <boost/tokenizer.hpp>
 
-#include <Eigen/Core>
+
 #include <cmath>
 
 #include <Console/Console.h>
@@ -232,7 +232,7 @@ namespace NS_Planner
   bool TrajectoryLocalPlanner::stopWithAccLimits(
       const Pose2D& global_pose,
       const Velocity2D& robot_vel,
-      NS_DataType::Twist& cmd_vel)
+      Velocity2D& cmd_vel)
   {
     //slow down with the maximum possible acceleration... we should really use the frequency that we're running at to determine what is feasible
     //but we'll use a tenth of a second to be consistent with the implementation of the local planner.
@@ -258,29 +258,29 @@ namespace NS_Planner
     {
       printf("Slowing down... using vx, vy, vth: %.2f, %.2f, %.2f\n", vx, vy,
              vth);
-      cmd_vel.linear.x = vx;
-      cmd_vel.linear.y = vy;
-      cmd_vel.angular.z = vth;
+      cmd_vel.linear = vx;
+//      cmd_vel.linear.y = vy;
+      cmd_vel.angular = vth;
       return true;
     }else {
     	logInfo << "stop with acc limit failed";
     }
 
-    cmd_vel.linear.x = 0.0;
-    cmd_vel.linear.y = 0.0;
-    cmd_vel.angular.z = 0.0;
+    cmd_vel.linear = 0.0;
+//    cmd_vel.linear.y = 0.0;
+    cmd_vel.angular = 0.0;
     return false;
   }
 
   bool TrajectoryLocalPlanner::rotateToGoal(
       const Pose2D& global_pose,
       const Velocity2D& robot_vel,
-      double goal_th, NS_DataType::Twist& cmd_vel)
+      double goal_th, Velocity2D& cmd_vel)
   {
     double yaw = global_pose.theta;
     double vel_yaw = robot_vel.angular;
-    cmd_vel.linear.x = 0;
-    cmd_vel.linear.y = 0;
+    cmd_vel.linear = 0;
+//    cmd_vel.linear.y = 0;
     double ang_diff = NS_Geometry::NS_Angles::shortest_angular_distance(
         yaw, goal_th);
 
@@ -320,13 +320,13 @@ namespace NS_Planner
 
     if(valid_cmd)
     {
-      cmd_vel.angular.z = v_theta_samp;
+      cmd_vel.angular = v_theta_samp;
       return true;
     }else {
     	logInfo << "rotate to goal failed ";
     }
 
-    cmd_vel.angular.z = 0.0;
+    cmd_vel.angular = 0.0;
     return false;
 
   }
@@ -353,7 +353,7 @@ namespace NS_Planner
   }
 
   bool TrajectoryLocalPlanner::computeVelocityCommands(
-      NS_DataType::Twist& cmd_vel)
+		  Velocity2D& cmd_vel)
   {
     if(!isInitialized())
     {
@@ -448,9 +448,8 @@ namespace NS_Planner
       if(fabs(angle) <= yaw_goal_tolerance_)
       {
         //set the velocity command to zero
-        cmd_vel.linear.x = 0.0;
-        cmd_vel.linear.y = 0.0;
-        cmd_vel.angular.z = 0.0;
+        cmd_vel.linear = 0.0;
+        cmd_vel.angular = 0.0;
         rotating_to_goal_ = false;
         xy_tolerance_latch_ = false;
         reached_goal_ = true;
@@ -500,9 +499,9 @@ namespace NS_Planner
 
 
     //pass along drive commands
-    cmd_vel.linear.x = drive_cmds.linear;
-    cmd_vel.linear.y = 0.0;
-    cmd_vel.angular.z = drive_cmds.angular;
+    cmd_vel.linear = drive_cmds.linear;
+//    cmd_vel.linear.y = 0.0;
+    cmd_vel.angular = drive_cmds.angular;
 
     //if we cannot move... tell someone
     if(path.cost_ < 0)
@@ -514,8 +513,8 @@ namespace NS_Planner
     }
 
     printf(
-        "A valid velocity command of (%.2f, %.2f, %.2f) was found for this cycle.\n",
-        cmd_vel.linear.x, cmd_vel.linear.y, cmd_vel.angular.z);
+        "A valid velocity command of (%.2f, 0.0f, %.2f) was found for this cycle.\n",
+        cmd_vel.linear, cmd_vel.angular);
 
     // Fill out the local plan
     for(unsigned int i = 0; i < path.getPointsSize(); ++i)

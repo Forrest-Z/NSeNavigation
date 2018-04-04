@@ -13,7 +13,7 @@ namespace NS_Planner
 
   void FootprintHelper::getLineCells(
       int x0, int x1, int y0, int y1,
-      std::vector< NS_DataType::Position2DInt >& pts)
+      std::vector< Point2D >& pts)
   {
     //Bresenham Ray-Tracing
     int deltax = abs(x1 - x0);        // The difference between the x's
@@ -24,7 +24,7 @@ namespace NS_Planner
     int xinc1, xinc2, yinc1, yinc2;
     int den, num, numadd, numpixels;
 
-    NS_DataType::Position2DInt pt;
+    Point2D pt;
 
     if(x1 >= x0)                 // The x-values are increasing
     {
@@ -86,10 +86,10 @@ namespace NS_Planner
   }
 
   void FootprintHelper::getFillCells(
-      std::vector< NS_DataType::Position2DInt >& footprint)
+      std::vector< Point2D >& footprint)
   {
     //quick bubble sort to sort pts by x
-    NS_DataType::Position2DInt swap, pt;
+	  Point2D swap, pt;
     unsigned int i = 0;
     while(i < footprint.size() - 1)
     {
@@ -110,8 +110,8 @@ namespace NS_Planner
     }
 
     i = 0;
-    NS_DataType::Position2DInt min_pt;
-    NS_DataType::Position2DInt max_pt;
+    Point2D min_pt;
+    Point2D max_pt;
     unsigned int min_x = footprint[0].x;
     unsigned int max_x = footprint[footprint.size() - 1].x;
     //walk through each column and mark cells inside the footprint
@@ -159,14 +159,14 @@ namespace NS_Planner
   /**
    * get the cellsof a footprint at a given position
    */
-  std::vector< NS_DataType::Position2DInt > FootprintHelper::getFootprintCells(
+  std::vector< Point2D > FootprintHelper::getFootprintCells(
       std::vector<float> pos, std::vector< Point2D > footprint_spec,
       const NS_CostMap::Costmap2D& costmap, bool fill)
   {
     double x_i = pos[0];
     double y_i = pos[1];
     double theta_i = pos[2];
-    std::vector< NS_DataType::Position2DInt > footprint_cells;
+    std::vector< Point2D > footprint_cells;
 
     //if we have no footprint... do nothing
     if(footprint_spec.size() <= 1)
@@ -174,7 +174,7 @@ namespace NS_Planner
       unsigned int mx, my;
       if(costmap.worldToMap(x_i, y_i, mx, my))
       {
-        NS_DataType::Position2DInt center;
+    	  Point2D center;
         center.x = mx;
         center.y = my;
         footprint_cells.push_back(center);

@@ -4,13 +4,11 @@
 #include <vector>
 
 #include "../../../../costmap/costmap_2d/CostMap2D.h"
-#include <DataSet/DataType/Point.h>
+#include <type/point2d.h>
 #include <linear-algebra/vector.h>
-#include <DataSet/DataType/Position2DInt.h>
-
+using namespace sgbot;
 namespace NS_Planner
 {
-//	typedef sgbot::la::Vector<float ,3> Vector3f;
   class FootprintHelper
   {
   public:
@@ -26,7 +24,7 @@ namespace NS_Planner
      * @param  fill If true: returns all cells in the footprint of the robot. If false: returns only the cells that make up the outline of the footprint.
      * @return The cells that make up either the outline or entire footprint of the robot depending on fill
      */
-    std::vector< NS_DataType::Position2DInt >
+    std::vector< Point2D >
     getFootprintCells(std::vector<float> pos,
                       std::vector< Point2D > footprint_spec,
                       const NS_CostMap::Costmap2D&, bool fill);
@@ -41,14 +39,14 @@ namespace NS_Planner
      */
     void
     getLineCells(int x0, int x1, int y0, int y1,
-                 std::vector< NS_DataType::Position2DInt >& pts);
+                 std::vector< Point2D >& pts);
 
     /**
      * @brief Fill the outline of a polygon, in this case the robot footprint, in a grid
      * @param footprint The list of cells making up the footprint in the grid, will be modified to include all cells inside the footprint
      */
     void
-    getFillCells(std::vector< NS_DataType::Position2DInt >& footprint);
+    getFillCells(std::vector< Point2D >& footprint);
   };
 
 } /* namespace base_local_planner */

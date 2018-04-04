@@ -882,7 +882,7 @@ Trajectory TrajectoryPlanner::findBestPath(Pose2D global_pose,
 	goal_map_.resetPathDist();
 
 	//temporarily remove obstacles that are within the footprint of the robot
-	std::vector<NS_DataType::Position2DInt> footprint_list =
+	std::vector<Point2D> footprint_list =
 			footprint_helper_.getFootprintCells(pos, footprint_spec_, costmap_,
 					true);
 	printf("footprint_list size = %d,footprint_list[0].x = %ld,y = %ld\n",

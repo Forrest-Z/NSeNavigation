@@ -8,12 +8,10 @@
 #include "Algorithm/TrajectoryPlanner.h"
 #include "Algorithm/OdometryHelper.h"
 
-#include <Transform/DataTypes.h>
 
 #include <DataSet/DataType/Odometry.h>
 #include <transform/transform2d.h>
 
-#include <DataSet/DataType/Point.h>
 
 #include <boost/thread.hpp>
 

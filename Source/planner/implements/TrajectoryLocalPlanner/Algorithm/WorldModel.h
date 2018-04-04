@@ -3,8 +3,7 @@
 
 #include <vector>
 #include "../../../../costmap/utils/Footprint.h"
-#include <DataSet/DataType/Point.h>
-
+#include <std-math/math.h>
 namespace NS_Planner
 {
   /**
@@ -34,8 +33,8 @@ namespace NS_Planner
         double inscribed_radius = 0.0, double circumscribed_radius = 0.0)
     {
 
-      double cos_th = cos(theta);
-      double sin_th = sin(theta);
+      double cos_th = sgbot::math::cos(theta);
+      double sin_th = sgbot::math::sin(theta);
       std::vector< Point2D > oriented_footprint;
       for(unsigned int i = 0; i < footprint_spec.size(); ++i)
       {

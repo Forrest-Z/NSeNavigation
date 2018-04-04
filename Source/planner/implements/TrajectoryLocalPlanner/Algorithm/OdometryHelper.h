@@ -4,8 +4,8 @@
 #include <boost/thread.hpp>
 #include <DataSet/DataType/Odometry.h>
 #include <transform/transform2d.h>
-#include <DataSet/DataType/Twist.h>
-#include <Transform/DataTypes.h>
+
+
 #include <Service/ServiceType/ServiceOdometry.h>
 #include <Service/Client.h>
 

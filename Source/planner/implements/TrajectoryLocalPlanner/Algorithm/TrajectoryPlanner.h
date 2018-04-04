@@ -8,14 +8,13 @@
 #include "../../../../costmap/costmap_2d/CostMap2D.h"
 #include "../../../../costmap/costmap_2d/CostValues.h"
 #include "WorldModel.h"
-#include <DataSet/DataType/Position2DInt.h>
+
 
 //we'll take in a path as a vector of poses
 #include <transform/transform2d.h>
-#include <DataSet/DataType/Point.h>
+
 
 //for some datatypes
-#include <Transform/DataTypes.h>
 
 //for creating a local cost grid
 #include "FootprintHelper.h"
@@ -26,6 +25,8 @@
 
 
 #include "log_tool.h"
+#include <type/velocity2d.h>
+using namespace sgbot;
 namespace NS_Planner
 {
   /**

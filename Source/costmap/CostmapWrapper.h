@@ -9,13 +9,12 @@
 #define COSTMAP_COSTMAPWRAPPER_H_
 #include "costmap_2d/CostMapLayer.h"
 #include <Parameter/Parameter.h>
-#include <DataSet/DataType/OccupancyGrid.h>
+//#include <DataSet/DataType/OccupancyGrid.h>
 
-#include <Service/ServiceType/ServiceBase.h>
-#include <Service/ServiceType/ServiceTransform.h>
+#include <transform/transform2d.h>
 #include <Service/Client.h>
 #include "log_tool.h"
-
+using namespace sgbot::tf;
 //class MapMetaData{
 //public:
 //	MapMetaData():  resolution(0.0), width(0), height(0), origin(){
@@ -44,9 +43,9 @@ public:
 	CostmapWrapper();
 	virtual ~CostmapWrapper();
 
-	    NS_Service::Client< NS_ServiceType::ServiceTransform >* odom_tf_cli;
+	    NS_Service::Client< Transform2D >* odom_tf_cli;
 
-	    NS_Service::Client< NS_ServiceType::ServiceTransform >* map_tf_cli;
+	    NS_Service::Client< Transform2D >* map_tf_cli;
 private:
 	void
 	loadParameters();
@@ -113,7 +112,7 @@ private:
 
 	boost::thread update_map_thread;
 
-	NS_DataType::OccupancyGrid map;
+//	NS_DataType::OccupancyGrid map;
 	double saved_origin_x, saved_origin_y;
 	///将costmap的0~255的值转为占据栅格图的-1~100
 	char* cost_translation_table;

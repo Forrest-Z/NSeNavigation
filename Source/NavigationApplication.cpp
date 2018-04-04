@@ -15,7 +15,7 @@ namespace NS_Navigation {
 NavigationApplication::NavigationApplication() :
 		new_global_plan_(false), runPlanner_(false) {
 	// TODO Auto-generated constructor stub
-	   goal_sub = new NS_DataSet::Subscriber< Pose2D >(
+	   goal_sub = new NS_DataSet::Subscriber< sgbot::Pose2D >(
 	        "GOAL", boost::bind(&NavigationApplication::goalFromAPP, this, _1));
 }
 
@@ -55,9 +55,9 @@ void NavigationApplication::publishVelocity(double linear_x, double linear_y,
 	vel.angular = angular_z;
 	twist_pub->publish(vel);
 }
-bool NavigationApplication::goalFromAPP(Pose2D& goal_from_app){
+bool NavigationApplication::goalFromAPP(sgbot::Pose2D& goal_from_app){
 	planner_mutex.lock();
-//	    goal = goalToGlobalFrame(goal_from_app);
+	    goal = goalToGlobalFrame(goal_from_app);
 		goal = goal_from_app;
 	    printf("goal_callback x = %.4f,y = %.4f, theta = %.4f\n", goal.x,
 	           goal.y, goal.theta);
@@ -105,14 +105,14 @@ void NavigationApplication::controlLoop() {
 		NS_NaviCommon::Time last_valid_control;
 
 		//update feedback to correspond to our curent position
-		Pose2D global_pose;
+		sgbot::Pose2D global_pose;
 		global_costmap->getRobotPose(global_pose);
 
 		printf("global_pose x = %.4f,y = %.4f, w = %.4f ,state = %d\n",
 				global_pose.x, global_pose.y,
 				global_pose.theta, state);
 
-		Pose2D current_position;
+		sgbot::Pose2D current_position;
 //		NS_Transform::poseStampedTFToMsg(global_pose, current_position);
 		current_position = global_pose;
 
@@ -239,12 +239,23 @@ void NavigationApplication::planLoop() {
 			rate.sleep();
 	}
 }
-Pose2D NavigationApplication::goalToGlobalFrame(
-		Pose2D& goal) {
-
+sgbot::Pose2D NavigationApplication::goalToGlobalFrame(
+		sgbot::Pose2D& goal) {
+	//map_to_odom * odom_to_base;
+	NS_Service::Client <Transform2D> odom_tf_cli("BASE_ODOM_TF");
+	NS_Service::Client <Transform2D> map_tf_cli("ODOM_MAP_TF");
+	Transform2D odom_transform,map_transform;
+	if(odom_tf_cli.call(odom_transform) == false){
+		logError<<"get odometry transform failed";
+	}
+	if(map_tf_cli.call(map_transform) == false){
+		logError<<"get map transform failed";
+	}
+	sgbot::Pose2D pose2d_result = map_transform.transform(odom_transform.transform(goal));
+	logInfo<<"pose 2d in global frame is "<<pose2d_result.x<<" "<<pose2d_result.y<<" "<<pose2d_result.theta;
 }
-bool NavigationApplication::makePlan(const Pose2D& goal,
-		std::vector<Pose2D>& plan) {
+bool NavigationApplication::makePlan(const sgbot::Pose2D& goal,
+		std::vector<sgbot::Pose2D>& plan) {
 
 	boost::unique_lock<NS_CostMap::Costmap2D::mutex_t> lock(
 			*(global_costmap->getLayeredCostmap()->getCostmap()->getMutex()));
@@ -252,14 +263,14 @@ bool NavigationApplication::makePlan(const Pose2D& goal,
 	plan.clear();
 
 	//get the starting pose of the robot
-	Pose2D global_pose;
+	sgbot::Pose2D global_pose;
 	if (!global_costmap->getRobotPose(global_pose)) {
 		console.error(
 				"Unable to get starting pose of robot, unable to create global plan");
 		return false;
 	}
 
-	Pose2D start = global_pose;
+	sgbot::Pose2D start = global_pose;
 
 	//if the planner fails or returns a zero length plan, planning failed
 	if (!global_planner->makePlan(start, goal, plan) || plan.empty()) {
@@ -281,8 +292,8 @@ bool NavigationApplication::makePlan(const Pose2D& goal,
 
 }
 //TODO change implement ways
-double NavigationApplication::distance(const Pose2D& p1,
-		const Pose2D& p2) {
+double NavigationApplication::distance(const sgbot::Pose2D& p1,
+		const sgbot::Pose2D& p2) {
 	return hypot(p1.x - p2.x,
 			p1.y - p2.y);
 }
@@ -290,8 +301,8 @@ void NavigationApplication::run() {
 	loadParameters();
 
 	//set up plan triple buffer
-	global_planner_plan = new std::vector<Pose2D>();
-	latest_plan = new std::vector<Pose2D>();
+	global_planner_plan = new std::vector<sgbot::Pose2D>();
+	latest_plan = new std::vector<sgbot::Pose2D>();
 
 	/*
 	 * make global planner and global costmap

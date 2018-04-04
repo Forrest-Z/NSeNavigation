@@ -2,13 +2,12 @@
 #define ODOMETRY_HELPER_ROS2_H_
 
 #include <boost/thread.hpp>
-#include <DataSet/DataType/Odometry.h>
+
 #include <transform/transform2d.h>
+#include <type/odometry.h>
 
-
-#include <Service/ServiceType/ServiceOdometry.h>
 #include <Service/Client.h>
-
+using namespace sgbot;
 namespace NS_Planner
 {
 
@@ -28,14 +27,14 @@ namespace NS_Planner
      * @param msg An Odometry message
      */
     void
-    getOdom(NS_DataType::Odometry& base_odom);
+    getOdom(Odometry& base_odom);
 
     void
     getRobotVel(Velocity2D& robot_vel);
 
   private:
-    NS_DataType::Odometry base_odom_;
-    NS_Service::Client< NS_ServiceType::ServiceOdometry >* odom_cli;
+    Odometry base_odom_;
+    NS_Service::Client< Odometry >* odom_cli;
 
   };
 

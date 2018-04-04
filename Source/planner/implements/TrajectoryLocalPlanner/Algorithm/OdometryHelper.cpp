@@ -8,7 +8,7 @@ namespace NS_Planner
 
   OdometryHelper::OdometryHelper()
   {
-    odom_cli = new NS_Service::Client< NS_ServiceType::ServiceOdometry >(
+    odom_cli = new NS_Service::Client< Odometry >(
         "BASE_ODOM");
   }
 
@@ -23,15 +23,16 @@ namespace NS_Planner
     // Set current velocities from odometry
     Velocity2D global_vel;
 
-    NS_ServiceType::ServiceOdometry odom_rep;
+    Odometry odom_rep;
 
-    if(odom_cli->call(odom_rep) && odom_rep.result)
+    if(odom_cli->call(odom_rep))
     {
-      base_odom_ = odom_rep.odom;
+      base_odom_ = odom_rep;
 
-      global_vel.linear = base_odom_.twist.linear.x;
-//      global_vel.linear.y = base_odom_.twist.linear.y;
-      global_vel.angular = base_odom_.twist.angular.z;
+//      global_vel.linear = base_odom_.twist.linear.x;
+//      global_vel.angular = base_odom_.twist.angular.z;
+      global_vel.linear = base_odom_.velocity2d.linear;
+      global_vel.angular = base_odom_.velocity2d.angular;
 
 //      robot_vel.setData(
 //          NS_Transform::Transform(
@@ -44,13 +45,13 @@ namespace NS_Planner
     }
   }
 
-  void OdometryHelper::getOdom(NS_DataType::Odometry& base_odom)
+  void OdometryHelper::getOdom(Odometry& base_odom)
   {
-    NS_ServiceType::ServiceOdometry odom_rep;
+    Odometry odom_rep;
 
-    if(odom_cli->call(odom_rep) && odom_rep.result)
+    if(odom_cli->call(odom_rep))
     {
-      base_odom_ = odom_rep.odom;
+      base_odom_ = odom_rep;
       base_odom = base_odom_;
     }
   }

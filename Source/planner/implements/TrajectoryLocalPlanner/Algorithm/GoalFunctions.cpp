@@ -106,7 +106,7 @@ namespace NS_Planner
       const std::vector< Pose2D >& global_plan,
       const NS_CostMap::Costmap2D& costmap __attribute__((unused)),
       Pose2D& global_pose,
-      const NS_DataType::Odometry& base_odom, double rot_stopped_vel,
+      const Odometry& base_odom, double rot_stopped_vel,
       double trans_stopped_vel, double xy_goal_tolerance,
       double yaw_goal_tolerance)
   {
@@ -133,13 +133,13 @@ namespace NS_Planner
     return false;
   }
 
-  bool stopped(const NS_DataType::Odometry& base_odom,
+  bool stopped(const Odometry& base_odom,
                const double& rot_stopped_velocity,
                const double& trans_stopped_velocity)
   {
-    return fabs(base_odom.twist.angular.z) <= rot_stopped_velocity && fabs(
-        base_odom.twist.linear.x) <= trans_stopped_velocity && fabs(
-        base_odom.twist.linear.y) <= trans_stopped_velocity;
+    return fabs(base_odom.velocity2d.angular) <= rot_stopped_velocity && fabs(
+        base_odom.velocity2d.linear) <= trans_stopped_velocity;
+//		&& fabs(base_odom.twist.linear.y) <= trans_stopped_velocity;
   }
 }
 ;

@@ -9,7 +9,6 @@
 #include "Algorithm/OdometryHelper.h"
 
 
-#include <DataSet/DataType/Odometry.h>
 #include <transform/transform2d.h>
 
 
@@ -17,7 +16,6 @@
 
 #include <string>
 
-#include <Geometry/Angles.h>
 
 #include "../../base/LocalPlannerBase.h"
 
@@ -158,7 +156,7 @@ namespace NS_Planner
     NS_CostMap::Costmap2D* costmap_; ///< @brief The costmap the controller will use
 
     double max_sensor_range_; ///< @brief Keep track of the effective maximum range of our sensors
-    NS_DataType::Odometry base_odom_; ///< @brief Used to get the velocity of the robot
+    Odometry base_odom_; ///< @brief Used to get the velocity of the robot
 
     double rot_stopped_velocity_, trans_stopped_velocity_;
     double xy_goal_tolerance_, yaw_goal_tolerance_, min_in_place_vel_th_;

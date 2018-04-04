@@ -463,7 +463,7 @@ namespace NS_Planner
         Trajectory path = tc_->findBestPath(global_pose, robot_vel, drive_cmds);
 
         //copy over the odometry information
-        NS_DataType::Odometry base_odom;
+        Odometry base_odom;
         odom_helper_->getOdom(base_odom);
 
         //if we're not stopped yet... we want to stop... taking into account the acceleration limits of the robot
@@ -554,7 +554,7 @@ namespace NS_Planner
       }
 
       //copy over the odometry information
-      NS_DataType::Odometry base_odom;
+      Odometry base_odom;
       {
         boost::recursive_mutex::scoped_lock lock(odom_lock_);
         base_odom = base_odom_;
@@ -563,8 +563,8 @@ namespace NS_Planner
       return tc_->checkTrajectory(
           global_pose.x, global_pose.y,
           global_pose.theta,
-          base_odom.twist.linear.x, base_odom.twist.linear.y,
-          base_odom.twist.angular.z, vx_samp, vy_samp, vtheta_samp);
+          base_odom.velocity2d.linear, 0.0,
+          base_odom.velocity2d.angular, vx_samp, vy_samp, vtheta_samp);
 
     }
     printf(
@@ -592,7 +592,7 @@ namespace NS_Planner
       }
 
       //copy over the odometry information
-      NS_DataType::Odometry base_odom;
+      Odometry base_odom;
       {
         boost::recursive_mutex::scoped_lock lock(odom_lock_);
         base_odom = base_odom_;
@@ -601,8 +601,8 @@ namespace NS_Planner
       return tc_->scoreTrajectory(
           global_pose.x, global_pose.y,
           global_pose.theta,
-          base_odom.twist.linear.x, base_odom.twist.linear.y,
-          base_odom.twist.angular.z, vx_samp, vy_samp, vtheta_samp);
+          base_odom.velocity2d.linear, 0.0,
+          base_odom.velocity2d.angular, vx_samp, vy_samp, vtheta_samp);
 
     }
     printf(

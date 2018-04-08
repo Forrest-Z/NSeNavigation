@@ -23,7 +23,7 @@ namespace NS_Planner
     unsigned int cell_x, cell_y;
 
     //get the cell coord of the center point of the robot
-    if(!costmap_.worldToMap(position.x, position.y, cell_x, cell_y))
+    if(!costmap_.worldToMap(position.x(), position.y(), cell_x, cell_y))
       return -1.0;
 
     //if number of points in the footprint is less than 3, we'll just assume a circular robot
@@ -46,11 +46,11 @@ namespace NS_Planner
     for(unsigned int i = 0; i < footprint.size() - 1; ++i)
     {
       //get the cell coord of the first point
-      if(!costmap_.worldToMap(footprint[i].x, footprint[i].y, x0, y0))
+      if(!costmap_.worldToMap(footprint[i].x(), footprint[i].y(), x0, y0))
         return -1.0;
 
       //get the cell coord of the second point
-      if(!costmap_.worldToMap(footprint[i + 1].x, footprint[i + 1].y, x1, y1))
+      if(!costmap_.worldToMap(footprint[i + 1].x(), footprint[i + 1].y(), x1, y1))
         return -1.0;
 
       line_cost = lineCost(x0, x1, y0, y1);
@@ -63,11 +63,11 @@ namespace NS_Planner
 
     //we also need to connect the first point in the footprint to the last point
     //get the cell coord of the last point
-    if(!costmap_.worldToMap(footprint.back().x, footprint.back().y, x0, y0))
+    if(!costmap_.worldToMap(footprint.back().x(), footprint.back().y(), x0, y0))
       return -1.0;
 
     //get the cell coord of the first point
-    if(!costmap_.worldToMap(footprint.front().x, footprint.front().y, x1, y1))
+    if(!costmap_.worldToMap(footprint.front().x(), footprint.front().y(), x1, y1))
       return -1.0;
 
     line_cost = lineCost(x0, x1, y0, y1);

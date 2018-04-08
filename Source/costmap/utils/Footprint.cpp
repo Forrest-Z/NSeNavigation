@@ -25,20 +25,20 @@ namespace NS_CostMap
     for(unsigned int i = 0; i < footprint.size() - 1; ++i)
     {
       // check the distance from the robot center point to the first vertex
-      double vertex_dist = distance(0.0, 0.0, footprint[i].x, footprint[i].y);
-      double edge_dist = distanceToLine(0.0, 0.0, footprint[i].x,
-                                        footprint[i].y, footprint[i + 1].x,
-                                        footprint[i + 1].y);
+      double vertex_dist = distance(0.0, 0.0, footprint[i].x(), footprint[i].y());
+      double edge_dist = distanceToLine(0.0, 0.0, footprint[i].x(),
+                                        footprint[i].y(), footprint[i + 1].x(),
+                                        footprint[i + 1].y());
       min_dist = std::min(min_dist, std::min(vertex_dist, edge_dist));
       max_dist = std::max(max_dist, std::max(vertex_dist, edge_dist));
     }
 
     // we also need to do the last vertex and the first vertex
-    double vertex_dist = distance(0.0, 0.0, footprint.back().x,
-                                  footprint.back().y);
-    double edge_dist = distanceToLine(0.0, 0.0, footprint.back().x,
-                                      footprint.back().y, footprint.front().x,
-                                      footprint.front().y);
+    double vertex_dist = distance(0.0, 0.0, footprint.back().x(),
+                                  footprint.back().y());
+    double edge_dist = distanceToLine(0.0, 0.0, footprint.back().x(),
+                                      footprint.back().y(), footprint.front().x(),
+                                      footprint.front().y());
     min_dist = std::min(min_dist, std::min(vertex_dist, edge_dist));
     max_dist = std::max(max_dist, std::max(vertex_dist, edge_dist));
   }
@@ -57,8 +57,8 @@ namespace NS_CostMap
     for(unsigned int i = 0; i < footprint_spec.size(); ++i)
     {
       Point2D new_pt;
-      new_pt.x = x + (footprint_spec[i].x * cos_th - footprint_spec[i].y * sin_th);
-      new_pt.y = y + (footprint_spec[i].x * sin_th + footprint_spec[i].y * cos_th);
+      new_pt.x() = x + (footprint_spec[i].x() * cos_th - footprint_spec[i].y() * sin_th);
+      new_pt.y() = y + (footprint_spec[i].x() * sin_th + footprint_spec[i].y() * cos_th);
       oriented_footprint.push_back(new_pt);
     }
   }
@@ -71,8 +71,8 @@ namespace NS_CostMap
     for(unsigned int i = 0; i < footprint.size(); i++)
     {
       Point2D& pt = footprint[i];
-      pt.x += sign0(pt.x) * padding;
-      pt.y += sign0(pt.y) * padding;
+      pt.x() += sign0(pt.x()) * padding;
+      pt.y() += sign0(pt.y()) * padding;
     }
   }
 
@@ -86,9 +86,9 @@ namespace NS_CostMap
     for(int i = 0; i < N; ++i)
     {
       double angle = i * 2 * M_PI / N;
-      pt.x = cos(angle) * radius;
-      pt.y = sin(angle) * radius;
-      printf("i = %d,x = %.4f,y = %.4f\n", i, pt.x, pt.y);
+      pt.x() = cos(angle) * radius;
+      pt.y() = sin(angle) * radius;
+      printf("i = %d,x = %.4f,y = %.4f\n", i, pt.x(), pt.y());
       points.push_back(pt);
     }
 
@@ -122,8 +122,8 @@ namespace NS_CostMap
       if(vvf[i].size() == 2)
       {
         Point2D point;
-        point.x = vvf[i][0];
-        point.y = vvf[i][1];
+        point.x() = vvf[i][0];
+        point.y() = vvf[i][1];
         footprint.push_back(point);
       }
       else

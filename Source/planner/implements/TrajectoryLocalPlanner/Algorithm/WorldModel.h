@@ -39,14 +39,14 @@ namespace NS_Planner
       for(unsigned int i = 0; i < footprint_spec.size(); ++i)
       {
         Point2D new_pt;
-        new_pt.x = x + (footprint_spec[i].x * cos_th - footprint_spec[i].y * sin_th);
-        new_pt.y = y + (footprint_spec[i].x * sin_th + footprint_spec[i].y * cos_th);
+        new_pt.x() = x + (footprint_spec[i].x() * cos_th - footprint_spec[i].y() * sin_th);
+        new_pt.y() = y + (footprint_spec[i].x() * sin_th + footprint_spec[i].y() * cos_th);
         oriented_footprint.push_back(new_pt);
       }
 
       Point2D robot_position;
-      robot_position.x = x;
-      robot_position.y = y;
+      robot_position.x() = x;
+      robot_position.y() = y;
 
       if(inscribed_radius == 0.0)
       {

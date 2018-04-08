@@ -58,9 +58,9 @@ void NavigationApplication::publishVelocity(double linear_x, double linear_y,
 bool NavigationApplication::goalFromAPP(sgbot::Pose2D& goal_from_app){
 	planner_mutex.lock();
 	    goal = goalToGlobalFrame(goal_from_app);
-		goal = goal_from_app;
-	    printf("goal_callback x = %.4f,y = %.4f, theta = %.4f\n", goal.x,
-	           goal.y, goal.theta);
+//		goal = goal_from_app;
+	    printf("goal_callback x = %.4f,y = %.4f, theta = %.4f\n", goal.x(),
+	           goal.y(), goal.theta());
 	    new_goal_trigger = true;
 	    state = PLANNING;
 	    planner_cond.notify_one();
@@ -109,8 +109,8 @@ void NavigationApplication::controlLoop() {
 		global_costmap->getRobotPose(global_pose);
 
 		printf("global_pose x = %.4f,y = %.4f, w = %.4f ,state = %d\n",
-				global_pose.x, global_pose.y,
-				global_pose.theta, state);
+				global_pose.x(), global_pose.y(),
+				global_pose.theta(), state);
 
 		sgbot::Pose2D current_position;
 //		NS_Transform::poseStampedTFToMsg(global_pose, current_position);
@@ -252,7 +252,7 @@ sgbot::Pose2D NavigationApplication::goalToGlobalFrame(
 		logError<<"get map transform failed";
 	}
 	sgbot::Pose2D pose2d_result = map_transform.transform(odom_transform.transform(goal));
-	logInfo<<"pose 2d in global frame is "<<pose2d_result.x<<" "<<pose2d_result.y<<" "<<pose2d_result.theta;
+	logInfo<<"pose 2d in global frame is "<<pose2d_result.x()<<" "<<pose2d_result.y()<<" "<<pose2d_result.theta();
 }
 bool NavigationApplication::makePlan(const sgbot::Pose2D& goal,
 		std::vector<sgbot::Pose2D>& plan) {
@@ -275,17 +275,17 @@ bool NavigationApplication::makePlan(const sgbot::Pose2D& goal,
 	//if the planner fails or returns a zero length plan, planning failed
 	if (!global_planner->makePlan(start, goal, plan) || plan.empty()) {
 		console.warning("Failed to find a  plan to point (%.2f, %.2f)",
-				goal.x, goal.y);
+				goal.x(), goal.y());
 		return false;
 	}
 
 	console.debug("Plans computed, %d points to go...", plan.size());
 	global_plan.resize(plan.size());
 	for (size_t i = 0; i < plan.size(); i++) {
-		console.debug("[%d] x = %lf, y = %lf", (i + 1), plan[i].x,
-				plan[i].y);
+		console.debug("[%d] x = %lf, y = %lf", (i + 1), plan[i].x(),
+				plan[i].y());
 		global_plan[i] = plan[i];
-		printf("%lf,%lf,\n", plan[i].x, plan[i].y);
+		printf("%lf,%lf,\n", plan[i].x(), plan[i].y());
 	}
 	printf("global_plan is assigned and size = %d\n", global_plan.size());
 	return true;
@@ -294,8 +294,8 @@ bool NavigationApplication::makePlan(const sgbot::Pose2D& goal,
 //TODO change implement ways
 double NavigationApplication::distance(const sgbot::Pose2D& p1,
 		const sgbot::Pose2D& p2) {
-	return hypot(p1.x - p2.x,
-			p1.y - p2.y);
+	return hypot(p1.x() - p2.x(),
+			p1.y() - p2.y());
 }
 void NavigationApplication::run() {
 	loadParameters();

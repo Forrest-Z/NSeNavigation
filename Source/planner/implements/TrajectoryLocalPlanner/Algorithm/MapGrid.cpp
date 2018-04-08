@@ -123,8 +123,8 @@ namespace NS_Planner
     {
       return;
     }
-    double last_x = global_plan_in[0].x;
-    double last_y = global_plan_in[0].y;
+    double last_x = global_plan_in[0].x();
+    double last_y = global_plan_in[0].y();
     global_plan_out.push_back(global_plan_in[0]);
 
     // we can take "holes" in the plan smaller than 2 grid cells (squared = 4)
@@ -132,8 +132,8 @@ namespace NS_Planner
 
     for(unsigned int i = 1; i < global_plan_in.size(); ++i)
     {
-      double loop_x = global_plan_in[i].x;
-      double loop_y = global_plan_in[i].y;
+      double loop_x = global_plan_in[i].x();
+      double loop_y = global_plan_in[i].y();
       double sqdist = (loop_x - last_x) * (loop_x - last_x) + (loop_y - last_y) * (loop_y - last_y);
 //      printf("sqdist = %.4f,resolution = %.4f,min_sq_resolution = %.4f\n",
 //             sqdist, resolution, min_sq_resolution);
@@ -147,9 +147,9 @@ namespace NS_Planner
         for(int j = 1; j < steps; ++j)
         {
           Pose2D pose;
-          pose.x = last_x + j * deltax;
-          pose.y = last_y + j * deltay;
-          pose.theta = (global_plan_in[i].theta);
+          pose.x() = last_x + j * deltax;
+          pose.y() = last_y + j * deltay;
+          pose.theta() = (global_plan_in[i].theta());
           global_plan_out.push_back(pose);
         }
       }
@@ -183,8 +183,8 @@ namespace NS_Planner
     // put global path points into local map until we reach the border of the local map
     for(i = 0; i < adjusted_global_plan.size(); ++i)
     {
-      double g_x = adjusted_global_plan[i].x;
-      double g_y = adjusted_global_plan[i].y;
+      double g_x = adjusted_global_plan[i].x();
+      double g_y = adjusted_global_plan[i].y();
       unsigned int map_x, map_y;
       if(costmap.worldToMap(g_x, g_y, map_x, map_y) && costmap.getCost(map_x,
                                                                        map_y) != NS_CostMap::NO_INFORMATION)
@@ -229,8 +229,8 @@ namespace NS_Planner
     // skip global path points until we reach the border of the local map
     for(unsigned int i = 0; i < adjusted_global_plan.size(); ++i)
     {
-      double g_x = adjusted_global_plan[i].x;
-      double g_y = adjusted_global_plan[i].y;
+      double g_x = adjusted_global_plan[i].x();
+      double g_y = adjusted_global_plan[i].y();
       unsigned int map_x, map_y;
       if(costmap.worldToMap(g_x, g_y, map_x, map_y) && costmap.getCost(map_x,
                                                                        map_y) != NS_CostMap::NO_INFORMATION)

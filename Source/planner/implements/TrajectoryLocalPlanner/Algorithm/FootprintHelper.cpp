@@ -69,8 +69,8 @@ namespace NS_Planner
 
     for(int curpixel = 0; curpixel <= numpixels; curpixel++)
     {
-      pt.x = x;      //Draw the current pixel
-      pt.y = y;
+      pt.x() = x;      //Draw the current pixel
+      pt.y() = y;
       pts.push_back(pt);
 
       num += numadd;        // Increase the numerator by the top of the fraction
@@ -93,7 +93,7 @@ namespace NS_Planner
     unsigned int i = 0;
     while(i < footprint.size() - 1)
     {
-      if(footprint[i].x > footprint[i + 1].x)
+      if(footprint[i].x() > footprint[i + 1].x())
       {
         swap = footprint[i];
         footprint[i] = footprint[i + 1];
@@ -112,8 +112,8 @@ namespace NS_Planner
     i = 0;
     Point2D min_pt;
     Point2D max_pt;
-    unsigned int min_x = footprint[0].x;
-    unsigned int max_x = footprint[footprint.size() - 1].x;
+    unsigned int min_x = footprint[0].x();
+    unsigned int max_x = footprint[footprint.size() - 1].x();
     //walk through each column and mark cells inside the footprint
     for(unsigned int x = min_x; x <= max_x; ++x)
     {
@@ -121,7 +121,7 @@ namespace NS_Planner
       {
         break;
       }
-      if(footprint[i].y < footprint[i + 1].y)
+      if(footprint[i].y() < footprint[i + 1].y())
       {
         min_pt = footprint[i];
         max_pt = footprint[i + 1];
@@ -133,13 +133,13 @@ namespace NS_Planner
       }
 
       i += 2;
-      while(i < footprint.size() && footprint[i].x == x)
+      while(i < footprint.size() && footprint[i].x() == x)
       {
-        if(footprint[i].y < min_pt.y)
+        if(footprint[i].y() < min_pt.y())
         {
           min_pt = footprint[i];
         }
-        else if(footprint[i].y > max_pt.y)
+        else if(footprint[i].y() > max_pt.y())
         {
           max_pt = footprint[i];
         }
@@ -147,10 +147,10 @@ namespace NS_Planner
       }
 
       //loop though cells in the column
-      for(unsigned int y = min_pt.y; y < max_pt.y; ++y)
+      for(unsigned int y = min_pt.y(); y < max_pt.y(); ++y)
       {
-        pt.x = x;
-        pt.y = y;
+        pt.x() = x;
+        pt.y() = y;
         footprint.push_back(pt);
       }
     }
@@ -175,8 +175,8 @@ namespace NS_Planner
       if(costmap.worldToMap(x_i, y_i, mx, my))
       {
     	  Point2D center;
-        center.x = mx;
-        center.y = my;
+        center.x() = mx;
+        center.y() = my;
         footprint_cells.push_back(center);
       }
       return footprint_cells;
@@ -192,16 +192,16 @@ namespace NS_Planner
     for(unsigned int i = 0; i < last_index; ++i)
     {
       //find the cell coordinates of the first segment point
-      new_x = x_i + (footprint_spec[i].x * cos_th - footprint_spec[i].y * sin_th);
-      new_y = y_i + (footprint_spec[i].x * sin_th + footprint_spec[i].y * cos_th);
+      new_x = x_i + (footprint_spec[i].x() * cos_th - footprint_spec[i].y() * sin_th);
+      new_y = y_i + (footprint_spec[i].x() * sin_th + footprint_spec[i].y() * cos_th);
       if(!costmap.worldToMap(new_x, new_y, x0, y0))
       {
         return footprint_cells;
       }
 
       //find the cell coordinates of the second segment point
-      new_x = x_i + (footprint_spec[i + 1].x * cos_th - footprint_spec[i + 1].y * sin_th);
-      new_y = y_i + (footprint_spec[i + 1].x * sin_th + footprint_spec[i + 1].y * cos_th);
+      new_x = x_i + (footprint_spec[i + 1].x() * cos_th - footprint_spec[i + 1].y() * sin_th);
+      new_y = y_i + (footprint_spec[i + 1].x() * sin_th + footprint_spec[i + 1].y() * cos_th);
       if(!costmap.worldToMap(new_x, new_y, x1, y1))
       {
         return footprint_cells;
@@ -211,14 +211,14 @@ namespace NS_Planner
     }
 
     //we need to close the loop, so we also have to raytrace from the last pt to first pt
-    new_x = x_i + (footprint_spec[last_index].x * cos_th - footprint_spec[last_index].y * sin_th);
-    new_y = y_i + (footprint_spec[last_index].x * sin_th + footprint_spec[last_index].y * cos_th);
+    new_x = x_i + (footprint_spec[last_index].x() * cos_th - footprint_spec[last_index].y() * sin_th);
+    new_y = y_i + (footprint_spec[last_index].x() * sin_th + footprint_spec[last_index].y() * cos_th);
     if(!costmap.worldToMap(new_x, new_y, x0, y0))
     {
       return footprint_cells;
     }
-    new_x = x_i + (footprint_spec[0].x * cos_th - footprint_spec[0].y * sin_th);
-    new_y = y_i + (footprint_spec[0].x * sin_th + footprint_spec[0].y * cos_th);
+    new_x = x_i + (footprint_spec[0].x() * cos_th - footprint_spec[0].y() * sin_th);
+    new_y = y_i + (footprint_spec[0].x() * sin_th + footprint_spec[0].y() * cos_th);
     if(!costmap.worldToMap(new_x, new_y, x1, y1))
     {
       return footprint_cells;

@@ -232,10 +232,10 @@ void TrajectoryPlanner::generateTrajectory(double x, double y, double theta,
 
 		//do we want to follow blindly
 		if (simple_attractor_) {
-			goal_dist = (x_i - global_plan_[global_plan_.size() - 1].x)
-					* (x_i - global_plan_[global_plan_.size() - 1].x)
-					+ (y_i - global_plan_[global_plan_.size() - 1].y)
-							* (y_i - global_plan_[global_plan_.size() - 1].y);
+			goal_dist = (x_i - global_plan_[global_plan_.size() - 1].x())
+					* (x_i - global_plan_[global_plan_.size() - 1].x())
+					+ (y_i - global_plan_[global_plan_.size() - 1].y())
+							* (y_i - global_plan_[global_plan_.size() - 1].y());
 		} else {
 
 			bool update_path_and_goal_distances = true;
@@ -307,7 +307,7 @@ double TrajectoryPlanner::headingDiff(int cell_x, int cell_y, double x,
 
 	// find a clear line of sight from the robot's cell to a farthest point on the path
 	for (int i = global_plan_.size() - 1; i >= 0; --i) {
-		if (costmap_.worldToMap(global_plan_[i].x, global_plan_[i].y,
+		if (costmap_.worldToMap(global_plan_[i].x(), global_plan_[i].y(),
 				goal_cell_x, goal_cell_y)) {
 			if (lineCost(cell_x, goal_cell_x, cell_y, goal_cell_y) >= 0) {
 				double gx, gy;
@@ -416,8 +416,8 @@ void TrajectoryPlanner::updatePlan(const vector<Pose2D>& new_plan,
 
 	if (global_plan_.size() > 0) {
 		Pose2D& final_goal_pose = global_plan_[global_plan_.size() - 1];
-		final_goal_x_ = final_goal_pose.x;
-		final_goal_y_ = final_goal_pose.y;
+		final_goal_x_ = final_goal_pose.x();
+		final_goal_y_ = final_goal_pose.y();
 		final_goal_position_valid_ = true;
 	} else {
 		final_goal_position_valid_ = false;
@@ -874,7 +874,7 @@ Trajectory TrajectoryPlanner::createTrajectories(double x, double y,
 Trajectory TrajectoryPlanner::findBestPath(Pose2D global_pose,
 		Velocity2D global_vel, Velocity2D& drive_velocities) {
 
-	std::vector<float> pos = { global_pose.x, global_pose.y, global_pose.theta };
+	std::vector<float> pos = { global_pose.x(), global_pose.y(), global_pose.theta() };
 	std::vector<float> vel = { global_vel.linear, 0.0f, global_vel.angular };
 
 	//reset the map for new operations
@@ -886,11 +886,11 @@ Trajectory TrajectoryPlanner::findBestPath(Pose2D global_pose,
 			footprint_helper_.getFootprintCells(pos, footprint_spec_, costmap_,
 					true);
 	printf("footprint_list size = %d,footprint_list[0].x = %ld,y = %ld\n",
-			footprint_list[0].x, footprint_list[0].y);
+			footprint_list[0].x(), footprint_list[0].y());
 
 	//mark cells within the initial footprint of the robot
 	for (unsigned int i = 0; i < footprint_list.size(); ++i) {
-		path_map_(footprint_list[i].x, footprint_list[i].y).within_robot = true;
+		path_map_(footprint_list[i].x(), footprint_list[i].y()).within_robot = true;
 	}
 
 	//make sure that we update our path based on the global plan and compute costs

@@ -51,8 +51,8 @@
 									<listOptionValue builtIn="false" value="/lib"/>
 								</option>
 								<option id="gnu.cpp.link.option.libs.926342018" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" useByScannerDiscovery="false" valueType="libs">
-									<listOptionValue builtIn="false" value="SeNaviCommon"/>
 									<listOptionValue builtIn="false" value="sgbot"/>
+									<listOptionValue builtIn="false" value="SeNaviCommon"/>
 									<listOptionValue builtIn="false" value="boost_serialization"/>
 									<listOptionValue builtIn="false" value="boost_log_setup"/>
 									<listOptionValue builtIn="false" value="boost_log"/>

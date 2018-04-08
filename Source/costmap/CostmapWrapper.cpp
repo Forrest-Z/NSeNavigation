@@ -30,8 +30,8 @@ void CostmapWrapper::updateMap()
     double x = 0.0,y = 0.0,yaw = 0.0;
     if(getRobotPose (pose))
     {
-      x = pose.x, y = pose.y,
-          yaw = pose.theta;
+      x = pose.x(), y = pose.y(),
+          yaw = pose.theta();
 
       layered_costmap->updateMap(x, y, yaw);
     }else{
@@ -95,7 +95,7 @@ void CostmapWrapper::visualizeForRviz(){
 	}
 	fclose(file);
 	ofile.close();
-	SocketSend("10.0.1.17","12345",file_name);
+	SocketSend("192.168.1.58","12345",file_name);
 }
 void CostmapWrapper::loadParameters()
  {

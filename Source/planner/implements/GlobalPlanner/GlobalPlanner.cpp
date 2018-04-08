@@ -130,8 +130,8 @@ bool GlobalPlanner::makePlan(const Pose2D& start,
 	// 先把 plan 清空
 	plan.clear();
 
-	double wx = start.x;
-	double wy = start.y;
+	double wx = start.x();
+	double wy = start.y();
 
 	logInfo << "start world wx = " << wx << " wy = " << wy;
 	/*
@@ -155,8 +155,8 @@ bool GlobalPlanner::makePlan(const Pose2D& start,
 	/*
 	 * 处理 goal
 	 */
-	wx = goal.x;
-	wy = goal.y;
+	wx = goal.x();
+	wy = goal.y();
 
 	logInfo << "goal world wx = " << wx << " wy = " << wy << "\n";
 
@@ -242,10 +242,10 @@ bool GlobalPlanner::makePlan(const Pose2D& start,
 		for (size_t i = 0; i < plan.size(); i++) {
 //        console.debug("[%d] x = %lf, y = %lf", (i + 1), plan[i].pose.position.x,
 //                      plan[i].pose.position.y);
-			printf("%lf,%lf,\n", plan[i].x,
-					plan[i].y);
+			printf("%lf,%lf,\n", plan[i].x(),
+					plan[i].y());
 			double map_x, map_y;
-			worldToMap(plan[i].x, plan[i].y, map_x,
+			worldToMap(plan[i].x(), plan[i].y(), map_x,
 					map_y);
 			fprintf(file, "%lf %lf\n", map_x, map_y);
 		}
@@ -307,9 +307,9 @@ bool GlobalPlanner::getPlanFromPotential(double start_x, double start_y,
 //		pose.pose.orientation.y = 0.0;
 //		pose.pose.orientation.z = 0.0;
 //		pose.pose.orientation.w = 1.0;
-		pose.x = world_x;
-		pose.y = world_y;
-		pose.theta = 0;
+		pose.x() = world_x;
+		pose.y() = world_y;
+		pose.theta() = 0;
 		plan.push_back(pose);
 	}
 

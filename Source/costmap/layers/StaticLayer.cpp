@@ -27,8 +27,8 @@ void StaticLayer::loopStaticMap() {
 		NS_ServiceType::ServiceMap srv_map;
 
 		if (simulated) {
-			std::string file_path = "/home/pengjiawei/test_map.pgm";
-			logInfo << "simulated so please located pgm file in path = "<<file_path;
+			std::string file_path = "/home/pengjiawei/map.pgm";
+//			logInfo << "simulated so please located pgm file in path = "<<file_path;
 			srv_map.map.info.resolution = 0.1;
 			srv_map.map.info.origin.position.x = 0.0;
 			srv_map.map.info.origin.position.y = 0.0;
@@ -39,6 +39,9 @@ void StaticLayer::loopStaticMap() {
 			srv_map.map.info.origin.orientation.w = 0.0;
 			readPgm(file_path, srv_map.map.info.width, srv_map.map.info.height,
 					srv_map.map.data);
+			for(int i = 0; i < srv_map.map.data.size();++i){
+				srv_map.map.data[i] = '0';
+			}
 			processMap(srv_map.map);
 		} else {
 			if (map_cli->call(srv_map)) {
@@ -119,7 +122,7 @@ unsigned char StaticLayer::interpretValue(unsigned char value) {
 void StaticLayer::processMap(const NS_DataType::OccupancyGrid& new_map) {
 	unsigned int size_x = new_map.info.width, size_y = new_map.info.height;
 
-    logInfo<<"Received size_x = "<<size_x<<" size_y = "<<size_y << ",resolution = "<<new_map.info.resolution;
+//    logInfo<<"Received size_x = "<<size_x<<" size_y = "<<size_y << ",resolution = "<<new_map.info.resolution;
 
 // resize costmap if size, resolution or origin do not match
 	Costmap2D* master = layered_costmap_->getCostmap();
@@ -130,7 +133,7 @@ void StaticLayer::processMap(const NS_DataType::OccupancyGrid& new_map) {
 			|| master->getOriginY() != new_map.info.origin.position.y
 			|| !layered_costmap_->isSizeLocked()) {
 		// Update the size of the layered costmap (and all layers, including this one)
-		//printf("Resizing costmap to %d X %d at %f m/pix\n", size_x, size_y, new_map.info.resolution);
+		printf("Resizing costmap to %d X %d at %f m/pix\n", size_x, size_y, new_map.info.resolution);
 		layered_costmap_->resizeMap(size_x, size_y, new_map.info.resolution,
 				new_map.info.origin.position.x, new_map.info.origin.position.y,
 				true);
@@ -140,7 +143,7 @@ void StaticLayer::processMap(const NS_DataType::OccupancyGrid& new_map) {
 			|| origin_x_ != new_map.info.origin.position.x
 			|| origin_y_ != new_map.info.origin.position.y) {
 		// only update the size of the costmap stored locally in this layer
-		//printf("Resizing static layer to %d X %d at %f m/pix\n", size_x, size_y, new_map.info.resolution);
+		printf("Resizing static layer to %d X %d at %f m/pix\n", size_x, size_y, new_map.info.resolution);
 		resizeMap(size_x, size_y, new_map.info.resolution,
 				new_map.info.origin.position.x, new_map.info.origin.position.y);
 	}
@@ -233,7 +236,7 @@ void StaticLayer::readPgm(std::string pgm_file_path, int16_t& width,
 	getline(infile, inputLine);
 
 	while (inputLine.find("#") != string::npos) {
-		cout << "Comment : " << inputLine << endl;
+//		cout << "Comment : " << inputLine << endl;
 		getline(infile, inputLine);
 	}
 	// Continue with a stringstream
@@ -241,13 +244,13 @@ void StaticLayer::readPgm(std::string pgm_file_path, int16_t& width,
 	// Third line : size
 	stringstream wwhhss(inputLine);
 	wwhhss >> width >> height;
-	logInfo << width << " columns and " << height << " rows";
+//	logInfo << width << " columns and " << height << " rows";
 
 	int array[height][width];
 
 	int max_value;
 	ss >> max_value;
-	logInfo << "max value = " << max_value << endl;
+//	logInfo << "max value = " << max_value << endl;
 	unsigned char pixel;
 	// Following lines : data
 	for (row = 0; row < height; ++row) {

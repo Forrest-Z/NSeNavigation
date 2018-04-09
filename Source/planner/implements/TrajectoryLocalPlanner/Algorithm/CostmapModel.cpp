@@ -29,7 +29,7 @@ namespace NS_Planner
     //if number of points in the footprint is less than 3, we'll just assume a circular robot
     if(footprint.size() < 3)
     {
-    	printf("foot print size < 3 ,assume it's a circular robot\n");
+//    	printf("foot print size < 3 ,assume it's a circular robot\n");
       unsigned char cost = costmap_.getCost(cell_x, cell_y);
       //if(cost == LETHAL_OBSTACLE || cost == INSCRIBED_INFLATED_OBSTACLE)
       if(cost == LETHAL_OBSTACLE || cost == INSCRIBED_INFLATED_OBSTACLE || cost == NO_INFORMATION)

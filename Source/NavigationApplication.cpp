@@ -15,13 +15,14 @@ namespace NS_Navigation {
 NavigationApplication::NavigationApplication() :
 		new_global_plan_(false), runPlanner_(false) {
 	// TODO Auto-generated constructor stub
-	   goal_sub = new NS_DataSet::Subscriber< sgbot::Pose2D >(
-	        "GOAL", boost::bind(&NavigationApplication::goalFromAPP, this, _1));
+	goal_sub = new NS_DataSet::Subscriber<sgbot::Pose2D>("GOAL",
+			boost::bind(&NavigationApplication::goalFromAPP, this, _1));
 }
 
 NavigationApplication::~NavigationApplication() {
 	// TODO Auto-generated destructor stub
 	delete goal_sub;
+	boost::interprocess::shared_memory_object::remove("GOAL");
 }
 void NavigationApplication::loadParameters() {
 	NS_NaviCommon::Parameter parameter;
@@ -55,19 +56,19 @@ void NavigationApplication::publishVelocity(double linear_x, double linear_y,
 	vel.angular = angular_z;
 	twist_pub->publish(vel);
 }
-bool NavigationApplication::goalFromAPP(sgbot::Pose2D& goal_from_app){
+bool NavigationApplication::goalFromAPP(sgbot::Pose2D& goal_from_app) {
 	planner_mutex.lock();
-	    goal = goalToGlobalFrame(goal_from_app);
+	goal = goalToGlobalFrame(goal_from_app);
 //		goal = goal_from_app;
-	    printf("goal_callback x = %.4f,y = %.4f, theta = %.4f\n", goal.x(),
-	           goal.y(), goal.theta());
-	    new_goal_trigger = true;
-	    state = PLANNING;
-	    planner_cond.notify_one();
-	    planner_mutex.unlock();
+	printf("goal_callback x = %.4f,y = %.4f, theta = %.4f\n", goal.x(),
+			goal.y(), goal.theta());
+	state = PLANNING;
+	planner_cond.notify_one();
+	runPlanner_ = true;
+	planner_mutex.unlock();
 
-	    controlLoop();
-	    return true;
+	controlLoop();
+	return true;
 }
 void NavigationApplication::controlLoop() {
 	while (running) {
@@ -87,6 +88,7 @@ void NavigationApplication::controlLoop() {
 			break;
 		}
 		if (new_global_plan_) {
+			new_global_plan_ = false;
 			if (!local_planner->setPlan(*global_planner_plan)) {
 				console.error("Set plan to local planner failure!");
 				resetState();
@@ -96,7 +98,6 @@ void NavigationApplication::controlLoop() {
 				planner_mutex.unlock();
 				continue;
 			}
-			new_global_plan_ = false;
 		} else {
 			logInfo<< "no new global plan do not set plan";
 		}
@@ -109,8 +110,7 @@ void NavigationApplication::controlLoop() {
 		global_costmap->getRobotPose(global_pose);
 
 		printf("global_pose x = %.4f,y = %.4f, w = %.4f ,state = %d\n",
-				global_pose.x(), global_pose.y(),
-				global_pose.theta(), state);
+				global_pose.x(), global_pose.y(), global_pose.theta(), state);
 
 		sgbot::Pose2D current_position;
 //		NS_Transform::poseStampedTFToMsg(global_pose, current_position);
@@ -123,7 +123,7 @@ void NavigationApplication::controlLoop() {
 			oscillation_pose_ = current_position;
 		}
 
-		logInfo << "control loop state ="<<state;
+		logInfo<< "control loop state ="<<state;
 		switch (state) {
 		case PLANNING:
 			logInfo<< "control loop state is planning";
@@ -132,7 +132,7 @@ void NavigationApplication::controlLoop() {
 			runPlanner_ = true;
 			planner_mutex.unlock();
 			break;
-			case CONTROLLING:
+		case CONTROLLING:
 			if(local_planner->isGoalReached())
 			{
 				console.message("The goal has reached!");
@@ -153,7 +153,7 @@ void NavigationApplication::controlLoop() {
 			if(local_planner->computeVelocityCommands(cmd_vel))
 			{
 				console.debug(
-						"Got velocity data : l_x=%.3lf, l_y=0.0f, a_z=%.3lf!",
+						"Got velocity data : linear=%.3lf, angular=0.0f!",
 						cmd_vel.linear, cmd_vel.angular);
 				last_valid_control = NS_NaviCommon::Time::now();
 				publishVelocity(cmd_vel.linear,0.0,
@@ -202,12 +202,13 @@ void NavigationApplication::planLoop() {
 
 	while (running) {
 		planner_mutex.lock();
-		while (!new_goal_trigger && running && !runPlanner_) {
+		while (new_goal_trigger && running && !runPlanner_) {
 //			planner_cond.timed_wait(planner_mutex,
 //					(boost::get_system_time() + boost::posix_time::milliseconds(
 //					PLANNER_LOOP_TIMEOUT)));
-			logInfo << "planner_condition waiting all long ";
+			logInfo<< "planner_condition waiting all long ";
 			planner_cond.wait(planner_mutex);
+			new_goal_trigger = false;
 		}
 		planner_mutex.unlock();
 
@@ -216,12 +217,10 @@ void NavigationApplication::planLoop() {
 			break;
 		}
 
-		new_goal_trigger = false;
-
 		if (!makePlan(goal, *latest_plan) && state != PLANNING) {
 			console.error("Make plan failure!");
 			goalCallbackExecutor->abort();
-			logInfo << "global planner failed to make plan , maybe recovery should be triggered";
+			logInfo<< "global planner failed to make plan , maybe recovery should be triggered";
 			continue;
 		}
 
@@ -230,29 +229,34 @@ void NavigationApplication::planLoop() {
 		new_global_plan_ = true;
 		global_planner_plan->clear();
 		global_planner_plan->assign(latest_plan->begin(), latest_plan->end());
-		if(runPlanner_)
+		if (runPlanner_)
 			state = CONTROLLING;
 //		controller_cond.notify_one();
 //		controller_mutex.unlock();
 
-		if (planner_frequency_ != 0.0f)
+		if (planner_frequency_ <= 0.0f)
+			runPlanner_ = false;
+		else
 			rate.sleep();
+		new_goal_trigger = true;
+		logInfo << "make plan done once";
 	}
 }
-sgbot::Pose2D NavigationApplication::goalToGlobalFrame(
-		sgbot::Pose2D& goal) {
+sgbot::Pose2D NavigationApplication::goalToGlobalFrame(sgbot::Pose2D& goal) {
 	//map_to_odom * odom_to_base;
-	NS_Service::Client <Transform2D> odom_tf_cli("BASE_ODOM_TF");
-	NS_Service::Client <Transform2D> map_tf_cli("ODOM_MAP_TF");
-	Transform2D odom_transform,map_transform;
-	if(odom_tf_cli.call(odom_transform) == false){
+	NS_Service::Client<Transform2D> odom_tf_cli("BASE_ODOM_TF");
+	NS_Service::Client<Transform2D> map_tf_cli("ODOM_MAP_TF");
+	Transform2D odom_transform, map_transform;
+	if (odom_tf_cli.call(odom_transform) == false) {
 		logError<<"get odometry transform failed";
 	}
-	if(map_tf_cli.call(map_transform) == false){
+	if (map_tf_cli.call(map_transform) == false) {
 		logError<<"get map transform failed";
 	}
-	sgbot::Pose2D pose2d_result = map_transform.transform(odom_transform.transform(goal));
+	sgbot::Pose2D pose2d_result = map_transform.transform(
+			odom_transform.transform(goal));
 	logInfo<<"pose 2d in global frame is "<<pose2d_result.x()<<" "<<pose2d_result.y()<<" "<<pose2d_result.theta();
+	return pose2d_result;
 }
 bool NavigationApplication::makePlan(const sgbot::Pose2D& goal,
 		std::vector<sgbot::Pose2D>& plan) {
@@ -265,9 +269,8 @@ bool NavigationApplication::makePlan(const sgbot::Pose2D& goal,
 	//get the starting pose of the robot
 	sgbot::Pose2D global_pose;
 	if (!global_costmap->getRobotPose(global_pose)) {
-		console.error(
-				"Unable to get starting pose of robot, unable to create global plan");
-		return false;
+		console.warning(
+				"Unable to get starting pose of robot, so make plan as robot pose is 0,0,0");
 	}
 
 	sgbot::Pose2D start = global_pose;
@@ -294,8 +297,7 @@ bool NavigationApplication::makePlan(const sgbot::Pose2D& goal,
 //TODO change implement ways
 double NavigationApplication::distance(const sgbot::Pose2D& p1,
 		const sgbot::Pose2D& p2) {
-	return hypot(p1.x() - p2.x(),
-			p1.y() - p2.y());
+	return hypot(p1.x() - p2.x(), p1.y() - p2.y());
 }
 void NavigationApplication::run() {
 	loadParameters();
@@ -327,7 +329,7 @@ void NavigationApplication::run() {
 
 	state = PLANNING;
 
-	new_goal_trigger = false;
+	new_goal_trigger = true;
 
 	NS_Service::Client<NS_ServiceType::ServiceMap> map_cli("MAP");
 	for (int i = 0; i < 10; i++) {

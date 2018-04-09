@@ -126,7 +126,7 @@ namespace NS_CostMap
   void InflationLayer::updateCosts(Costmap2D& master_grid, int min_i, int min_j,
                                    int max_i, int max_j)
   {
-	  logInfo << "inflation layer update costs inscribed_radius_ = "<<inscribed_radius_;
+//	  logInfo << "inflation layer update costs inscribed_radius_ = "<<inscribed_radius_;
     boost::unique_lock < boost::recursive_mutex > lock(*inflation_access_);
     if(!enabled_)
       return;

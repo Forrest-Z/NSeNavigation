@@ -87,7 +87,7 @@ void GlobalPlanner::onInitialize() {
 		orientation_filter_ = new OrientationFilter();
 
 //		由于 getParameter 方法没有提供返回值为 bool 类型的，因此用返回值为 int 的代替
-		if (parameter.getParameter("allow_unknown", 0) == 1) {
+		if (parameter.getParameter("allow_unknown", 1) == 1) {
 			allow_unknown_ = true;
 		} else {
 			allow_unknown_ = false;

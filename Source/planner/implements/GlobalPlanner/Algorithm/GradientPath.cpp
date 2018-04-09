@@ -62,9 +62,10 @@ namespace NS_Planner
         path.push_back(current);
         return true;
       }
-
+//	  printf("stc = %d,nx = %lf,ny = %lf,start_x = %lf,start_y = %lf\n",stc,nx,ny,start_x,start_y);
       if(stc < xs_ || stc > xs_ * ys_ - xs_) // would be out of bounds
       {
+
         printf("[PathCalc] Out of bounds\n");
         return false;
       }
@@ -74,8 +75,8 @@ namespace NS_Planner
 
       //ROS_INFO("%d %d | %f %f ", stc%xs_, stc/xs_, dx, dy);
 
-      printf(
-          "gradient path get stc%xs_ = %.4f,stc/xs_ = %.4f,dx = %.4f,dy = %.4f\n");
+//      printf(
+//          "gradient path get stc%xs_ = %.4f,stc/xs_ = %.4f,dx = %.4f,dy = %.4f\n");
 
       path.push_back(current);
 

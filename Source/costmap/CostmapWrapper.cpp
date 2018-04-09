@@ -42,7 +42,7 @@ void CostmapWrapper::updateMap()
 
 
       //by pengjiawei
-      logInfo <<"update map padded footprint size = "<<padded_footprint.size();
+//      logInfo <<"update map padded footprint size = "<<padded_footprint.size();
       transformFootprint(x, y, yaw, padded_footprint, footprint);
 
       footprint_for_trajectory = footprint;
@@ -77,7 +77,7 @@ void CostmapWrapper::updateMapLoop(double frequency)
 void CostmapWrapper::visualizeForRviz(){
 	int width = getCostmap()->getSizeInCellsX(),height = getCostmap()->getSizeInCellsY();
 	double resolution = getCostmap()->getResolution();
-	logInfo << "visualize for rviz width = "<<width <<" height = "<<height<<" resolution = "<<resolution;
+//	logInfo << "visualize for rviz width = "<<width <<" height = "<<height<<" resolution = "<<resolution;
 	std::string file_name = "/tmp/write_archive.txt";
 	std::ofstream ofile(file_name,fstream::out);
 	boost::archive::binary_oarchive oa(ofile);
@@ -160,53 +160,21 @@ void CostmapWrapper::prepareMap()
 bool CostmapWrapper::getRobotPose(
       Pose2D& global_pose) const
   {
-//    NS_ServiceType::ServiceTransform odom_transform;
-//    NS_ServiceType::ServiceTransform map_transform;
-//
-//    int times = 0;
-//    while(times != 3)
-//    {
-//      NS_Service::Client < NS_ServiceType::ServiceTransform > map_tf_cli(
-//          "ODOM_MAP_TF");
-//      if(map_tf_cli.call(map_transform) == true)
-//      {
-//        break;
-//      }
-//      ++times;
-//    }
-//    if(times == 3)
-//    {
-//      return false;
-//    }
-//
-//    times = 0;
-//    while(times != 3)
-//    {
-//      NS_Service::Client < NS_ServiceType::ServiceTransform > odom_tf_cli(
-//          "BASE_ODOM_TF");
-//      if(odom_tf_cli.call(odom_transform) == true)
-//      {
-//        break;
-//      }
-//      ++times;
-//    }
-//    if(times == 3)
-//    {
-//      return false;
-//    }
-//
-//    //TODO: not verify code for transform
-//    NS_Transform::Transform odom_tf, map_tf;
-//    NS_Transform::transformMsgToTF(odom_transform.transform, odom_tf);
-//    NS_Transform::transformMsgToTF(map_transform.transform, map_tf);
-//
-////    global_pose.setData(odom_tf * map_tf);
-//    global_pose.x = (odom_tf * map_tf).getOrigin().x;
-//    global_pose.y = (odom_tf * map_tf).getOrigin().y;
-//    global_pose.theta = (odom_tf * map_tf).getRotation().getAngle();
-//
-//    logInfo << "get robot pose successfully";
-//    return true;
+	NS_Service::Client <Transform2D> odom_tf_cli("BASE_ODOM_TF");
+	NS_Service::Client <Transform2D> map_tf_cli("ODOM_MAP_TF");
+	Transform2D odom_transform,map_transform;
+	if(odom_tf_cli.call(odom_transform) == false){
+		logError<<"get odometry transform failed";
+	}
+	if(map_tf_cli.call(map_transform) == false){
+		logError<<"get map transform failed";
+	}
+	Transform2D transform2d = odom_transform * map_transform;
+	transform2d.getValue(global_pose.x(),global_pose.y(),global_pose.theta());
+	global_pose.x() = 1.0f;
+	global_pose.y() = 1.0f;
+	global_pose.theta() = 0.0f;
+	return true;
   }
 
 

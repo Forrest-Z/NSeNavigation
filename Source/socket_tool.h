@@ -23,7 +23,7 @@
 #include <log_tool.h>
 
 void SocketSend(const std::string& ip,const std::string& port,std::string& file_name){
-	logInfo << "ip : port = "<<ip<<":"<<port<<" . file name = "<<file_name;
+//	logInfo << "ip : port = "<<ip<<":"<<port<<" . file name = "<<file_name;
 	const int BUFF_SIZE = 1024;
 	char buff[BUFF_SIZE];
     int sock_id;
@@ -54,7 +54,7 @@ void SocketSend(const std::string& ip,const std::string& port,std::string& file_
     int i_ret = connect(sock_id, (struct sockaddr *) &serv_addr,
                         sizeof(serv_addr));
 
-    printf("finish connect\n");
+//    printf("finish connect\n");
     if (i_ret == -1) {
         printf("Connect?socket?failed\n");
         close(sock_id);
@@ -77,8 +77,8 @@ void SocketSend(const std::string& ip,const std::string& port,std::string& file_
     }
     fclose(file);
     end = clock();
-    printf("file total length = %d\n",file_total_length);
-    cout<<"execute time = "<<end-start<<endl;
+//    printf("file total length = %d\n",file_total_length);
+//    cout<<"execute time = "<<end-start<<endl;
     close(sock_id);
 }
 

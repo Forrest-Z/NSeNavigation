@@ -41,7 +41,6 @@
 #include <string>
 #include <sstream>
 #include <math.h>
-#include <Geometry/Angles.h>
 
 #include <boost/algorithm/string.hpp>
 
@@ -313,8 +312,8 @@ double TrajectoryPlanner::headingDiff(int cell_x, int cell_y, double x,
 				double gx, gy;
 				costmap_.mapToWorld(goal_cell_x, goal_cell_y, gx, gy);
 				return fabs(
-						NS_Geometry::NS_Angles::shortest_angular_distance(
-								heading, atan2(gy - y, gx - x)));
+						angleDiff(
+								atan2(gy - y, gx - x) - heading));
 			}
 		}
 	}
@@ -695,8 +694,8 @@ Trajectory TrajectoryPlanner::createTrajectories(double x, double y,
 		dist = hypot(x - escape_x_, y - escape_y_);
 		if (dist > escape_reset_dist_
 				|| fabs(
-						NS_Geometry::NS_Angles::shortest_angular_distance(
-								escape_theta_, theta)) > escape_reset_theta_) {
+						angleDiff(
+								theta - escape_theta_)) > escape_reset_theta_) {
 			escaping_ = false;
 		}
 
@@ -803,8 +802,8 @@ Trajectory TrajectoryPlanner::createTrajectories(double x, double y,
 		dist = hypot(x - escape_x_, y - escape_y_);
 		if (dist > escape_reset_dist_
 				|| fabs(
-						NS_Geometry::NS_Angles::shortest_angular_distance(
-								escape_theta_, theta)) > escape_reset_theta_) {
+						angleDiff(
+								theta - escape_theta_)) > escape_reset_theta_) {
 			escaping_ = false;
 		}
 
@@ -857,8 +856,8 @@ Trajectory TrajectoryPlanner::createTrajectories(double x, double y,
 
 	if (dist > escape_reset_dist_
 			|| fabs(
-					NS_Geometry::NS_Angles::shortest_angular_distance(
-							escape_theta_, theta)) > escape_reset_theta_) {
+					angleDiff(
+							theta - escape_theta_)) > escape_reset_theta_) {
 		escaping_ = false;
 	}
 

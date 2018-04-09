@@ -13,9 +13,6 @@
 //we'll take in a path as a vector of poses
 #include <transform/transform2d.h>
 
-
-//for some datatypes
-
 //for creating a local cost grid
 #include "FootprintHelper.h"
 #include "MapCell.h"
@@ -199,6 +196,14 @@ namespace NS_Planner
     {
       return footprint_spec_;
     }
+    double
+        angleDiff (double angle)
+        {
+          double a = fmod (fmod (angle, 2.0 * M_PI) + 2.0 * M_PI, 2.0 * M_PI);
+          if (a > M_PI)
+            a -= 2.0 * M_PI;
+          return a;
+        }
 
   private:
     /**

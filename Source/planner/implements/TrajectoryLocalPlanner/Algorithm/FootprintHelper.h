@@ -5,7 +5,6 @@
 
 #include "../../../../costmap/costmap_2d/CostMap2D.h"
 #include <type/point2d.h>
-#include <linear-algebra/vector.h>
 using namespace sgbot;
 namespace NS_Planner
 {

@@ -3,8 +3,6 @@
 
 #include "../costmap_2d/CostMapLayer.h"
 #include "../costmap_2d/LayeredCostMap.h"
-#include <DataSet/DataType/OccupancyGrid.h>
-#include <DataSet/DataType/OccupancyGridUpdate.h>
 #include <boost/thread/thread.hpp>
 #include <queue>
 #include <log_tool.h>

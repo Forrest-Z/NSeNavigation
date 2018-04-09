@@ -6,8 +6,6 @@
 #include "../utils/Footprint.h"
 #include <Parameter/Parameter.h>
 #include <Console/Console.h>
-#include <Service/ServiceType/ServiceMap.h>
-#include <Transform/DataTypes.h>
 
 using NS_CostMap::LETHAL_OBSTACLE;
 using NS_CostMap::INSCRIBED_INFLATED_OBSTACLE;

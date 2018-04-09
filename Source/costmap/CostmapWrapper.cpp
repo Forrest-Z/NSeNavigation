@@ -42,13 +42,13 @@ void CostmapWrapper::updateMap()
 
 
       //by pengjiawei
-//      logInfo <<"update map padded footprint size = "<<padded_footprint.size();
+    //transform the footprint to frame of robot
       transformFootprint(x, y, yaw, padded_footprint, footprint);
 
       footprint_for_trajectory = footprint;
-//      footprint_for_trajectory = toPointVector(footprint.polygon);
 //      setPaddedRobotFootprint (toPointVector (footprint.polygon));
 //      setPaddedRobotFootprint (padded_footprint);
+      //I don't want publish oriented_footprint so publish footprint directly no transform
       setPaddedRobotFootprint (footprint_from_param);
 
   }

@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <vector>
 #include <type/point2d.h>
+#include <std-math/math.h>
 using namespace sgbot;
 //TODO replace below several functions
 /** @brief Return -1 if x < 0, +1 otherwise. */
@@ -21,7 +22,7 @@ inline double sign0(double x)
 
 inline double distance(double x0, double y0, double x1, double y1)
 {
-  return hypot(x1 - x0, y1 - y0);
+  return sgbot::math::hypot(x1 - x0, y1 - y0);
 }
 
 double

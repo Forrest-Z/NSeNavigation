@@ -52,7 +52,6 @@ void NavigationApplication::publishVelocity(double linear_x, double linear_y,
 		double angular_z) {
 	Velocity2D vel;
 	vel.linear = linear_x;
-//	vel.linear.y = linear_y;
 	vel.angular = angular_z;
 	twist_pub->publish(vel);
 }

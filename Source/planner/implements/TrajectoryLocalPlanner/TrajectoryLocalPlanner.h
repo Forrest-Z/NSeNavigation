@@ -8,15 +8,9 @@
 #include "Algorithm/TrajectoryPlanner.h"
 #include "Algorithm/OdometryHelper.h"
 
-
 #include <transform/transform2d.h>
-
-
 #include <boost/thread.hpp>
-
 #include <string>
-
-
 #include "../../base/LocalPlannerBase.h"
 
 
@@ -116,6 +110,8 @@ namespace NS_Planner
     }
 
   private:
+
+
 
     /**
      * @brief Once a goal position is reached... rotate to the goal orientation

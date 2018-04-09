@@ -2,18 +2,10 @@
 
 #include <sys/time.h>
 #include <boost/tokenizer.hpp>
-
-
 #include <cmath>
-
 #include <Console/Console.h>
-
 #include "Algorithm/GoalFunctions.h"
-#include <DataSet/DataType/Path.h>
-
 #include <Parameter/Parameter.h>
-
-#include <Service/ServiceType/ServiceOdometry.h>
 
 namespace NS_Planner
 {
@@ -280,9 +272,8 @@ namespace NS_Planner
     double yaw = global_pose.theta();
     double vel_yaw = robot_vel.angular;
     cmd_vel.linear = 0;
-//    cmd_vel.linear.y = 0;
-    double ang_diff = NS_Geometry::NS_Angles::shortest_angular_distance(
-        yaw, goal_th);
+
+    double ang_diff = angleDiff(goal_th - yaw);
 
     double v_theta_samp =
         ang_diff > 0.0 ? std::min(max_vel_th_,

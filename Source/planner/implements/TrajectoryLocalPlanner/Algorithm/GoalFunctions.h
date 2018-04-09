@@ -1,19 +1,15 @@
 #ifndef _BASE_LOCAL_PLANNER_GOAL_FUNCTIONS_H_
 #define _BASE_LOCAL_PLANNER_GOAL_FUNCTIONS_H_
 
-#include <DataSet/DataType/Odometry.h>
-#include <DataSet/DataType/Path.h>
-#include <transform/transform2d.h>
-#include <DataSet/DataType/Twist.h>
-#include <DataSet/DataType/Point.h>
 
+#include <transform/transform2d.h>
+#include <type/odometry.h>
 #include <string>
 #include <cmath>
 
-#include <Geometry/Angles.h>
-#include <Transform/DataTypes.h>
-#include "../../../../costmap/costmap_2d/CostMap2D.h"
 
+#include "../../../../costmap/costmap_2d/CostMap2D.h"
+using namespace sgbot;
 namespace NS_Planner
 {
 
@@ -97,6 +93,16 @@ namespace NS_Planner
   stopped(const Odometry& base_odom,
           const double& rot_stopped_velocity,
           const double& trans_stopped_velocity);
+
+  inline double
+    angleDiff (double angle)
+    {
+      double a = fmod (fmod (angle, 2.0 * M_PI) + 2.0 * M_PI, 2.0 * M_PI);
+      if (a > M_PI)
+        a -= 2.0 * M_PI;
+      return a;
+    }
+
 }
 ;
 #endif

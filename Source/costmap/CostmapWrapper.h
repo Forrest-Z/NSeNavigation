@@ -9,30 +9,13 @@
 #define COSTMAP_COSTMAPWRAPPER_H_
 #include "costmap_2d/CostMapLayer.h"
 #include <Parameter/Parameter.h>
-//#include <DataSet/DataType/OccupancyGrid.h>
+
 
 #include <transform/transform2d.h>
 #include <Service/Client.h>
 #include "log_tool.h"
 using namespace sgbot::tf;
-//class MapMetaData{
-//public:
-//	MapMetaData():  resolution(0.0), width(0), height(0), origin(){
-//
-//	}
-//	NS_DataType::Pose origin;
-//	   float resolution;
-//	    int16_t width;
-//	    int16_t height;
-//};
-//class OccupancyGrid{
-//	public:
-//	OccupancyGrid():info(), data(){
-//
-//	}
-//	std::vector<char> data;
-//	MapMetaData info;
-//};
+
 namespace NS_CostMap {
 
 /*

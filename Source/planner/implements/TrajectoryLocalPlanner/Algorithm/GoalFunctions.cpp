@@ -2,7 +2,6 @@
 #include "GoalFunctions.h"
 #include <math.h>
 
-#include <Service/ServiceType/ServiceTransform.h>
 #include <Service/Client.h>
 
 namespace NS_Planner
@@ -22,7 +21,7 @@ namespace NS_Planner
   {
 //    double yaw = NS_Transform::getYaw(global_pose);
 	  double yaw = global_pose.theta();
-    return NS_Geometry::NS_Angles::shortest_angular_distance(yaw, goal_th);
+    return angleDiff(goal_th - yaw);
   }
 
   void prunePlan(const Pose2D& global_pose,
@@ -63,41 +62,6 @@ namespace NS_Planner
 
     goal_pose = global_plan.back();
     printf("get goal pose global_plan size = %d\n", global_plan.size());
-
-//    for(int i = 0; i < global_plan.size(); ++i)
-//    {
-//      printf("global_plan[%d],x = %.4f,y=%.4f\n", i,
-//             global_plan[i].pose.position.x, global_plan[i].pose.position.y);
-//    }
-//    poseStampedMsgToTF(plan_goal_pose, goal_pose);
-
-//    if(0)
-//    {
-//      //NS_Transform::StampedTransform transform;
-//      /*
-//       tf.waitForTransform(global_frame, ros::Time::now(),
-//       plan_goal_pose.header.frame_id, plan_goal_pose.header.stamp,
-//       plan_goal_pose.header.frame_id, ros::Duration(0.5));
-//       tf.lookupTransform(global_frame, ros::Time(),
-//       plan_goal_pose.header.frame_id, plan_goal_pose.header.stamp,
-//       plan_goal_pose.header.frame_id, transform);
-//       */
-//      NS_Service::Client < NS_ServiceType::ServiceTransform > map_tf_cli(
-//          "ODOM_MAP_TF");
-//      NS_ServiceType::ServiceTransform map_transform;
-//      if(map_tf_cli.call(map_transform) == false)
-//      {
-//        printf("Get map transform failure!\n");
-//        return false;
-//      }
-//
-//      NS_Transform::Transform transform;
-//
-//      //poseStampedMsgToTF(plan_goal_pose, goal_pose);
-//      NS_Transform::transformMsgToTF(map_transform.transform, transform);
-//
-//      goal_pose.setData(transform * goal_pose);
-//    }
 
     return true;
   }

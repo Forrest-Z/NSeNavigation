@@ -170,7 +170,8 @@ bool CostmapWrapper::getRobotPose(
 		logError<<"get map transform failed";
 	}
 	Transform2D transform2d = odom_transform * map_transform;
-	transform2d.getValue(global_pose.x(),global_pose.y(),global_pose.theta());
+	float scalar;
+	transform2d.getValue(global_pose.x(),global_pose.y(),global_pose.theta(),scalar);
 	global_pose.x() = 1.0f;
 	global_pose.y() = 1.0f;
 	global_pose.theta() = 0.0f;

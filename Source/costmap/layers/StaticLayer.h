@@ -3,10 +3,9 @@
 
 #include "../costmap_2d/CostMapLayer.h"
 #include "../costmap_2d/LayeredCostMap.h"
-#include <DataSet/DataType/OccupancyGrid.h>
-#include <DataSet/DataType/OccupancyGridUpdate.h>
+
 #include <boost/thread/thread.hpp>
-#include <Service/ServiceType/ServiceMap.h>
+#include <type/map2d.h>
 #include <Service/Client.h>
 
 #include "log_tool.h"
@@ -39,7 +38,7 @@ public:
 private:
 
 	unsigned char
-	interpretValue(unsigned char value);
+	interpretValue(MapPointType value);
 
 private:
 	unsigned int x_, y_, width_, height_;
@@ -64,7 +63,7 @@ private:
 
 	bool simulated;
 
-	NS_Service::Client<NS_ServiceType::ServiceMap>* map_cli;
+	NS_Service::Client<sgbot::Map2D>* map_cli;
 
 	void
 	loopStaticMap();
@@ -73,13 +72,13 @@ private:
 	 * important function,update cost of static layer from laser scan
 	 */
 	void
-	processMap(const NS_DataType::OccupancyGrid& new_map);
+	processMap(const sgbot::Map2D& new_map);
 
 	/**
 	 * if you don't have a laser,use a local pgm file for updating cost
 	 */
-	void readPgm(std::string pgm_file_path, int16_t& width,
-			int16_t& height, std::vector< char>& value_vec);
+	void readPgm(std::string pgm_file_path, int16_t width,
+			int16_t height, sgbot::Map2D& value_vec);
 };
 
 }  // namespace costmap_2d

@@ -6,7 +6,7 @@
 #include <type/odometry.h>
 #include <string>
 #include <cmath>
-
+#include <std-math/math.h>
 
 #include "../../../../costmap/costmap_2d/CostMap2D.h"
 using namespace sgbot;
@@ -97,7 +97,7 @@ namespace NS_Planner
   inline double
     angleDiff (double angle)
     {
-      double a = fmod (fmod (angle, 2.0 * M_PI) + 2.0 * M_PI, 2.0 * M_PI);
+      double a = sgbot::math::fmod (sgbot::math::fmod (angle, 2.0 * M_PI) + 2.0 * M_PI, 2.0 * M_PI);
       if (a > M_PI)
         a -= 2.0 * M_PI;
       return a;

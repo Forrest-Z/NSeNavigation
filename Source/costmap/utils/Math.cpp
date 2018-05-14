@@ -30,8 +30,9 @@ double distanceToLine(double pX, double pY, double x0, double y0, double x1,
     yy = y0 + param * D;
   }
 
-  return distance(pX, pY, xx, yy);
+  return distance(Point2D(pX, pY), Point2D(xx, yy) );
 }
+
 ///not used
 //bool intersects(std::vector< Point2D >& polygon, float testx,
 //                float testy)

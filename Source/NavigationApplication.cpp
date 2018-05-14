@@ -9,7 +9,8 @@
 #include <Parameter/Parameter.h>
 #include "planner/implements/GlobalPlanner/GlobalPlanner.h"
 #include "planner/implements/TrajectoryLocalPlanner/TrajectoryLocalPlanner.h"
-#include <Service/ServiceType/ServiceMap.h>
+
+#include <type/map2d.h>
 namespace NS_Navigation {
 
 NavigationApplication::NavigationApplication() :
@@ -115,7 +116,7 @@ void NavigationApplication::controlLoop() {
 //		NS_Transform::poseStampedTFToMsg(global_pose, current_position);
 		current_position = global_pose;
 
-		if (distance(current_position, oscillation_pose_)
+		if (sgbot::distance(current_position, oscillation_pose_)
 				>= oscillation_distance_) {
 			//TODO: oscillation
 			logInfo<< "oscillation is triggered , but do nothing now";
@@ -293,11 +294,7 @@ bool NavigationApplication::makePlan(const sgbot::Pose2D& goal,
 	return true;
 
 }
-//TODO change implement ways
-double NavigationApplication::distance(const sgbot::Pose2D& p1,
-		const sgbot::Pose2D& p2) {
-	return hypot(p1.x() - p2.x(), p1.y() - p2.y());
-}
+
 void NavigationApplication::run() {
 	loadParameters();
 
@@ -330,13 +327,11 @@ void NavigationApplication::run() {
 
 	new_goal_trigger = true;
 
-	NS_Service::Client<NS_ServiceType::ServiceMap> map_cli("MAP");
+	NS_Service::Client<sgbot::Map2D> map_cli("MAP");
 	for (int i = 0; i < 10; i++) {
-		NS_ServiceType::ServiceMap map;
+		sgbot::Map2D map;
 		if (map_cli.call(map)) {
-			if (map.result) {
 				break;
-			}
 		}
 	}
 

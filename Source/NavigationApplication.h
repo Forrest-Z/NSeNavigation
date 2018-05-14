@@ -11,7 +11,6 @@
 #include <transform/transform2d.h>
 #include "planner/base/GlobalPlannerBase.h"
 #include "planner/base/LocalPlannerBase.h"
-#include "transform/transform2d.h"
 #include <boost/thread/thread.hpp>
 #include <boost/thread/condition.hpp>
 #include <DataSet/Publisher.h>
@@ -92,9 +91,6 @@ private:
 	void
 	resetState();
 
-    double
-    distance(const sgbot::Pose2D& p1,
-             const sgbot::Pose2D& p2);
 
 private:
 	std::string global_planner_type_;

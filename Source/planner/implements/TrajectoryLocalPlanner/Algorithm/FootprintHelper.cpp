@@ -157,7 +157,7 @@ namespace NS_Planner
   }
 
   /**
-   * get the cellsof a footprint at a given position
+   * get the cells of a footprint at a given position
    */
   std::vector< Point2D > FootprintHelper::getFootprintCells(
       std::vector<float> pos, std::vector< Point2D > footprint_spec,

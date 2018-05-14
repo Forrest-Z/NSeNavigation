@@ -3,7 +3,7 @@
 
 #include "../../../../costmap/costmap_2d/CostMap2D.h"
 #include "WorldModel.h"
-
+#include "log_tool.h"
 namespace NS_Planner
 {
   /**

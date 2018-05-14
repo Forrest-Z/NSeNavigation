@@ -1,6 +1,5 @@
 #include <Console/Console.h>
 #include "GoalFunctions.h"
-#include <math.h>
 
 #include <Service/Client.h>
 
@@ -11,8 +10,8 @@ namespace NS_Planner
       const Pose2D& global_pose,
       double goal_x, double goal_y)
   {
-    return hypot(goal_x - global_pose.x(),
-                 goal_y - global_pose.y());
+	  Pose2D goal_pose(goal_x,goal_y,0.0);
+    return sgbot::distance(global_pose,goal_pose);
   }
 
   double getGoalOrientationAngleDifference(
@@ -66,36 +65,36 @@ namespace NS_Planner
     return true;
   }
 
-  bool isGoalReached(
-      const std::vector< Pose2D >& global_plan,
-      const NS_CostMap::Costmap2D& costmap __attribute__((unused)),
-      Pose2D& global_pose,
-      const Odometry& base_odom, double rot_stopped_vel,
-      double trans_stopped_vel, double xy_goal_tolerance,
-      double yaw_goal_tolerance)
-  {
-    //we assume the global goal is the last point in the global plan
-	Pose2D goal_pose;
-    getGoalPose(global_plan, goal_pose);
-
-    double goal_x = goal_pose.x();
-    double goal_y = goal_pose.y();
-    double goal_th = goal_pose.theta();
-
-    //check to see if we've reached the goal position
-    if(getGoalPositionDistance(global_pose, goal_x, goal_y) <= xy_goal_tolerance)
-    {
-      //check to see if the goal orientation has been reached
-      if(fabs(getGoalOrientationAngleDifference(global_pose, goal_th)) <= yaw_goal_tolerance)
-      {
-        //make sure that we're actually stopped before returning success
-        if(stopped(base_odom, rot_stopped_vel, trans_stopped_vel))
-          return true;
-      }
-    }
-
-    return false;
-  }
+//  bool isGoalReached(
+//      const std::vector< Pose2D >& global_plan,
+//      const NS_CostMap::Costmap2D& costmap __attribute__((unused)),
+//      Pose2D& global_pose,
+//      const Odometry& base_odom, double rot_stopped_vel,
+//      double trans_stopped_vel, double xy_goal_tolerance,
+//      double yaw_goal_tolerance)
+//  {
+//    //we assume the global goal is the last point in the global plan
+//	Pose2D goal_pose;
+//    getGoalPose(global_plan, goal_pose);
+//
+//    double goal_x = goal_pose.x();
+//    double goal_y = goal_pose.y();
+//    double goal_th = goal_pose.theta();
+//
+//    //check to see if we've reached the goal position
+//    if(getGoalPositionDistance(global_pose, goal_x, goal_y) <= xy_goal_tolerance)
+//    {
+//      //check to see if the goal orientation has been reached
+//      if(fabs(getGoalOrientationAngleDifference(global_pose, goal_th)) <= yaw_goal_tolerance)
+//      {
+//        //make sure that we're actually stopped before returning success
+//        if(stopped(base_odom, rot_stopped_vel, trans_stopped_vel))
+//          return true;
+//      }
+//    }
+//
+//    return false;
+//  }
 
   bool stopped(const Odometry& base_odom,
                const double& rot_stopped_velocity,

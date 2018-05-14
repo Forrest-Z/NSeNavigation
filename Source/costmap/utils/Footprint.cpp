@@ -3,7 +3,7 @@
 #include <boost/algorithm/string.hpp>
 #include "Footprint.h"
 #include "ArrayParser.h"
-#include <DataSet/DataType/Point32.h>
+
 #include <Console/Console.h>
 #include "Math.h"
 
@@ -21,11 +21,13 @@ namespace NS_CostMap
     {
       return;
     }
-
+    Point2D zero_point(0.0f,0.0f);
+    Point2D* point = NULL;
     for(unsigned int i = 0; i < footprint.size() - 1; ++i)
     {
+    	point = new Point2D(footprint[i].x(), footprint[i].y());
       // check the distance from the robot center point to the first vertex
-      double vertex_dist = distance(0.0, 0.0, footprint[i].x(), footprint[i].y());
+      double vertex_dist = sgbot::distance(zero_point,*point);
       double edge_dist = distanceToLine(0.0, 0.0, footprint[i].x(),
                                         footprint[i].y(), footprint[i + 1].x(),
                                         footprint[i + 1].y());
@@ -34,8 +36,9 @@ namespace NS_CostMap
     }
 
     // we also need to do the last vertex and the first vertex
-    double vertex_dist = distance(0.0, 0.0, footprint.back().x(),
-                                  footprint.back().y());
+    point = new Point2D(footprint.back().x(),footprint.back().y());
+
+    double vertex_dist = sgbot::distance(zero_point, *point);
     double edge_dist = distanceToLine(0.0, 0.0, footprint.back().x(),
                                       footprint.back().y(), footprint.front().x(),
                                       footprint.front().y());

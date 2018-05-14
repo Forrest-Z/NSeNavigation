@@ -28,16 +28,10 @@ namespace NS_Planner
     {
       base_odom_ = odom_rep;
 
-//      global_vel.linear = base_odom_.twist.linear.x;
-//      global_vel.angular = base_odom_.twist.angular.z;
       global_vel.linear = base_odom_.velocity2d.linear;
       global_vel.angular = base_odom_.velocity2d.angular;
 
-//      robot_vel.setData(
-//          NS_Transform::Transform(
-//              NS_Transform::createQuaternionFromYaw(global_vel.angular.z),
-//              NS_Transform::Vector3(global_vel.linear.x, global_vel.linear.y,
-//                                    0)));
+
       robot_vel.linear = global_vel.linear;
       robot_vel.angular = global_vel.angular;
 

@@ -11,8 +11,6 @@ namespace NS_Planner
 
   void set_angle(Pose2D* pose, double angle)
   {
-    //pose->pose.orientation = tf::createQuaternionMsgFromYaw(angle);
-//    pose->pose.orientation = NS_Transform::createQuaternionMsgFromYaw(angle);
 	  pose->theta() = angle;
   }
 

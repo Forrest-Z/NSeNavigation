@@ -57,19 +57,13 @@ void GlobalPlanner::onInitialize() {
 						costmap->getLayeredCostmap()->getCostmap()->getSizeInCellsY();
 		convert_offset_ = 0.5;
 		NS_NaviCommon::Parameter parameter;
-		/* TODO
-		 * 加载什么文件？
-		 */
+
 		parameter.loadConfigurationFile("global_planner.xml");
-		/*
-		 * 获取 use_quadratic 参数值，根据参数值创建 p_calc_ 实例，用 QuadraticCalculator 还是 PotentialCalculator
-		 * PotentialCalculator、QuadraticCalculator
-		 */
-			p_calc_ = new QuadraticCalculator(cx, cy);
-		/*
-		 * 获取 use_dijkstra 参数值，根据参数值创建 planner_ 实例，决定用 dijkstra 算法还是 A* 算法
-		 * Expander、Dijkstra、A*
-		 */
+
+		//use quadratic directly
+		p_calc_ = new QuadraticCalculator(cx, cy);
+
+		//use dijkstra directly
 		if (parameter.getParameter("use_dijkstra", 1) == 1) {
 			DijkstraExpansion* de = new DijkstraExpansion(p_calc_, cx, cy);
 			de->setPreciseStart(true);
@@ -113,8 +107,7 @@ void GlobalPlanner::onInitialize() {
 	}
 }
 
-bool GlobalPlanner::makePlan(const Pose2D& start,
-		const Pose2D& goal,
+bool GlobalPlanner::makePlan(const Pose2D& start, const Pose2D& goal,
 		std::vector<Pose2D>& plan) {
 	logInfo<< "global planner start make plan";
 	boost::mutex::scoped_lock lock(mutex_);
@@ -147,7 +140,7 @@ bool GlobalPlanner::makePlan(const Pose2D& start,
 	}
 	worldToMap(wx, wy, start_x, start_y);
 
-	logInfo << "start_x_i = "<< start_x_i<<" start_y_i = "  << start_y_i;
+	logInfo << "start_x_i = "<< start_x_i<<" start_y_i = " << start_y_i;
 
 	/*
 	 * 处理 goal
@@ -193,7 +186,6 @@ bool GlobalPlanner::makePlan(const Pose2D& start,
 	unsigned char* char_map =
 	costmap->getLayeredCostmap()->getCostmap()->getCharMap();
 
-
 	///update the boundary of costmap
 	outlineMap(costmap->getLayeredCostmap()->getCostmap()->getCharMap(), nx, ny,
 			NS_CostMap::LETHAL_OBSTACLE);
@@ -208,7 +200,6 @@ bool GlobalPlanner::makePlan(const Pose2D& start,
 	planner_->clearEndpoint(
 			costmap->getLayeredCostmap()->getCostmap()->getCharMap(),
 			potential_array_, goal_x_i, goal_y_i, 2);
-
 
 	if (found_legal) {
 		//extract the plan

@@ -21,8 +21,13 @@
 namespace NS_Navigation {
 ///
 enum NaviState {
-	PLANNING, CONTROLLING, CLEARING,
+	PLANNING, CONTROLLING, CLEARING, WALKING
 };
+enum {
+	LEFT = 1, ONE_STEP, RIGHT, RUN
+};
+
+
 #define PLANNER_LOOP_TIMEOUT 100
 /**
  *关于导航功能的类
@@ -46,8 +51,7 @@ private:
 	 * 全局规划器计算路径
 	 */
 	bool
-	makePlan(const sgbot::Pose2D& goal,
-			std::vector<sgbot::Pose2D>& plan);
+	makePlan(const sgbot::Pose2D& goal, std::vector<sgbot::Pose2D>& plan);
 
 	void
 	planLoop();
@@ -55,7 +59,7 @@ private:
 	void
 	controlLoop();
 
-	bool goalFromAPP(sgbot::Pose2D& goal_from_app);
+	bool goal_callback(sgbot::Pose2D& goal_from_app);
 	//TODO not sure how to implement this
 	void visualizedGlobalGoal(sgbot::Pose2D& global_goal_);
 	//TODO not sure how to implement this
@@ -91,6 +95,65 @@ private:
 	void
 	resetState();
 
+//	void turn(double theta) {
+//
+//	    geometry_msgs::Quaternion q = tf::createQuaternionMsgFromYaw(theta);
+//	    //qian +x , zuo +y
+//	    geometry_msgs::PoseStamped goal_pose;
+//	    goal_pose.header.frame_id = "base_link";
+//	    goal_pose.header.stamp = ros::Time::now();
+//	    ROS_INFO("publish theta = %lf", theta);
+//	    //turn left and go 0.5m
+//	    goal_pose.pose.position.x = 0;
+//	    goal_pose.pose.position.y = 0;
+//	    goal_pose.pose.orientation = q;
+//	    goal_pub.publish(goal_pose);
+//	//        ready = false;
+//
+//	}
+
+	void turnleft() {
+		logInfo<<"turn left";
+//	    sgbot::Pose2D pose2d;
+//	    if(pose_cli->call(pose2d)){
+//
+//	    }else{
+//	    	logInfo << "call pose 2d failed";
+//	    }
+		///at base frame
+		sgbot::Pose2D pose2d(0,0,M_PI_2);
+		goal_pub->publish(pose2d);
+	}
+
+	void turnright() {
+		logInfo<<"turn right";
+		sgbot::Pose2D pose2d(0,0,-M_PI_2);
+		goal_pub->publish(pose2d);
+	}
+
+	void GoAhead(double distance) {
+		//qian +x , zuo +y
+		logInfo<<"go ahead distance = "<<distance;
+			sgbot::Pose2D pose2d(distance,0,0);
+			goal_pub->publish(pose2d);
+	}
+
+	void oneStep() {
+		logInfo<<("one step");
+		//it should be the radius of robot
+		float resolution = global_costmap->getLayeredCostmap()->getCostmap()->getResolution();
+		logInfo << "resolution = "<< resolution;
+		double step_size = resolution;
+		GoAhead(step_size);
+	}
+
+	void Run() {
+		logInfo<<("run");
+
+		float run_distance = 5.f;
+		GoAhead(run_distance);
+
+	}
 
 private:
 	std::string global_planner_type_;
@@ -142,6 +205,10 @@ private:
 	NS_DataSet::Publisher<Velocity2D>* twist_pub;
 	///subscribe the goal from other
 	NS_DataSet::Subscriber<sgbot::Pose2D>* goal_sub;
+	///publisher goal
+	NS_DataSet::Publisher<sgbot::Pose2D>* goal_pub;
+	///client call  pose
+	NS_Service::Client<sgbot::Pose2D>* pose_cli;
 	///global goal for visualized
 	NS_Service::Server<sgbot::Pose2D>* global_goal_srv;
 	sgbot::Pose2D global_goal;
@@ -156,8 +223,13 @@ private:
 	NS_DataSet::Publisher<bool>* explore_pub;
 	///mission executor
 	NS_Mission::Executor* goalCallbackExecutor;
+	///state for walking
+	int current_state = 7;
+
+	int state_array[8] = { LEFT, ONE_STEP, LEFT, RUN, RIGHT, ONE_STEP, RIGHT, RUN };
 };
 
-} /* namespace NS_Navigation */
+}
+/* namespace NS_Navigation */
 
 #endif /* NAVIGATIONAPPLICATION_H_ */

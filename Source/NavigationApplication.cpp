@@ -17,13 +17,15 @@ NavigationApplication::NavigationApplication() :
 		new_global_plan_(false), runPlanner_(false) {
 	// TODO Auto-generated constructor stub
 	goal_sub = new NS_DataSet::Subscriber<sgbot::Pose2D>("GOAL",
-			boost::bind(&NavigationApplication::goalFromAPP, this, _1));
+			boost::bind(&NavigationApplication::goal_callback, this, _1));
+	pose_cli = new NS_Service::Client<sgbot::Pose2D>("POSE");
 }
 
 NavigationApplication::~NavigationApplication() {
 	// TODO Auto-generated destructor stub
 	delete goal_sub;
-	boost::interprocess::shared_memory_object::remove("GOAL");
+	delete pose_cli;
+//	boost::interprocess::shared_memory_object::remove("GOAL");
 }
 void NavigationApplication::loadParameters() {
 	NS_NaviCommon::Parameter parameter;
@@ -56,7 +58,7 @@ void NavigationApplication::publishVelocity(double linear_x, double linear_y,
 	vel.angular = angular_z;
 	twist_pub->publish(vel);
 }
-bool NavigationApplication::goalFromAPP(sgbot::Pose2D& goal_from_app) {
+bool NavigationApplication::goal_callback(sgbot::Pose2D& goal_from_app) {
 	planner_mutex.lock();
 	goal = goalToGlobalFrame(goal_from_app);
 //		goal = goal_from_app;
@@ -132,7 +134,7 @@ void NavigationApplication::controlLoop() {
 			runPlanner_ = true;
 			planner_mutex.unlock();
 			break;
-		case CONTROLLING:
+			case CONTROLLING:
 			if(local_planner->isGoalReached())
 			{
 				console.message("The goal has reached!");
@@ -192,6 +194,24 @@ void NavigationApplication::controlLoop() {
 			runRecovery();
 			state = PLANNING;
 			break;
+			case WALKING:
+			switch (state_array[current_state]) {
+				case LEFT:
+				turnleft();
+				break;
+				case ONE_STEP:
+				oneStep();
+				break;
+				case RIGHT:
+				turnright();
+				break;
+				case RUN:
+				Run();
+				break;
+				default:
+				logInfo << "Switch control nothing";
+				break;
+			}
 		}
 		rate.sleep();
 	}
@@ -239,7 +259,7 @@ void NavigationApplication::planLoop() {
 		else
 			rate.sleep();
 		new_goal_trigger = true;
-		logInfo << "make plan done once";
+		logInfo<< "make plan done once";
 	}
 }
 sgbot::Pose2D NavigationApplication::goalToGlobalFrame(sgbot::Pose2D& goal) {
@@ -331,7 +351,7 @@ void NavigationApplication::run() {
 	for (int i = 0; i < 10; i++) {
 		sgbot::Map2D map;
 		if (map_cli.call(map)) {
-				break;
+			break;
 		}
 	}
 

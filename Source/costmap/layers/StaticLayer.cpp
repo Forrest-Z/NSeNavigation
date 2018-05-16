@@ -30,15 +30,13 @@ void StaticLayer::loopStaticMap() {
 			std::string file_path = "/home/pengjiawei/map.pgm";
 //			logInfo << "simulated so please located pgm file in path = "<<file_path;
 			//resolution
-//			srv_map.getMapPose() = 0.0;
-//			srv_map.map.info.origin.position.y = 0.0;
-//			srv_map.map.info.origin.position.z = 0.0;
-//			srv_map.map.info.origin.orientation.x = 0.0;
-//			srv_map.map.info.origin.orientation.y = 0.0;
-//			srv_map.map.info.origin.orientation.z = 0.0;
-//			srv_map.map.info.origin.orientation.w = 0.0;
-			readPgm(file_path, srv_map.getWidth(), srv_map.getHeight(),
-					srv_map);
+			srv_map.resolution_ = 1.f;
+			srv_map.origin_.x() = 0.0;
+			srv_map.origin_.y() = 0.0;
+			int width,height;
+			readPgm(file_path, width,height,srv_map);
+			srv_map.width_ = width;
+			srv_map.height_ = height;
 //			for(int i = 0; i < srv_map.map.data.size();++i){
 //				srv_map.map.data[i] = '0';
 //			}
@@ -46,6 +44,8 @@ void StaticLayer::loopStaticMap() {
 		} else {
 			if (map_cli->call(srv_map)) {
 					processMap(srv_map);
+			}else{
+				logInfo<<"call map failed";
 			}
 		}
 
@@ -217,8 +217,8 @@ void StaticLayer::updateCosts(Costmap2D& master_grid, int min_i, int min_j,
 //    else
 //      updateWithMax(master_grid, min_i, min_j, max_i, max_j);
 }
-void StaticLayer::readPgm(std::string pgm_file_path, int16_t width,
-		int16_t height, sgbot::Map2D& map) {
+void StaticLayer::readPgm(std::string pgm_file_path, int& width,
+		int& height, sgbot::Map2D& map) {
 	int row = 0, col = 0;
 	ifstream infile(pgm_file_path);
 	stringstream ss;
@@ -243,10 +243,11 @@ void StaticLayer::readPgm(std::string pgm_file_path, int16_t width,
 	// Third line : size
 	stringstream wwhhss(inputLine);
 	wwhhss >> width >> height;
-//	logInfo << width << " columns and " << height << " rows";
+	logInfo << width << " columns and " << height << " rows";
 
 	int array[height][width];
 
+	map.resize(width,height);
 	int max_value;
 	ss >> max_value;
 //	logInfo << "max value = " << max_value << endl;

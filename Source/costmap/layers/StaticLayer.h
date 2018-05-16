@@ -77,8 +77,8 @@ private:
 	/**
 	 * if you don't have a laser,use a local pgm file for updating cost
 	 */
-	void readPgm(std::string pgm_file_path, int16_t width,
-			int16_t height, sgbot::Map2D& value_vec);
+	void readPgm(std::string pgm_file_path, int& width,
+			int& height, sgbot::Map2D& value_vec);
 };
 
 }  // namespace costmap_2d

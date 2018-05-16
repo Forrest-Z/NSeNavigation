@@ -16,10 +16,10 @@ namespace NS_Navigation {
 NavigationApplication::NavigationApplication() :
 		new_global_plan_(false), runPlanner_(false) {
 	// TODO Auto-generated constructor stub
-	goal_sub = new NS_DataSet::Subscriber<sgbot::Pose2D>("GOAL",
-			boost::bind(&NavigationApplication::goal_callback, this, _1));
-
-	goal_pub = new NS_DataSet::Publisher<sgbot::Pose2D>("GOAL");
+//	goal_sub = new NS_DataSet::Subscriber<sgbot::Pose2D>("GOAL",
+//			boost::bind(&NavigationApplication::goal_callback, this, _1));
+//
+//	goal_pub = new NS_DataSet::Publisher<sgbot::Pose2D>("GOAL");
 
 	event_sub = new NS_DataSet::Subscriber<int>("BASE_REG_EVENT",
 			boost::bind(&NavigationApplication::event_callback, this, _1));
@@ -88,6 +88,7 @@ bool NavigationApplication::goal_callback(sgbot::Pose2D& goal_from_app) {
 
 void NavigationApplication::action_callback(int action_flag){
 	logInfo << "action callback flag = "<<action_flag;
+	action_flag_ = action_flag;
 }
 void NavigationApplication::event_callback(int event_flag){
 	logInfo << "event callback flag = "<<event_flag;
@@ -104,10 +105,13 @@ void NavigationApplication::listenLoop(){
 	NS_NaviCommon::Rate rate(listen_frequency);
 	while(running){
 		sgbot::Pose2D pose;
-		pose_cli->call(pose);
+//		if(!pose_cli->call(pose)){
+//			logError<<"call pose failed";
+//			return;
+//		}
 		float distance = sgbot::distance(pose,first_pose);
-		logInfo << "listen loop get pose = "<<pose.x()<<" ," << pose.y()<<" distance = "<<distance;
-		if(distance <= back_to_begin_tolerance){
+		logInfo << "listen loop get pose = "<<pose.x()<<" ," << pose.y()<<" and  distance = "<<distance;
+		if(distance <= back_to_begin_tolerance && action_flag_ == ALONG_WALL){
 			logInfo << "back to begin action master control velocity and control to walking";
 			int action = MASTER_CONTROL_VELOCITY;
 			action_pub->publish(action);
@@ -420,6 +424,7 @@ void NavigationApplication::run() {
 	logInfo << "search wall";
 	current_state = 3;
 	int action = SEARCH_WALL;
+	action_flag_ = action;
 	action_pub->publish(action);
 }
 

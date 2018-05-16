@@ -29,6 +29,8 @@ public:
 	    NS_Service::Client< Transform2D >* odom_tf_cli;
 
 	    NS_Service::Client< Transform2D >* map_tf_cli;
+
+	    NS_Service::Client<sgbot::Pose2D>* pose_cli;
 private:
 	void
 	loadParameters();

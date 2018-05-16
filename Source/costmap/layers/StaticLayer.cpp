@@ -121,7 +121,7 @@ unsigned char StaticLayer::interpretValue(MapPointType value) {
 void StaticLayer::processMap(const sgbot::Map2D& new_map) {
 	unsigned int size_x = new_map.getWidth(), size_y = new_map.getHeight();
 
-//    logInfo<<"Received size_x = "<<size_x<<" size_y = "<<size_y << ",resolution = "<<new_map.info.resolution;
+    logInfo<<"Received size_x = "<<size_x<<" size_y = "<<size_y << ",resolution = "<<new_map.getResolution();
 
 // resize costmap if size, resolution or origin do not match
 	Costmap2D* master = layered_costmap_->getCostmap();

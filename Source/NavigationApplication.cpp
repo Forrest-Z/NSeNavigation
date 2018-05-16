@@ -18,14 +18,26 @@ NavigationApplication::NavigationApplication() :
 	// TODO Auto-generated constructor stub
 	goal_sub = new NS_DataSet::Subscriber<sgbot::Pose2D>("GOAL",
 			boost::bind(&NavigationApplication::goal_callback, this, _1));
+
+	goal_pub = new NS_DataSet::Publisher<sgbot::Pose2D>("GOAL");
+
+	event_sub = new NS_DataSet::Subscriber<int>("BASE_REG_EVENT",
+			boost::bind(&NavigationApplication::event_callback, this, _1));
+
+	action_sub = new NS_DataSet::Subscriber<int>("BASE_REG_EVENT",
+			boost::bind(&NavigationApplication::action_callback, this, _1));
+	action_pub = new NS_DataSet::Publisher<int>("GOAL");
 	pose_cli = new NS_Service::Client<sgbot::Pose2D>("POSE");
 }
 
 NavigationApplication::~NavigationApplication() {
 	// TODO Auto-generated destructor stub
 	delete goal_sub;
+	delete goal_pub;
 	delete pose_cli;
-//	boost::interprocess::shared_memory_object::remove("GOAL");
+	delete event_sub;
+	delete action_sub;
+	delete action_pub;
 }
 void NavigationApplication::loadParameters() {
 	NS_NaviCommon::Parameter parameter;
@@ -38,6 +50,8 @@ void NavigationApplication::loadParameters() {
 	planner_frequency_ = parameter.getParameter("planner_frequency", 0.0f);
 	controller_frequency_ = parameter.getParameter("controller_frequency",
 			5.0f);
+	back_to_begin_tolerance = parameter.getParameter("back_to_begin_tolerance",0.5f);
+	listen_frequency = parameter.getParameter("listen_frequency",1.f);
 }
 void NavigationApplication::runRecovery() {
 	logInfo<<"run Recovery()";
@@ -69,163 +83,50 @@ bool NavigationApplication::goal_callback(sgbot::Pose2D& goal_from_app) {
 	runPlanner_ = true;
 	planner_mutex.unlock();
 
-	controlLoop();
 	return true;
 }
-void NavigationApplication::controlLoop() {
-	while (running) {
-		NS_NaviCommon::Rate rate(controller_frequency_);
-		//TODO maybe controller_frequency should be used
-//		controller_mutex.lock();
-//		while ((state != CONTROLLING || global_planner_plan->size() == 0)
-//				&& running) {
-//			controller_cond.timed_wait(controller_mutex,
-//					(boost::get_system_time() + boost::posix_time::milliseconds(
-//					PLANNER_LOOP_TIMEOUT)));
-//		}
-//		controller_mutex.unlock();
 
-		if (!running) {
-			console.message("Quit local planning loop...");
-			break;
+void NavigationApplication::action_callback(int action_flag){
+	logInfo << "action callback flag = "<<action_flag;
+}
+void NavigationApplication::event_callback(int event_flag){
+	logInfo << "event callback flag = "<<event_flag;
+	if(event_flag == TOO_NEAR){
+		if(first_trigger == 1){
+			logInfo << "first trigger too near so record current pose";
+			pose_cli->call(first_pose);
+			logInfo << "first pose"<<first_pose.x()<<" , "<<first_pose.y();
+			first_trigger = 0;
 		}
-		if (new_global_plan_) {
-			new_global_plan_ = false;
-			if (!local_planner->setPlan(*global_planner_plan)) {
-				console.error("Set plan to local planner failure!");
-				resetState();
-				logInfo<< "local planner failed tp set plan,so disable plan thread ";
-				planner_mutex.lock();
-				runPlanner_ = false;
-				planner_mutex.unlock();
-				continue;
-			}
-		} else {
-			logInfo<< "no new global plan do not set plan";
-		}
-
-		Velocity2D cmd_vel;
-		NS_NaviCommon::Time last_valid_control;
-
-		//update feedback to correspond to our curent position
-		sgbot::Pose2D global_pose;
-		global_costmap->getRobotPose(global_pose);
-
-		printf("global_pose x = %.4f,y = %.4f, w = %.4f ,state = %d\n",
-				global_pose.x(), global_pose.y(), global_pose.theta(), state);
-
-		sgbot::Pose2D current_position;
-//		NS_Transform::poseStampedTFToMsg(global_pose, current_position);
-		current_position = global_pose;
-
-		if (sgbot::distance(current_position, oscillation_pose_)
-				>= oscillation_distance_) {
-			//TODO: oscillation
-			logInfo<< "oscillation is triggered , but do nothing now";
-			oscillation_pose_ = current_position;
-		}
-
-		logInfo<< "control loop state ="<<state;
-		switch (state) {
-		case PLANNING:
-			logInfo<< "control loop state is planning";
-			planner_mutex.lock();
-			planner_cond.notify_one();
-			runPlanner_ = true;
-			planner_mutex.unlock();
-			break;
-			case CONTROLLING:
-			if(local_planner->isGoalReached())
-			{
-				console.message("The goal has reached!");
-				goalCallbackExecutor->done();
-//             printf("continue exploring? = %d\n", isExploring);
-//             publishIsExploring();
-				resetState();
-				planner_mutex.lock();
-				runPlanner_ = false;
-				planner_mutex.unlock();
-				break;
-			}
-
-			//TODO : check oscillation and clear
-			clock_t start, end;
-			start = clock();
-
-			if(local_planner->computeVelocityCommands(cmd_vel))
-			{
-				console.debug(
-						"Got velocity data : linear=%.3lf, angular=0.0f!",
-						cmd_vel.linear, cmd_vel.angular);
-				last_valid_control = NS_NaviCommon::Time::now();
-				publishVelocity(cmd_vel.linear,0.0,
-						cmd_vel.angular);
-				end = clock();
-			}
-			else
-			{
-				console.warning("The planner can not got a valid velocity data!");
-				NS_NaviCommon::Time next_control = last_valid_control + NS_NaviCommon::Duration(
-						controller_patience_);
-
-				if(NS_NaviCommon::Time::now() > next_control)
-				{
-					publishZeroVelocity();
-					state = CLEARING;
-					logInfo << "can't get valid vel and out of control patience , recovery behavior should be triggered";
-				}
-				else
-				{
-					//TODO: re-plan
-
-					logInfo << "go back to planning";
-					publishZeroVelocity();
-					state = PLANNING;
-
-					planner_mutex.lock();
-					runPlanner_ = true;
-					planner_cond.notify_one();
-					planner_mutex.unlock();
-				}
-			}
-
-			break;
-			case CLEARING:
-			runRecovery();
-			state = PLANNING;
-			break;
-			case WALKING:
-			switch (state_array[current_state]) {
-				case LEFT:
-				turnleft();
-				break;
-				case ONE_STEP:
-				oneStep();
-				break;
-				case RIGHT:
-				turnright();
-				break;
-				case RUN:
-				Run();
-				break;
-				default:
-				logInfo << "Switch control nothing";
-				break;
-			}
+	}
+}
+void NavigationApplication::listenLoop(){
+	NS_NaviCommon::Rate rate(listen_frequency);
+	while(running){
+		sgbot::Pose2D pose;
+		pose_cli->call(pose);
+		float distance = sgbot::distance(pose,first_pose);
+		logInfo << "listen loop get pose = "<<pose.x()<<" ," << pose.y()<<" distance = "<<distance;
+		if(distance <= back_to_begin_tolerance){
+			logInfo << "back to begin action master control velocity and control to walking";
+			int action = MASTER_CONTROL_VELOCITY;
+			action_pub->publish(action);
+			state = WALKING;
+			is_walking = 1;
+			controller_mutex.lock();
+			controller_cond.notify_one();
+			controller_mutex.unlock();
+			back_to_begin_tolerance = 0.f;
 		}
 		rate.sleep();
 	}
 }
-
 void NavigationApplication::planLoop() {
 	NS_NaviCommon::Rate rate(planner_frequency_);
 
 	while (running) {
 		planner_mutex.lock();
 		while (new_goal_trigger && running && !runPlanner_) {
-//			planner_cond.timed_wait(planner_mutex,
-//					(boost::get_system_time() + boost::posix_time::milliseconds(
-//					PLANNER_LOOP_TIMEOUT)));
 			logInfo<< "planner_condition waiting all long ";
 			planner_cond.wait(planner_mutex);
 			new_goal_trigger = false;
@@ -244,15 +145,15 @@ void NavigationApplication::planLoop() {
 			continue;
 		}
 
-//		controller_mutex.lock();
+		controller_mutex.lock();
 		state = CONTROLLING;
 		new_global_plan_ = true;
 		global_planner_plan->clear();
 		global_planner_plan->assign(latest_plan->begin(), latest_plan->end());
 		if (runPlanner_)
 			state = CONTROLLING;
-//		controller_cond.notify_one();
-//		controller_mutex.unlock();
+		controller_cond.notify_one();
+		controller_mutex.unlock();
 
 		if (planner_frequency_ <= 0.0f)
 			runPlanner_ = false;
@@ -260,6 +161,153 @@ void NavigationApplication::planLoop() {
 			rate.sleep();
 		new_goal_trigger = true;
 		logInfo<< "make plan done once";
+	}
+}
+
+void NavigationApplication::controlLoop() {
+	while (running) {
+
+		NS_NaviCommon::Rate rate(controller_frequency_);
+		//TODO maybe controller_frequency should be used
+		controller_mutex.lock();
+		while ((state != CONTROLLING || state != WALKING)
+				&& running) {
+			logInfo<< "controller_condition waiting all long ";
+			controller_cond.wait(controller_mutex);
+		}
+		controller_mutex.unlock();
+		logInfo<< "control loop state ="<<state;
+		if (!running) {
+			console.message("Quit local planning loop...");
+			break;
+		}
+		if (new_global_plan_) {
+			new_global_plan_ = false;
+			if (!local_planner->setPlan(*global_planner_plan)) {
+				console.error("Set plan to local planner failure!");
+				resetState();
+				logInfo<< "local planner failed tp set plan,so disable plan thread ";
+				planner_mutex.lock();
+				runPlanner_ = false;
+				planner_mutex.unlock();
+				continue;
+			}
+		} else {
+			logInfo<< "no new global plan do not set plan";
+		}
+		//update feedback to correspond to our curent position
+		sgbot::Pose2D global_pose;
+		global_costmap->getRobotPose(global_pose);
+
+		printf("global_pose x = %.4f,y = %.4f, w = %.4f ,state = %d\n",
+				global_pose.x(), global_pose.y(), global_pose.theta(), state);
+
+		sgbot::Pose2D current_position;
+		current_position = global_pose;
+
+		if (sgbot::distance(current_position, oscillation_pose_)
+				>= oscillation_distance_) {
+			//TODO: oscillation
+			logInfo<< "oscillation is triggered , but do nothing now";
+			oscillation_pose_ = current_position;
+		}
+		switch (state) {
+		case PLANNING:
+			logInfo<< "control loop state is planning";
+			planner_mutex.lock();
+			planner_cond.notify_one();
+			runPlanner_ = true;
+			planner_mutex.unlock();
+		break;
+		case CONTROLLING:
+			control_func();
+		break;
+		case CLEARING:
+			runRecovery();
+			state = PLANNING;
+		break;
+		case WALKING:
+			switch (state_array[current_state]) {
+				case LEFT:
+				turnleft();
+				break;
+				case ONE_STEP:
+				oneStep();
+				break;
+				case RIGHT:
+				turnright();
+				break;
+				case RUN:
+				Run();
+				break;
+				default:
+				logInfo << "Switch control nothing";
+				break;
+		break;
+			}
+		}
+		rate.sleep();
+	}
+}
+
+void NavigationApplication::control_func() {
+	logInfo << "control func hold until control finished";
+	while(running){
+	Velocity2D cmd_vel;
+	NS_NaviCommon::Time last_valid_control;
+	if (local_planner->isGoalReached()) {
+		console.message("The goal has reached!");
+		goalCallbackExecutor->done();
+		//             printf("continue exploring? = %d\n", isExploring);
+		//             publishIsExploring();
+		resetState();
+		planner_mutex.lock();
+		runPlanner_ = false;
+		planner_mutex.unlock();
+		if(is_walking){
+			logInfo << "goal reached continue walking";
+			current_state = (++current_state) % 8;
+			state = WALKING;
+		}
+		return;
+	}
+
+	//TODO : check oscillation and clear
+	clock_t start, end;
+	start = clock();
+
+	if (local_planner->computeVelocityCommands(cmd_vel)) {
+		console.debug("Got velocity data : linear=%.3lf, angular=0.0f!",
+				cmd_vel.linear, cmd_vel.angular);
+		last_valid_control = NS_NaviCommon::Time::now();
+		publishVelocity(cmd_vel.linear, 0.0, cmd_vel.angular);
+		end = clock();
+	} else {
+		console.warning("The planner can not got a valid velocity data!");
+		NS_NaviCommon::Time next_control = last_valid_control
+				+ NS_NaviCommon::Duration(controller_patience_);
+
+		if (NS_NaviCommon::Time::now() > next_control) {
+			publishZeroVelocity();
+			state = CLEARING;
+			logInfo<< "can't get valid vel and out of control patience , recovery behavior should be triggered";
+			return;
+		}
+		else
+		{
+			//TODO: re-plan
+
+			logInfo << "go back to planning";
+			publishZeroVelocity();
+			state = PLANNING;
+
+			planner_mutex.lock();
+			runPlanner_ = true;
+			planner_cond.notify_one();
+			planner_mutex.unlock();
+			return;
+		}
+	}
 	}
 }
 sgbot::Pose2D NavigationApplication::goalToGlobalFrame(sgbot::Pose2D& goal) {
@@ -343,7 +391,9 @@ void NavigationApplication::run() {
 
 	local_planner->initialize(global_costmap);
 
-	state = PLANNING;
+	logInfo << "initial state to walking";
+	is_walking = 1;
+	state = WALKING;
 
 	new_goal_trigger = true;
 
@@ -360,12 +410,17 @@ void NavigationApplication::run() {
 	plan_thread = boost::thread(
 			boost::bind(&NavigationApplication::planLoop, this));
 
-//	control_thread = boost::thread(
-//			boost::bind(&NavigationApplication::controlLoop, this));
+	control_thread = boost::thread(
+			boost::bind(&NavigationApplication::controlLoop, this));
 
+	listen_thread = boost::thread(
+			boost::bind(&NavigationApplication::listenLoop, this));
 	global_costmap->start();
-	sleep(2);
-//    isExploring = true;
+
+	logInfo << "search wall";
+	current_state = 3;
+	int action = SEARCH_WALL;
+	action_pub->publish(action);
 }
 
 void NavigationApplication::quit() {

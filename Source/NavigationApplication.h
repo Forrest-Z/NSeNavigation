@@ -19,14 +19,28 @@
 #include <Service/Client.h>
 #include <Mission/Executor.h>
 namespace NS_Navigation {
-///
+
 enum NaviState {
 	PLANNING, CONTROLLING, CLEARING, WALKING
 };
-enum {
+enum S_STATE{
 	LEFT = 1, ONE_STEP, RIGHT, RUN
 };
-
+enum ACTION : int{
+	SEARCH_WALL = 0,
+	GOT_WALL,
+	ALONG_WALL,
+	MASTER_PLAN_POSE,
+	MASTER_CONTROL_VELOCITY
+};
+enum EVENT : int{
+	IDLE = 0,
+	KNOCK_RELEASE,
+	KNOCK_LEFT,
+	KNOCK_RIGHT,
+	KNOCK_CENTER,
+	TOO_NEAR
+};
 
 #define PLANNER_LOOP_TIMEOUT 100
 /**
@@ -36,6 +50,8 @@ class NavigationApplication: public Application {
 public:
 	NavigationApplication();
 	virtual ~NavigationApplication();
+
+	void control_func();
 
 	virtual void
 	run();
@@ -59,6 +75,7 @@ private:
 	void
 	controlLoop();
 
+	void listenLoop();
 	bool goal_callback(sgbot::Pose2D& goal_from_app);
 	//TODO not sure how to implement this
 	void visualizedGlobalGoal(sgbot::Pose2D& global_goal_);
@@ -95,23 +112,9 @@ private:
 	void
 	resetState();
 
-//	void turn(double theta) {
-//
-//	    geometry_msgs::Quaternion q = tf::createQuaternionMsgFromYaw(theta);
-//	    //qian +x , zuo +y
-//	    geometry_msgs::PoseStamped goal_pose;
-//	    goal_pose.header.frame_id = "base_link";
-//	    goal_pose.header.stamp = ros::Time::now();
-//	    ROS_INFO("publish theta = %lf", theta);
-//	    //turn left and go 0.5m
-//	    goal_pose.pose.position.x = 0;
-//	    goal_pose.pose.position.y = 0;
-//	    goal_pose.pose.orientation = q;
-//	    goal_pub.publish(goal_pose);
-//	//        ready = false;
-//
-//	}
+	void event_callback(int event_flag);
 
+	void action_callback(int action_flag);
 	void turnleft() {
 		logInfo<<"turn left";
 //	    sgbot::Pose2D pose2d;
@@ -122,20 +125,29 @@ private:
 //	    }
 		///at base frame
 		sgbot::Pose2D pose2d(0,0,M_PI_2);
-		goal_pub->publish(pose2d);
+		goal = pose2d;
+		state = PLANNING;
+		runPlanner_ = true;
+		planner_cond.notify_one();
 	}
 
 	void turnright() {
 		logInfo<<"turn right";
 		sgbot::Pose2D pose2d(0,0,-M_PI_2);
-		goal_pub->publish(pose2d);
+		goal = pose2d;
+		state = PLANNING;
+		runPlanner_ = true;
+		planner_cond.notify_one();
 	}
 
 	void GoAhead(double distance) {
 		//qian +x , zuo +y
 		logInfo<<"go ahead distance = "<<distance;
 			sgbot::Pose2D pose2d(distance,0,0);
-			goal_pub->publish(pose2d);
+			goal = pose2d;
+			state = PLANNING;
+			runPlanner_ = true;
+			planner_cond.notify_one();
 	}
 
 	void oneStep() {
@@ -149,26 +161,27 @@ private:
 
 	void Run() {
 		logInfo<<("run");
-
 		float run_distance = 5.f;
 		GoAhead(run_distance);
-
 	}
 
 private:
 	std::string global_planner_type_;
 	std::string local_planner_type_;
 	/// 全局规划频率
-	double planner_frequency_;
+	float planner_frequency_;
 	/// 控制频率
-	double controller_frequency_;
-	/// 小车内切半径
-	double inscribed_radius_;
-	/// 外切半径
-	double circumscribed_radius_;
+	float controller_frequency_;
 
-	double planner_patience_, controller_patience_;
-	double oscillation_timeout_, oscillation_distance_;
+	float listen_frequency;
+//	/// 小车内切半径
+//	double inscribed_radius_;
+//	/// 外切半径
+//	double circumscribed_radius_;
+
+	float back_to_begin_tolerance;
+	float planner_patience_, controller_patience_;
+	float oscillation_timeout_, oscillation_distance_;
 private:
 	std::vector<sgbot::Pose2D>* global_planner_plan;
 	std::vector<sgbot::Pose2D>* latest_plan;
@@ -199,12 +212,20 @@ private:
 	boost::mutex controller_mutex;
 	boost::condition controller_cond;
 
+	boost::thread listen_thread;
+
 	NaviState state;
 
 	///publish velocity to controller
 	NS_DataSet::Publisher<Velocity2D>* twist_pub;
 	///subscribe the goal from other
 	NS_DataSet::Subscriber<sgbot::Pose2D>* goal_sub;
+	///event from controller
+	NS_DataSet::Subscriber<int>* event_sub;
+	///action pub and sub to controller
+	NS_DataSet::Publisher<int>* action_pub;
+	NS_DataSet::Subscriber<int>* action_sub;
+
 	///publisher goal
 	NS_DataSet::Publisher<sgbot::Pose2D>* goal_pub;
 	///client call  pose
@@ -223,10 +244,14 @@ private:
 	NS_DataSet::Publisher<bool>* explore_pub;
 	///mission executor
 	NS_Mission::Executor* goalCallbackExecutor;
-	///state for walking
-	int current_state = 7;
-
-	int state_array[8] = { LEFT, ONE_STEP, LEFT, RUN, RIGHT, ONE_STEP, RIGHT, RUN };
+	///state for walking,default 3
+	int current_state;
+	int first_trigger = 1;
+	//record first trigger too near pose
+	sgbot::Pose2D first_pose;
+	///
+	bool is_walking;
+	int state_array[8] = { RIGHT, ONE_STEP, RIGHT, RUN, LEFT, ONE_STEP, LEFT, RUN };
 };
 
 }

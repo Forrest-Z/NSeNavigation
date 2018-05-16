@@ -16,11 +16,12 @@ namespace NS_CostMap {
 
 CostmapWrapper::CostmapWrapper() {
 	// TODO Auto-generated constructor stub
-
+	pose_cli = new NS_Service::Client<sgbot::Pose2D>("POSE");
 }
 
 CostmapWrapper::~CostmapWrapper() {
 	// TODO Auto-generated destructor stub
+	delete pose_cli;
 }
 
 void CostmapWrapper::updateMap()
@@ -160,21 +161,25 @@ void CostmapWrapper::prepareMap()
 bool CostmapWrapper::getRobotPose(
       Pose2D& global_pose) const
   {
-	NS_Service::Client <Transform2D> odom_tf_cli("BASE_ODOM_TF");
-	NS_Service::Client <Transform2D> map_tf_cli("ODOM_MAP_TF");
-	Transform2D odom_transform,map_transform;
-	if(odom_tf_cli.call(odom_transform) == false){
-		logError<<"get odometry transform failed";
-	}
-	if(map_tf_cli.call(map_transform) == false){
-		logError<<"get map transform failed";
-	}
-	Transform2D transform2d = odom_transform * map_transform;
-	float scalar;
-	transform2d.getValue(global_pose.x(),global_pose.y(),global_pose.theta(),scalar);
-	global_pose.x() = 1.0f;
-	global_pose.y() = 1.0f;
-	global_pose.theta() = 0.0f;
+//	NS_Service::Client <Transform2D> odom_tf_cli("BASE_ODOM_TF");
+//	NS_Service::Client <Transform2D> map_tf_cli("ODOM_MAP_TF");
+//	Transform2D odom_transform,map_transform;
+//	if(odom_tf_cli.call(odom_transform) == false){
+//		logError<<"get odometry transform failed";
+//	}
+//	if(map_tf_cli.call(map_transform) == false){
+//		logError<<"get map transform failed";
+//	}
+//	Transform2D transform2d = odom_transform * map_transform;
+//	float scalar;
+//	transform2d.getValue(global_pose.x(),global_pose.y(),global_pose.theta(),scalar);
+//	global_pose.x() = 1.0f;
+//	global_pose.y() = 1.0f;
+//	global_pose.theta() = 0.0f;
+	sgbot::Pose2D pose2d;
+	pose_cli->call(pose2d);
+	logInfo << "get robot pose = "<< pose2d.x()<<pose2d.y();
+	global_pose = pose2d;
 	return true;
   }
 

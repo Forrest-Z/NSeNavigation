@@ -325,8 +325,9 @@ sgbot::Pose2D NavigationApplication::goalToGlobalFrame(sgbot::Pose2D& goal) {
 	if (map_tf_cli.call(map_transform) == false) {
 		logError<<"get map transform failed";
 	}
-	sgbot::Pose2D pose2d_result = map_transform.transform(
-			odom_transform.transform(goal));
+//	sgbot::Pose2D pose2d_result = map_transform.transform(
+//			odom_transform.transform(goal));
+	sgbot::Pose2D pose2d_result = (map_transform * odom_transform).transform(goal);
 	logInfo<<"pose 2d in global frame is "<<pose2d_result.x()<<" "<<pose2d_result.y()<<" "<<pose2d_result.theta();
 	return pose2d_result;
 }

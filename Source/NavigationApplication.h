@@ -23,23 +23,20 @@ namespace NS_Navigation {
 enum NaviState {
 	PLANNING, CONTROLLING, CLEARING, WALKING
 };
-enum S_STATE{
+enum S_STATE {
 	LEFT = 1, ONE_STEP, RIGHT, RUN
 };
-enum ACTION : int{
-	SEARCH_WALL = 0,
+enum ACTION
+	: int {
+		SEARCH_WALL = 0,
 	GOT_WALL,
 	ALONG_WALL,
 	MASTER_PLAN_POSE,
 	MASTER_CONTROL_VELOCITY
 };
-enum EVENT : int{
-	IDLE = 0,
-	KNOCK_RELEASE,
-	KNOCK_LEFT,
-	KNOCK_RIGHT,
-	KNOCK_CENTER,
-	TOO_NEAR
+enum EVENT
+	: int {
+		IDLE = 0, KNOCK_RELEASE, KNOCK_LEFT, KNOCK_RIGHT, KNOCK_CENTER, TOO_NEAR
 };
 
 #define PLANNER_LOOP_TIMEOUT 100
@@ -117,14 +114,12 @@ private:
 	void action_callback(int action_flag);
 	void turnleft() {
 		logInfo<<"turn left";
-//	    sgbot::Pose2D pose2d;
-//	    if(pose_cli->call(pose2d)){
-//
-//	    }else{
-//	    	logInfo << "call pose 2d failed";
-//	    }
+		sgbot::Pose2D base_pose;
+		if(!pose_cli->call(base_pose)) {
+			logInfo << "left call pose 2d failed";
+		}
 		///at base frame
-		sgbot::Pose2D pose2d(0,0,M_PI_2);
+		sgbot::Pose2D pose2d(base_pose.x(),base_pose.y(),base_pose.theta() + M_PI_2);
 		goal = pose2d;
 		state = PLANNING;
 		runPlanner_ = true;
@@ -133,21 +128,29 @@ private:
 
 	void turnright() {
 		logInfo<<"turn right";
-		sgbot::Pose2D pose2d(0,0,-M_PI_2);
+		sgbot::Pose2D base_pose;
+		if(!pose_cli->call(base_pose)) {
+			logInfo << "right call pose 2d failed";
+		}
+		sgbot::Pose2D pose2d(base_pose.x(),base_pose.y(),base_pose.theta() - M_PI_2);
 		goal = pose2d;
 		state = PLANNING;
 		runPlanner_ = true;
 		planner_cond.notify_one();
 	}
 
-	void GoAhead(double distance) {
+	void GoAhead(float distance) {
 		//qian +x , zuo +y
+		sgbot::Pose2D base_pose;
+		if(!pose_cli->call(base_pose)) {
+			logInfo << "right call pose 2d failed";
+		}
 		logInfo<<"go ahead distance = "<<distance;
-			sgbot::Pose2D pose2d(distance,0,0);
-			goal = pose2d;
-			state = PLANNING;
-			runPlanner_ = true;
-			planner_cond.notify_one();
+		sgbot::Pose2D pose2d(base_pose.x() + distance,base_pose.y(),base_pose.theta());
+		goal = pose2d;
+		state = PLANNING;
+		runPlanner_ = true;
+		planner_cond.notify_one();
 	}
 
 	void oneStep() {
@@ -155,13 +158,13 @@ private:
 		//it should be the radius of robot
 		float one_step = 0.15;
 		logInfo << "one step = "<< one_step;
-		double step_size = one_step;
+		float step_size = one_step;
 		GoAhead(step_size);
 	}
 
 	void Run() {
 		logInfo<<("run");
-		float run_distance = 5.f;
+		float run_distance = 3.f;
 		GoAhead(run_distance);
 	}
 
@@ -199,9 +202,9 @@ private:
 	sgbot::Pose2D goal;
 
 	bool new_goal_trigger;
-	/// for local planner set plan
+/// for local planner set plan
 	bool new_global_plan_;
-	///run plan thread or not
+///run plan thread or not
 	bool runPlanner_;
 
 	boost::thread plan_thread;
@@ -253,7 +256,7 @@ private:
 	bool is_walking;
 	int too_near_count = 0;
 	int action_flag_;
-	int state_array[8] = { RIGHT, ONE_STEP, RIGHT, RUN, LEFT, ONE_STEP, LEFT, RUN };
+	int state_array[8] = {RIGHT, ONE_STEP, RIGHT, RUN, LEFT, ONE_STEP, LEFT, RUN};
 };
 
 }

@@ -24,9 +24,9 @@ NavigationApplication::NavigationApplication() :
 	event_sub = new NS_DataSet::Subscriber<int>("BASE_REG_EVENT",
 			boost::bind(&NavigationApplication::event_callback, this, _1));
 
-	action_sub = new NS_DataSet::Subscriber<int>("BASE_REG_EVENT",
+	action_sub = new NS_DataSet::Subscriber<int>("BASE_REG_ACTION",
 			boost::bind(&NavigationApplication::action_callback, this, _1));
-	action_pub = new NS_DataSet::Publisher<int>("GOAL");
+	action_pub = new NS_DataSet::Publisher<int>("BASE_REG_ACTION");
 	pose_cli = new NS_Service::Client<sgbot::Pose2D>("POSE");
 }
 

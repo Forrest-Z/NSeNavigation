@@ -69,7 +69,7 @@ void StaticLayer::onInitialize() {
 	else
 		use_maximum_ = false;
 
-	if (parameter.getParameter("simulated",1) == 1)
+	if (parameter.getParameter("simulated",0) == 1)
 		simulated = true;
 	else
 		simulated = false;

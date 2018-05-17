@@ -71,7 +71,9 @@ void CostmapWrapper::updateMapLoop(double frequency)
       updateCostmap();
     }
     rate.sleep();
-    visualizeForRviz();
+    if(is_visualised){
+        visualizeForRviz();
+    }
   }
 }
 
@@ -107,6 +109,12 @@ void CostmapWrapper::loadParameters()
      track_unknown_space_ = true;
    else
      track_unknown_space_ = false;
+
+   //is_visualised
+   if(parameter.getParameter("is_visualised", 0) == 1)
+	   is_visualised = true;
+   else
+	   is_visualised = false;
 
    footprint_ = parameter.getParameter(
        "footprint",

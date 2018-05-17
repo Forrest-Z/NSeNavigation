@@ -74,6 +74,8 @@ private:
 private:
 	///决定costmap的默认值为未知还是空白
 	bool track_unknown_space_;
+
+	bool is_visualised;
 	///小车的足迹
 	std::string footprint_;
 	///costmap的更新频率

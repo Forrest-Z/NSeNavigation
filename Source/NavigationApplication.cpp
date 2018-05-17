@@ -50,7 +50,7 @@ void NavigationApplication::loadParameters() {
 	planner_frequency_ = parameter.getParameter("planner_frequency", 0.0f);
 	controller_frequency_ = parameter.getParameter("controller_frequency",
 			5.0f);
-	back_to_begin_tolerance = parameter.getParameter("back_to_begin_tolerance",0.5f);
+	back_to_begin_tolerance = parameter.getParameter("back_to_begin_tolerance",0.1f);
 	listen_frequency = parameter.getParameter("listen_frequency",1.f);
 }
 void NavigationApplication::runRecovery() {
@@ -102,6 +102,7 @@ void NavigationApplication::event_callback(int event_flag){
 				first_trigger = 0;
 			}
 		}
+		++too_near_count;
 	}
 }
 void NavigationApplication::listenLoop(){
@@ -114,7 +115,7 @@ void NavigationApplication::listenLoop(){
 		}
 		float distance = sgbot::distance(pose,first_pose);
 		logInfo << "listen loop get pose = "<<pose.x()<<" ," << pose.y()<<" and  distance = "<<distance;
-		if(distance <= back_to_begin_tolerance && action_flag_ == ALONG_WALL){
+		if(distance <= back_to_begin_tolerance && action_flag_ == ALONG_WALL && too_near_count >= 3){
 			logInfo << "back to begin action master control velocity and control to walking";
 			int action = MASTER_CONTROL_VELOCITY;
 			action_pub->publish(action);

@@ -251,7 +251,7 @@ private:
 	sgbot::Pose2D first_pose;
 	///
 	bool is_walking;
-
+	int too_near_count = 0;
 	int action_flag_;
 	int state_array[8] = { RIGHT, ONE_STEP, RIGHT, RUN, LEFT, ONE_STEP, LEFT, RUN };
 };

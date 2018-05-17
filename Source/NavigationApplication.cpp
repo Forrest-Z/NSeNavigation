@@ -95,9 +95,12 @@ void NavigationApplication::event_callback(int event_flag){
 	if(event_flag == TOO_NEAR){
 		if(first_trigger == 1){
 			logInfo << "first trigger too near so record current pose";
-			pose_cli->call(first_pose);
-			logInfo << "first pose"<<first_pose.x()<<" , "<<first_pose.y();
-			first_trigger = 0;
+			if(!pose_cli->call(first_pose)){
+				logInfo << "first trigger get first pose failed";
+			}else{
+				logInfo << "first pose"<<first_pose.x()<<" , "<<first_pose.y();
+				first_trigger = 0;
+			}
 		}
 	}
 }

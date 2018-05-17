@@ -102,6 +102,7 @@ void NavigationApplication::event_callback(int event_flag){
 				first_trigger = 0;
 			}
 		}
+		logInfo << "too near count ++";
 		++too_near_count;
 	}
 }

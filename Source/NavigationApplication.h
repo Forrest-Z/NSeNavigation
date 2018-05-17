@@ -143,7 +143,7 @@ private:
 		//qian +x , zuo +y
 		sgbot::Pose2D base_pose;
 		if(!pose_cli->call(base_pose)) {
-			logInfo << "right call pose 2d failed";
+			logInfo << "go ahead call pose 2d failed";
 		}
 		logInfo<<"go ahead distance = "<<distance;
 		sgbot::Pose2D pose2d(base_pose.x() + distance,base_pose.y(),base_pose.theta());

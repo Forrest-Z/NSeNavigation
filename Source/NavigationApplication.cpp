@@ -21,12 +21,12 @@ NavigationApplication::NavigationApplication() :
 //
 //	goal_pub = new NS_DataSet::Publisher<sgbot::Pose2D>("GOAL");
 
-	event_sub = new NS_DataSet::Subscriber<int>("BASE_REG_EVENT",
+	event_sub = new NS_DataSet::Subscriber<int>("SLAVE_EVENT",
 			boost::bind(&NavigationApplication::event_callback, this, _1));
 
-	action_sub = new NS_DataSet::Subscriber<int>("BASE_REG_ACTION",
+	action_sub = new NS_DataSet::Subscriber<int>("SLAVE_ACTION",
 			boost::bind(&NavigationApplication::action_callback, this, _1));
-	action_pub = new NS_DataSet::Publisher<int>("BASE_REG_ACTION");
+	action_pub = new NS_DataSet::Publisher<int>("MASTER_ACTION");
 	pose_cli = new NS_Service::Client<sgbot::Pose2D>("POSE");
 }
 

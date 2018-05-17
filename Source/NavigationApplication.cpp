@@ -370,7 +370,8 @@ bool NavigationApplication::makePlan(const sgbot::Pose2D& goal,
 
 void NavigationApplication::run() {
 	loadParameters();
-
+	std::string file_pp = "/tmp/";
+	addFileLog(file_pp);
 	//set up plan triple buffer
 	global_planner_plan = new std::vector<sgbot::Pose2D>();
 	latest_plan = new std::vector<sgbot::Pose2D>();

@@ -153,9 +153,9 @@ private:
 	void oneStep() {
 		logInfo<<("one step");
 		//it should be the radius of robot
-		float resolution = global_costmap->getLayeredCostmap()->getCostmap()->getResolution();
-		logInfo << "resolution = "<< resolution;
-		double step_size = resolution;
+		float one_step = 0.15;
+		logInfo << "one step = "<< one_step;
+		double step_size = one_step;
 		GoAhead(step_size);
 	}
 

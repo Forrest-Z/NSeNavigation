@@ -105,10 +105,10 @@ void NavigationApplication::listenLoop(){
 	NS_NaviCommon::Rate rate(listen_frequency);
 	while(running){
 		sgbot::Pose2D pose;
-//		if(!pose_cli->call(pose)){
-//			logError<<"call pose failed";
-//			return;
-//		}
+		if(!pose_cli->call(pose)){
+			logError<<"call pose failed";
+			return;
+		}
 		float distance = sgbot::distance(pose,first_pose);
 		logInfo << "listen loop get pose = "<<pose.x()<<" ," << pose.y()<<" and  distance = "<<distance;
 		if(distance <= back_to_begin_tolerance && action_flag_ == ALONG_WALL){

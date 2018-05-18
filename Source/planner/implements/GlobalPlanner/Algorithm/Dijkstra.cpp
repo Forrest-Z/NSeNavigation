@@ -65,16 +65,16 @@ void DijkstraExpansion::setSize(int xs, int ys) {
 
 float DijkstraExpansion::getCost(unsigned char* costs, int n)
 {
-  float c = costs[n];
-  printf("get cost in dijkstra = %d,lethal cost = %d,factor_ = %.4f,unknown = %d\n",c,lethal_cost_,factor_,unknown_);
-  if(c < lethal_cost_ - 1 || (unknown_ && c == 255))
+  float c = static_cast<float>( costs[n] );
+  printf("get cost in dijkstra = %.4f,lethal cost = %d,factor_ = %.4f,unknown = %d\n",c,lethal_cost_,factor_,unknown_ == 1?1:0);
+  if(static_cast<char>(c) < lethal_cost_ - 1 || (unknown_ && static_cast<char>(c) == 255))
   { // lethal_cost 253
-    c = c * factor_ + neutral_cost_; // factor = 3.0  neutral_cost = 50
-    if(c >= lethal_cost_)
-      c = lethal_cost_ - 1;
+    c = c * factor_ + static_cast< float >(neutral_cost_); // factor = 3.0  neutral_cost = 50
+    if(static_cast<char>(c) >= lethal_cost_)
+      c = static_cast<float>(lethal_cost_) - 1;
     return c;
   }
-  return lethal_cost_;
+  return static_cast<float>(lethal_cost_);
 }
 //
 // main propagation function
@@ -88,7 +88,7 @@ bool DijkstraExpansion::calculatePotentials(unsigned char* costs,
 		float* potential) {
 
 	printf("calculatePotentials running...\n");
-	printf("unknown_ = %d,factor_ = %.4f,neutral_cost_ = %d\n",unknown_,factor_,neutral_cost_);
+	printf("unknown_ = %d,factor_ = %.4f,neutral_cost_ = %d,lethal_cost_ = %d\n",unknown_,factor_,neutral_cost_,lethal_cost_);
 	cells_visited_ = 0;
 	// priority buffers
 	threshold_ = lethal_cost_;

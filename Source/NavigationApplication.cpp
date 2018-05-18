@@ -405,9 +405,10 @@ void NavigationApplication::run() {
 
 	local_planner->initialize(global_costmap);
 
-	logInfo << "initial state to walking";
-	is_walking = 1;
-	state = WALKING;
+	logInfo << "initial state to planning and wait for listen to set walking";
+	state = PLANNING;
+//	is_walking = 1;
+//	state = WALKING;
 
 	new_goal_trigger = true;
 

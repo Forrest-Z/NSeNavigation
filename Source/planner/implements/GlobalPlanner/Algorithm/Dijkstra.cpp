@@ -28,25 +28,25 @@ void DijkstraExpansion::pushCur(int n, unsigned char* costs) {
 	printf("dijk n = %d\n", n);
 	printf("pending[n] = %d\n", pending_[n]);
 	printf("costs[n] = %d",costs[n]);
-	printf("get cost = %d\n", getCost(costs, n));
+	printf("get cost = %.4f\n", getCost(costs, n));
 	printf("currentEnd_ = %d\n", currentEnd_);
 
 	if (n >= 0&& n<ns_ && !pending_[n] &&
-	getCost(costs, n)<lethal_cost_ && currentEnd_<PRIORITYBUFSIZE) {
+	static_cast<char>(getCost(costs, n))<lethal_cost_ && currentEnd_<PRIORITYBUFSIZE) {
 		currentBuffer_[currentEnd_++] = n;
 		pending_[n] = true;
 	}
 }
 void DijkstraExpansion::pushNext(int n, unsigned char* costs) {
 	if (n >= 0&& n<ns_ && !pending_[n] &&
-	getCost(costs, n)<lethal_cost_ && nextEnd_<PRIORITYBUFSIZE) {
+			static_cast<char>(getCost(costs, n))<lethal_cost_ && nextEnd_<PRIORITYBUFSIZE) {
 		nextBuffer_[nextEnd_++] = n;
 		pending_[n] = true;
 	}
 }
 void DijkstraExpansion::pushOver(int n, unsigned char* costs) {
 	if (n >= 0&& n<ns_ && !pending_[n] &&
-	getCost(costs, n)<lethal_cost_ && overEnd_<PRIORITYBUFSIZE) {
+			static_cast<char>(getCost(costs, n))<lethal_cost_ && overEnd_<PRIORITYBUFSIZE) {
 		overBuffer_[overEnd_++] = n;
 		pending_[n] = true;
 	}
@@ -115,25 +115,25 @@ bool DijkstraExpansion::calculatePotentials(unsigned char* costs,
 		potential[k + nx_] = neutral_cost_ * 2 * dx * (1 - dy);
 		potential[k + nx_ + 1] = neutral_cost_ * 2 * (1 - dx) * (1 - dy); //*/
 
-//		pushCur(k + 2, costs);
-//		pushCur(k - 1, costs);
-//		pushCur(k + nx_ - 1, costs);
-//		pushCur(k + nx_ + 2, costs);
+		pushCur(k + 2, costs);
+		pushCur(k - 1, costs);
+		pushCur(k + nx_ - 1, costs);
+		pushCur(k + nx_ + 2, costs);
+
+		pushCur(k - nx_, costs);
+		pushCur(k - nx_ + 1, costs);
+		pushCur(k + nx_ * 2, costs);
+		pushCur(k + nx_ * 2 + 1, costs);
+
+//		pushCur(k+2,costs);
+//	      push_cur(k - 1);
+//	      push_cur(k + nx_ - 1);
+//	      push_cur(k + nx_ + 2);
 //
-//		pushCur(k - nx_, costs);
-//		pushCur(k - nx_ + 1, costs);
-//		pushCur(k + nx_ * 2, costs);
-//		pushCur(k + nx_ * 2 + 1, costs);
-
-		pushCur(k+2,costs);
-	      push_cur(k - 1);
-	      push_cur(k + nx_ - 1);
-	      push_cur(k + nx_ + 2);
-
-	      push_cur(k - nx_);
-	      push_cur(k - nx_ + 1);
-	      push_cur(k + nx_ * 2);
-	      push_cur(k + nx_ * 2 + 1);
+//	      push_cur(k - nx_);
+//	      push_cur(k - nx_ + 1);
+//	      push_cur(k + nx_ * 2);
+//	      push_cur(k + nx_ * 2 + 1);
 	} else {
 		potential[k] = 0;
 	      push_cur(k + 1);

@@ -446,14 +446,15 @@ void NavigationApplication::run() {
 //			boost::bind(&NavigationApplication::listenLoop, this));
 	global_costmap->start();
 
-	logInfo<< "search wall";
-	current_state = 3;
-	int action = SEARCH_WALL;
-	action_flag_ = action;
-	action_pub->publish(action);
+//	logInfo<< "search wall";
+//	current_state = 3;
+//	int action = SEARCH_WALL;
+//	action_flag_ = action;
+//	action_pub->publish(action);
 
 
 ///below are test for debug
+	sleep(5);
 	state = WALKING;
 	is_walking = 1;
 	controller_mutex.lock();

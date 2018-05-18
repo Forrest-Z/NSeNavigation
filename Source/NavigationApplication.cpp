@@ -450,12 +450,12 @@ void NavigationApplication::run() {
 	action_pub->publish(action);
 
 
-	planner_mutex.lock();
-	state = PLANNING;
-	goal = sgbot::Pose2D(1.0,1.0,0);
-	planner_cond.notify_one();
-	runPlanner_ = true;
-	planner_mutex.unlock();
+//	planner_mutex.lock();
+//	state = PLANNING;
+//	goal = sgbot::Pose2D(1.0,1.0,0);
+//	planner_cond.notify_one();
+//	runPlanner_ = true;
+//	planner_mutex.unlock();
 }
 
 void NavigationApplication::quit() {

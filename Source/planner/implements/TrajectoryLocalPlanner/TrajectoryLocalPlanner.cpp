@@ -179,6 +179,7 @@ namespace NS_Planner
       logInfo << "footprint_spec_ size = "<<footprint_spec_.size();
       double circums_radius = costmap->getLayeredCostmap()->getCircumscribedRadius();
       double inscribe_radius = costmap->getLayeredCostmap()->getInscribedRadius();
+      logInfo << "circums radius = "<<circums_radius<<" inscribe_radius = "<<inscribe_radius;
       odom_helper_ = new OdometryHelper();
 
       std::vector< double > y_vels = std::vector< double >(0);

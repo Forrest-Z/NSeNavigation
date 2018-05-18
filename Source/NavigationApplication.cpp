@@ -54,6 +54,12 @@ void NavigationApplication::loadParameters() {
 	listen_frequency = parameter.getParameter("listen_frequency",1.f);
 	one_step = parameter.getParameter("one_step",0.2f);
 	run_distance = parameter.getParameter("run_distance",2.f);
+	if(parameter.getParameter("is_log_file", 0) == 1){
+		is_log_file = true;
+	}else{
+		is_log_file = false;
+	}
+
 }
 void NavigationApplication::runRecovery() {
 	logInfo<<"run Recovery()";
@@ -380,7 +386,9 @@ bool NavigationApplication::makePlan(const sgbot::Pose2D& goal,
 void NavigationApplication::run() {
 	loadParameters();
 	std::string file_pp = "/tmp/";
-	addFileLog(file_pp);
+	if(is_log_file){
+		addFileLog(file_pp);
+	}
 	//set up plan triple buffer
 	global_planner_plan = new std::vector<sgbot::Pose2D>();
 	latest_plan = new std::vector<sgbot::Pose2D>();

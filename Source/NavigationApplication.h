@@ -254,6 +254,7 @@ private:
 	int action_flag_;
 	int state_array[8] = {RIGHT, ONE_STEP, RIGHT, RUN, LEFT, ONE_STEP, LEFT, RUN};
 	float one_step,run_distance;
+	bool is_log_file;
 };
 
 }

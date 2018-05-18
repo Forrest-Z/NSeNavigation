@@ -53,6 +53,7 @@ namespace NS_CostMap
       const std::vector< Point2D >& footprint_spec,
       std::vector< Point2D >& oriented_footprint)
   {
+	  printf("padded footprint size = %d,x = %.4f,y = %.4f,theta = %.4f\n",footprint_spec,x,y,theta);
     // build the oriented footprint at a given location
     oriented_footprint.clear();
     double cos_th = cos(theta);

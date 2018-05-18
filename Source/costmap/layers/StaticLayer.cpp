@@ -104,7 +104,7 @@ void StaticLayer::matchSize() {
 
 unsigned char StaticLayer::interpretValue(MapPointType value) {
 	// check if the static value is above the unknown or lethal thresholds
-	if (track_unknown_space_ && value == MapPointType::KNOWN_MAP_POINT)
+	if (track_unknown_space_ && value == MapPointType::UNKNOWN_MAP_POINT)
 		return NO_INFORMATION;
 	else if (!track_unknown_space_ && value == MapPointType::UNKNOWN_MAP_POINT)
 		return FREE_SPACE;
@@ -149,15 +149,21 @@ void StaticLayer::processMap(const sgbot::Map2D& new_map) {
 
 	unsigned int index = 0;
 
+	FILE* file = fopen("/home/pengjiawei/static_layer_costmap.log", "a");
+
+
+
+
 	// initialize the costmap with static data
 	for (unsigned int i = 0; i < size_y; ++i) {
 		for (unsigned int j = 0; j < size_x; ++j) {
 			sgbot::MapPointType value = new_map.getPoint(j , i);
+			fprintf(file, "%d\n", interpretValue(value));
 				costmap_[index] = interpretValue(value);
 			++index;
 		}
 	}
-
+	fclose(file);
 	// we have a new map, update full size of map
 	x_ = y_ = 0;
 	width_ = size_x_;
@@ -270,7 +276,7 @@ void StaticLayer::readPgm(std::string pgm_file_path, int& width,
 		}
 	}
 	// Now print the array to see the result
-//	FILE* file = fopen("/home/pengjiawei/pixels.log", "a");
+//	FILE* file = fopen("/home/pengjiawei/static_layer_costmap.log", "a");
 //	for (row = 0; row < height; ++row) {
 //		for (col = 0; col < width; ++col) {
 //			fprintf(file, "%d\n", array[row][col]);

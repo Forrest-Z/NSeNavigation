@@ -114,7 +114,7 @@ unsigned char StaticLayer::interpretValue(const sgbot::Map2D& new_map,int i,int 
 	else if (trinary_costmap_)
 		return FREE_SPACE;
 
-	double scale = (double) value / lethal_threshold_;
+	double scale = (double) new_map.getPoint(i,j) / lethal_threshold_;
 	return scale * LETHAL_OBSTACLE;
 }
 
@@ -149,7 +149,7 @@ void StaticLayer::processMap(const sgbot::Map2D& new_map) {
 
 	unsigned int index = 0;
 
-	FILE* file = fopen("/home/pengjiawei/static_layer_costmap.log", "w+");
+	FILE* file = fopen("/tmp/static_layer_costmap.log", "w+");
 
 
 

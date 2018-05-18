@@ -113,18 +113,18 @@ bool GlobalPlanner::makePlan(const Pose2D& start, const Pose2D& goal,
 	boost::mutex::scoped_lock lock(mutex_);
 
 	int nx = costmap->getLayeredCostmap()->getCostmap()->getSizeInCellsX(), ny =
-		costmap->getLayeredCostmap()->getCostmap()->getSizeInCellsY();
-		double resolution =
-		costmap->getLayeredCostmap()->getCostmap()->getResolution();
-		double inscribe_radius = costmap->getLayeredCostmap()->getInscribedRadius();
-		double circumscribed_radius =
-		costmap->getLayeredCostmap()->getCircumscribedRadius();
+	costmap->getLayeredCostmap()->getCostmap()->getSizeInCellsY();
+	double resolution =
+	costmap->getLayeredCostmap()->getCostmap()->getResolution();
+	double inscribe_radius = costmap->getLayeredCostmap()->getInscribedRadius();
+	double circumscribed_radius =
+	costmap->getLayeredCostmap()->getCircumscribedRadius();
 
-		std::cout << "size in cell x "<< nx<<" , ny = "<<ny << " , resolution = " << resolution
-		<< " , inscribed_radius = " << inscribe_radius
-		<< " ,circumscribed_radius = " << circumscribed_radius << "\n";
-		std::cout << "origin x = "<< costmap->getLayeredCostmap()->getCostmap()->getOriginX()<<", y = "
-		<< costmap->getLayeredCostmap()->getCostmap()->getOriginY();
+	std::cout << "size in cell x "<< nx<<" , ny = "<<ny << " , resolution = " << resolution
+	<< " , inscribed_radius = " << inscribe_radius
+	<< " ,circumscribed_radius = " << circumscribed_radius << "\n";
+	std::cout << "origin x = "<< costmap->getLayeredCostmap()->getCostmap()->getOriginX()<<", y = "
+	<< costmap->getLayeredCostmap()->getCostmap()->getOriginY();
 
 	if (!initialized_) {
 		printf(
@@ -203,6 +203,16 @@ bool GlobalPlanner::makePlan(const Pose2D& start, const Pose2D& goal,
 	///update the boundary of costmap
 	outlineMap(costmap->getLayeredCostmap()->getCostmap()->getCharMap(), nx, ny,
 			NS_CostMap::LETHAL_OBSTACLE);
+
+	FILE* map_file = fopen("/tmp/global_planner_costmap.log", "w+");
+	int index = 0;
+	for (unsigned int i = 0; i < ny; ++i) {
+		for (unsigned int j = 0; j < nx; ++j) {
+			fprintf(map_file, "%d\n", char_map[index] );
+			++index;
+		}
+	}
+	fclose(map_file);
 	/*
 	 * 此处开始调用算法
 	 */
@@ -290,14 +300,14 @@ bool GlobalPlanner::getPlanFromPotential(double start_x, double start_y,
 		printf("NO PATH!\n");
 		return false;
 	}
-	logInfo << "path maker get path size = "<<path.size();
+	logInfo<< "path maker get path size = "<<path.size();
 	NS_NaviCommon::Time plan_time = NS_NaviCommon::Time::now();
 	for (int i = path.size() - 1; i >= 0; i--) {
 		std::pair<float, float> point = path[i];
 		//convert the plan to world coordinates
 		double world_x, world_y;
 		mapToWorld(point.first, point.second, world_x, world_y);
-		logInfo << "path i "<<i << "point.x"<<point.first<<" , point y"<<point.second<<" world x = "<<world_x <<" y = "<<world_y;
+		logInfo<< "path i "<<i << "point.x"<<point.first<<" , point y"<<point.second<<" world x = "<<world_x <<" y = "<<world_y;
 
 //		pose.header.stamp = plan_time;
 //        pose.header.frame_id = global_frame;
@@ -308,7 +318,7 @@ bool GlobalPlanner::getPlanFromPotential(double start_x, double start_y,
 //		pose.pose.orientation.y = 0.0;
 //		pose.pose.orientation.z = 0.0;
 //		pose.pose.orientation.w = 1.0;
-		Pose2D pose(world_x,world_y,0.f);
+		Pose2D pose(world_x, world_y, 0.f);
 		plan.push_back(pose);
 	}
 

@@ -125,7 +125,11 @@ bool DijkstraExpansion::calculatePotentials(unsigned char* costs,
 	for (; cycle < cycles; cycle++) // go for this many cycles, unless interrupted
 			{
 		if (currentEnd_ == 0 && nextEnd_ == 0) // priority blocks empty
+		{
+			printf("priority blocks empty\n");
 			return false;
+		}
+
 
 		// stats
 		nc += currentEnd_;
@@ -166,7 +170,7 @@ bool DijkstraExpansion::calculatePotentials(unsigned char* costs,
 			break;
 	}
 
-	printf("After for loop...\n");
+	printf("---------After for loop...----------------\n");
 
 	//ROS_INFO("CYCLES %d/%d ", cycle, cycles);
 	if (cycle < cycles)

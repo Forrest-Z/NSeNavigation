@@ -64,6 +64,7 @@ namespace NS_Planner
     float getCost(unsigned char* costs, int n)
     {
       float c = costs[n];
+      printf("get cost in dijkstra = %d,lethal cost = %d,factor_ = %.4f,unknown = %d\n",c,lethal_cost_,factor_,unknown_);
       if(c < lethal_cost_ - 1 || (unknown_ && c == 255))
       { // lethal_cost 253
         c = c * factor_ + neutral_cost_; // factor = 3.0  neutral_cost = 50

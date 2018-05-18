@@ -75,7 +75,7 @@ bool DijkstraExpansion::calculatePotentials(unsigned char* costs,
 		float* potential) {
 
 	printf("calculatePotentials running...\n");
-	printf("unknown_ = %d,factor_ = %.4f,neutral_cost_ = %c\n",unknown_,factor_,neutral_cost_);
+	printf("unknown_ = %d,factor_ = %.4f,neutral_cost_ = %d\n",unknown_,factor_,neutral_cost_);
 	cells_visited_ = 0;
 	// priority buffers
 	threshold_ = lethal_cost_;

@@ -64,11 +64,14 @@ void GlobalPlanner::onInitialize() {
 		p_calc_ = new QuadraticCalculator(cx, cy);
 
 		//use dijkstra directly
-		if (parameter.getParameter("use_dijkstra", 1) == 1) {
-			DijkstraExpansion* de = new DijkstraExpansion(p_calc_, cx, cy);
-			de->setPreciseStart(true);
-			planner_ = de;
-		}
+//		if (parameter.getParameter("use_dijkstra", 1) == 1) {
+//			DijkstraExpansion* de = new DijkstraExpansion(p_calc_, cx, cy);
+//			de->setPreciseStart(true);
+//			planner_ = de;
+//		}
+		planner_ = new DijkstraExpansion(p_calc_, cx, cy);
+		planner_->setPreciseStart(true);
+
 		/*
 		 * 获取 use_grid_path 参数值，根据参数值创建 path_maker_ 实例，用 GridPath 还是 GradientPath
 		 * Traceback、GridPath、GradientPath
@@ -211,6 +214,7 @@ bool GlobalPlanner::makePlan(const Pose2D& start, const Pose2D& goal,
 			fprintf(map_file, "%d\n", char_map[index] );
 			++index;
 		}
+
 	}
 	fclose(map_file);
 	/*

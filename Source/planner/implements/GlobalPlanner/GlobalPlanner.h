@@ -5,6 +5,7 @@
 
 #include "Algorithm/PotentialCalculator.h"
 #include "Algorithm/Expander.h"
+#include "Algorithm/Dijkstra.h"
 #include "Algorithm/Traceback.h"
 #include "Algorithm/OrientationFilter.h"
 
@@ -51,7 +52,8 @@ namespace NS_Planner
     boost::mutex mutex_;
 
     PotentialCalculator* p_calc_;
-    Expander* planner_;
+//    Expander* planner_;
+    DijkstraExpansion* planner_;
     Traceback* path_maker_;
     OrientationFilter* orientation_filter_;
     bool publish_potential_;

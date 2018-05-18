@@ -38,7 +38,7 @@ public:
 private:
 
 	unsigned char
-	interpretValue(MapPointType value);
+	interpretValue(const sgbot::Map2D& new_map,int i ,int j);
 
 private:
 	unsigned int x_, y_, width_, height_;

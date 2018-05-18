@@ -102,13 +102,13 @@ void StaticLayer::matchSize() {
 
 }
 
-unsigned char StaticLayer::interpretValue(MapPointType value) {
+unsigned char StaticLayer::interpretValue(const sgbot::Map2D& new_map,int i,int j) {
 	// check if the static value is above the unknown or lethal thresholds
-	if (track_unknown_space_ && value == MapPointType::UNKNOWN_MAP_POINT)
+	if (track_unknown_space_ && new_map.isUnknown(i,j))
 		return NO_INFORMATION;
-	else if (!track_unknown_space_ && value == MapPointType::UNKNOWN_MAP_POINT)
+	else if (!track_unknown_space_ && new_map.isUnknown(i,j))
 		return FREE_SPACE;
-	else if(value == MapPointType::OBSTACLE_MAP_POINT)
+	else if(new_map.isEdge(i,j))
 //	else if (value >= lethal_threshold_)
 		return LETHAL_OBSTACLE;
 	else if (trinary_costmap_)
@@ -149,7 +149,7 @@ void StaticLayer::processMap(const sgbot::Map2D& new_map) {
 
 	unsigned int index = 0;
 
-	FILE* file = fopen("/home/pengjiawei/static_layer_costmap.log", "a");
+	FILE* file = fopen("/home/pengjiawei/static_layer_costmap.log", "w+");
 
 
 
@@ -157,9 +157,8 @@ void StaticLayer::processMap(const sgbot::Map2D& new_map) {
 	// initialize the costmap with static data
 	for (unsigned int i = 0; i < size_y; ++i) {
 		for (unsigned int j = 0; j < size_x; ++j) {
-			sgbot::MapPointType value = new_map.getPoint(j , i);
-			fprintf(file, "%d\n", interpretValue(value));
-				costmap_[index] = interpretValue(value);
+			fprintf(file, "%d\n", interpretValue(new_map,j,i));
+				costmap_[index] = interpretValue(new_map,j,i);
 			++index;
 		}
 	}

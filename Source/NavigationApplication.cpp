@@ -21,11 +21,11 @@ NavigationApplication::NavigationApplication() :
 //
 //	goal_pub = new NS_DataSet::Publisher<sgbot::Pose2D>("GOAL");
 
-	event_sub = new NS_DataSet::Subscriber<int>("SLAVE_EVENT",
-			boost::bind(&NavigationApplication::event_callback, this, _1));
-
-	action_sub = new NS_DataSet::Subscriber<int>("SLAVE_ACTION",
-			boost::bind(&NavigationApplication::action_callback, this, _1));
+//	event_sub = new NS_DataSet::Subscriber<int>("SLAVE_EVENT",
+//			boost::bind(&NavigationApplication::event_callback, this, _1));
+//
+//	action_sub = new NS_DataSet::Subscriber<int>("SLAVE_ACTION",
+//			boost::bind(&NavigationApplication::action_callback, this, _1));
 	action_pub = new NS_DataSet::Publisher<int>("MASTER_ACTION");
 	pose_cli = new NS_Service::Client<sgbot::Pose2D>("POSE");
 }
@@ -50,13 +50,14 @@ void NavigationApplication::loadParameters() {
 	planner_frequency_ = parameter.getParameter("planner_frequency", 0.0f);
 	controller_frequency_ = parameter.getParameter("controller_frequency",
 			5.0f);
-	back_to_begin_tolerance = parameter.getParameter("back_to_begin_tolerance",0.1f);
-	listen_frequency = parameter.getParameter("listen_frequency",1.f);
-	one_step = parameter.getParameter("one_step",0.2f);
-	run_distance = parameter.getParameter("run_distance",2.f);
-	if(parameter.getParameter("is_log_file", 0) == 1){
+	back_to_begin_tolerance = parameter.getParameter("back_to_begin_tolerance",
+			0.1f);
+	listen_frequency = parameter.getParameter("listen_frequency", 1.f);
+	one_step = parameter.getParameter("one_step", 0.2f);
+	run_distance = parameter.getParameter("run_distance", 2.f);
+	if (parameter.getParameter("is_log_file", 0) == 1) {
 		is_log_file = true;
-	}else{
+	} else {
 		is_log_file = false;
 	}
 
@@ -94,18 +95,18 @@ bool NavigationApplication::goal_callback(sgbot::Pose2D& goal_from_app) {
 	return true;
 }
 
-void NavigationApplication::action_callback(int action_flag){
-	logInfo << "action callback flag = "<<action_flag;
+void NavigationApplication::action_callback(int action_flag) {
+	logInfo<< "action callback flag = "<<action_flag;
 	action_flag_ = action_flag;
 }
-void NavigationApplication::event_callback(int event_flag){
-	logInfo << "event callback flag = "<<event_flag;
-	if(event_flag == TOO_NEAR){
-		if(first_trigger == 1){
+void NavigationApplication::event_callback(int event_flag) {
+	logInfo<< "event callback flag = "<<event_flag;
+	if(event_flag == TOO_NEAR) {
+		if(first_trigger == 1) {
 			logInfo << "first trigger too near so record current pose";
-			if(!pose_cli->call(first_pose)){
+			if(!pose_cli->call(first_pose)) {
 				logInfo << "first trigger get first pose failed";
-			}else{
+			} else {
 				logInfo << "first pose"<<first_pose.x()<<" , "<<first_pose.y();
 				first_trigger = 0;
 			}
@@ -114,19 +115,20 @@ void NavigationApplication::event_callback(int event_flag){
 		++too_near_count;
 	}
 }
-void NavigationApplication::listenLoop(){
+void NavigationApplication::listenLoop() {
 	NS_NaviCommon::Rate rate(listen_frequency);
-	while(running){
+	while (running) {
 		sgbot::Pose2D pose;
-		if(!pose_cli->call(pose)){
+		if (!pose_cli->call(pose)) {
 			logError<<"call pose failed";
 		}
-		float distance = sgbot::distance(pose,first_pose);
+		float distance = sgbot::distance(pose, first_pose);
 //		float distance = 0.05f;
-		logInfo << "listen loop get pose = "<<pose.x()<<" ," << pose.y()<<" and  distance = "<<distance;
-		if(distance <= back_to_begin_tolerance && action_flag_ == ALONG_WALL && too_near_count >= 3){
+		logInfo<< "listen loop get pose = "<<pose.x()<<" ," << pose.y()<<" and  distance = "<<distance;
+		if (distance <= back_to_begin_tolerance && action_flag_ == ALONG_WALL
+				&& too_near_count >= 3) {
 //		if(distance <= back_to_begin_tolerance){
-			logInfo << "back to begin action master control velocity and control to walking";
+			logInfo<< "back to begin action master control velocity and control to walking";
 			int action = MASTER_CONTROL_VELOCITY;
 			action_pub->publish(action);
 			state = WALKING;
@@ -156,7 +158,7 @@ void NavigationApplication::planLoop() {
 			break;
 		}
 		//&& state != PLANNING
-		if (!makePlan(goal, *latest_plan) ) {
+		if (!makePlan(goal, *latest_plan)) {
 			console.error("Make plan failure!");
 			goalCallbackExecutor->abort();
 //			is_walking = 0;
@@ -232,21 +234,21 @@ void NavigationApplication::controlLoop() {
 			oscillation_pose_ = current_position;
 		}
 		switch (state) {
-		case PLANNING:
+			case PLANNING:
 			logInfo<< "control loop state is planning";
 			planner_mutex.lock();
 			planner_cond.notify_one();
 			runPlanner_ = true;
 			planner_mutex.unlock();
-		break;
-		case CONTROLLING:
+			break;
+			case CONTROLLING:
 			control_func();
-		break;
-		case CLEARING:
+			break;
+			case CLEARING:
 			runRecovery();
 			state = PLANNING;
-		break;
-		case WALKING:
+			break;
+			case WALKING:
 			switch (state_array[current_state]) {
 				case LEFT:
 				turnleft();
@@ -263,7 +265,7 @@ void NavigationApplication::controlLoop() {
 				default:
 				logInfo << "Switch control nothing";
 				break;
-		break;
+				break;
 			}
 		}
 		rate.sleep();
@@ -271,63 +273,63 @@ void NavigationApplication::controlLoop() {
 }
 
 void NavigationApplication::control_func() {
-	logInfo << "control func hold until control finished";
-	while(running){
-	Velocity2D cmd_vel;
-	NS_NaviCommon::Time last_valid_control;
-	if (local_planner->isGoalReached()) {
-		console.message("The goal has reached!");
-		goalCallbackExecutor->done();
-		//             printf("continue exploring? = %d\n", isExploring);
-		//             publishIsExploring();
-		resetState();
-		planner_mutex.lock();
-		runPlanner_ = false;
-		planner_mutex.unlock();
-		if(is_walking){
-			logInfo << "goal reached continue walking";
-			current_state = (++current_state) % 8;
-			state = WALKING;
-		}
-		return;
-	}
-
-	//TODO : check oscillation and clear
-	clock_t start, end;
-	start = clock();
-
-	if (local_planner->computeVelocityCommands(cmd_vel)) {
-		console.debug("Got velocity data : linear=%.3lf, angular=0.0f!",
-				cmd_vel.linear, cmd_vel.angular);
-		last_valid_control = NS_NaviCommon::Time::now();
-		publishVelocity(cmd_vel.linear, 0.0, cmd_vel.angular);
-		end = clock();
-	} else {
-		console.warning("The planner can not got a valid velocity data!");
-		NS_NaviCommon::Time next_control = last_valid_control
-				+ NS_NaviCommon::Duration(controller_patience_);
-
-		if (NS_NaviCommon::Time::now() > next_control) {
-			publishZeroVelocity();
-			state = CLEARING;
-			logInfo<< "can't get valid vel and out of control patience , recovery behavior should be triggered";
-			return;
-		}
-		else
-		{
-			//TODO: re-plan
-
-			logInfo << "go back to planning";
-			publishZeroVelocity();
-			state = PLANNING;
-
+	logInfo<< "control func hold until control finished";
+	while(running) {
+		Velocity2D cmd_vel;
+		NS_NaviCommon::Time last_valid_control;
+		if (local_planner->isGoalReached()) {
+			console.message("The goal has reached!");
+			goalCallbackExecutor->done();
+			//             printf("continue exploring? = %d\n", isExploring);
+			//             publishIsExploring();
+			resetState();
 			planner_mutex.lock();
-			runPlanner_ = true;
-			planner_cond.notify_one();
+			runPlanner_ = false;
 			planner_mutex.unlock();
+			if(is_walking) {
+				logInfo << "goal reached continue walking";
+				current_state = (++current_state) % 8;
+				state = WALKING;
+			}
 			return;
 		}
-	}
+
+		//TODO : check oscillation and clear
+		clock_t start, end;
+		start = clock();
+
+		if (local_planner->computeVelocityCommands(cmd_vel)) {
+			console.debug("Got velocity data : linear=%.3lf, angular=0.0f!",
+					cmd_vel.linear, cmd_vel.angular);
+			last_valid_control = NS_NaviCommon::Time::now();
+			publishVelocity(cmd_vel.linear, 0.0, cmd_vel.angular);
+			end = clock();
+		} else {
+			console.warning("The planner can not got a valid velocity data!");
+			NS_NaviCommon::Time next_control = last_valid_control
+			+ NS_NaviCommon::Duration(controller_patience_);
+
+			if (NS_NaviCommon::Time::now() > next_control) {
+				publishZeroVelocity();
+				state = CLEARING;
+				logInfo<< "can't get valid vel and out of control patience , recovery behavior should be triggered";
+				return;
+			}
+			else
+			{
+				//TODO: re-plan
+
+				logInfo << "go back to planning";
+				publishZeroVelocity();
+				state = PLANNING;
+
+				planner_mutex.lock();
+				runPlanner_ = true;
+				planner_cond.notify_one();
+				planner_mutex.unlock();
+				return;
+			}
+		}
 	}
 }
 sgbot::Pose2D NavigationApplication::goalToGlobalFrame(sgbot::Pose2D& goal) {
@@ -343,7 +345,8 @@ sgbot::Pose2D NavigationApplication::goalToGlobalFrame(sgbot::Pose2D& goal) {
 	}
 //	sgbot::Pose2D pose2d_result = map_transform.transform(
 //			odom_transform.transform(goal));
-	sgbot::Pose2D pose2d_result = (map_transform * odom_transform).transform(goal);
+	sgbot::Pose2D pose2d_result = (map_transform * odom_transform).transform(
+			goal);
 	logInfo<<"pose 2d in global frame is "<<pose2d_result.x()<<" "<<pose2d_result.y()<<" "<<pose2d_result.theta();
 	return pose2d_result;
 }
@@ -387,7 +390,7 @@ bool NavigationApplication::makePlan(const sgbot::Pose2D& goal,
 void NavigationApplication::run() {
 	loadParameters();
 	std::string file_pp = "/tmp/";
-	if(is_log_file){
+	if (is_log_file) {
 		addFileLog(file_pp);
 	}
 	//set up plan triple buffer
@@ -416,7 +419,7 @@ void NavigationApplication::run() {
 	local_planner->initialize(global_costmap);
 
 	sleep(2);
-	logInfo << "initial state to planning and wait for listen to set walking";
+	logInfo<< "initial state to planning and wait for listen to set walking";
 	state = PLANNING;
 //	is_walking = 1;
 //	state = WALKING;
@@ -439,15 +442,23 @@ void NavigationApplication::run() {
 	control_thread = boost::thread(
 			boost::bind(&NavigationApplication::controlLoop, this));
 
-	listen_thread = boost::thread(
-			boost::bind(&NavigationApplication::listenLoop, this));
+//	listen_thread = boost::thread(
+//			boost::bind(&NavigationApplication::listenLoop, this));
 	global_costmap->start();
 
-	logInfo << "search wall";
+	logInfo<< "search wall";
 	current_state = 3;
 	int action = SEARCH_WALL;
 	action_flag_ = action;
 	action_pub->publish(action);
+
+
+///below are test for debug
+	state = WALKING;
+	is_walking = 1;
+	controller_mutex.lock();
+	controller_cond.notify_one();
+	controller_mutex.unlock();
 
 
 //	planner_mutex.lock();

@@ -47,7 +47,7 @@ void CostmapWrapper::updateMap()
       transformFootprint(x, y, yaw, padded_footprint, footprint);
 
       footprint_for_trajectory = footprint;
-      logInfo << "footprint for trajector size = "<<footprint_for_trajectory.size();
+//      logInfo << "footprint for trajector size = "<<footprint_for_trajectory.size();
 //      setPaddedRobotFootprint (toPointVector (footprint.polygon));
 //      setPaddedRobotFootprint (padded_footprint);
       //I don't want publish oriented_footprint so publish footprint directly no transform

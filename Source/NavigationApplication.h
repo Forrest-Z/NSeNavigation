@@ -156,15 +156,11 @@ private:
 	void oneStep() {
 		logInfo<<("one step");
 		//it should be the radius of robot
-		float one_step = 0.15;
-		logInfo << "one step = "<< one_step;
-		float step_size = one_step;
-		GoAhead(step_size);
+		GoAhead(one_step);
 	}
 
 	void Run() {
 		logInfo<<("run");
-		float run_distance = 3.f;
 		GoAhead(run_distance);
 	}
 
@@ -257,6 +253,7 @@ private:
 	int too_near_count = 0;
 	int action_flag_;
 	int state_array[8] = {RIGHT, ONE_STEP, RIGHT, RUN, LEFT, ONE_STEP, LEFT, RUN};
+	float one_step,run_distance;
 };
 
 }

@@ -52,6 +52,8 @@ void NavigationApplication::loadParameters() {
 			5.0f);
 	back_to_begin_tolerance = parameter.getParameter("back_to_begin_tolerance",0.1f);
 	listen_frequency = parameter.getParameter("listen_frequency",1.f);
+	one_step = parameter.getParameter("one_step",0.2f);
+	run_distance = parameter.getParameter("run_distance",2.f);
 }
 void NavigationApplication::runRecovery() {
 	logInfo<<"run Recovery()";
@@ -112,7 +114,6 @@ void NavigationApplication::listenLoop(){
 		sgbot::Pose2D pose;
 		if(!pose_cli->call(pose)){
 			logError<<"call pose failed";
-			break;
 		}
 		float distance = sgbot::distance(pose,first_pose);
 //		float distance = 0.05f;

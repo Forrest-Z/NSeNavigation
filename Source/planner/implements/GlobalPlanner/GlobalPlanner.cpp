@@ -112,6 +112,20 @@ bool GlobalPlanner::makePlan(const Pose2D& start, const Pose2D& goal,
 	logInfo<< "global planner start make plan";
 	boost::mutex::scoped_lock lock(mutex_);
 
+	int nx = costmap->getLayeredCostmap()->getCostmap()->getSizeInCellsX(), ny =
+		costmap->getLayeredCostmap()->getCostmap()->getSizeInCellsY();
+		double resolution =
+		costmap->getLayeredCostmap()->getCostmap()->getResolution();
+		double inscribe_radius = costmap->getLayeredCostmap()->getInscribedRadius();
+		double circumscribed_radius =
+		costmap->getLayeredCostmap()->getCircumscribedRadius();
+
+		logInfo << "size in cell x "<< nx<<" , ny = "<<ny << " , resolution = " << resolution
+		<< " , inscribed_radius = " << inscribe_radius
+		<< " ,circumscribed_radius = " << circumscribed_radius << "\n";
+		logInfo << "origin x = "<< costmap->getLayeredCostmap()->getCostmap()->getOriginX()<<", y = "
+		<< costmap->getLayeredCostmap()->getCostmap()->getOriginY();
+
 	if (!initialized_) {
 		printf(
 				"This planner has not been initialized yet, but it is being used, please call initialize() before use\n");
@@ -164,19 +178,19 @@ bool GlobalPlanner::makePlan(const Pose2D& start, const Pose2D& goal,
 	///clear current pose of robot at the beginning
 	clearRobotCell(start_x_i, start_y_i);
 
-	int nx = costmap->getLayeredCostmap()->getCostmap()->getSizeInCellsX(), ny =
-	costmap->getLayeredCostmap()->getCostmap()->getSizeInCellsY();
-	double resolution =
-	costmap->getLayeredCostmap()->getCostmap()->getResolution();
-	double inscribe_radius = costmap->getLayeredCostmap()->getInscribedRadius();
-	double circumscribed_radius =
-	costmap->getLayeredCostmap()->getCircumscribedRadius();
-
-	logInfo << "size in cell x "<< nx<<" , ny = "<<ny << " , resolution = " << resolution
-	<< " , inscribed_radius = " << inscribe_radius
-	<< " ,circumscribed_radius = " << circumscribed_radius << "\n";
-	logInfo << "origin x = "<< costmap->getLayeredCostmap()->getCostmap()->getOriginX()<<", y = "
-	<< costmap->getLayeredCostmap()->getCostmap()->getOriginY();
+//	int nx = costmap->getLayeredCostmap()->getCostmap()->getSizeInCellsX(), ny =
+//	costmap->getLayeredCostmap()->getCostmap()->getSizeInCellsY();
+//	double resolution =
+//	costmap->getLayeredCostmap()->getCostmap()->getResolution();
+//	double inscribe_radius = costmap->getLayeredCostmap()->getInscribedRadius();
+//	double circumscribed_radius =
+//	costmap->getLayeredCostmap()->getCircumscribedRadius();
+//
+//	logInfo << "size in cell x "<< nx<<" , ny = "<<ny << " , resolution = " << resolution
+//	<< " , inscribed_radius = " << inscribe_radius
+//	<< " ,circumscribed_radius = " << circumscribed_radius << "\n";
+//	logInfo << "origin x = "<< costmap->getLayeredCostmap()->getCostmap()->getOriginX()<<", y = "
+//	<< costmap->getLayeredCostmap()->getCostmap()->getOriginY();
 	//make sure to resize the underlying array that Navfn uses
 	p_calc_->setSize(nx, ny);// PotentialCalculator* p_calc_;
 	planner_->setSize(nx, ny);// Expander* planner_;

@@ -25,6 +25,11 @@ DijkstraExpansion::~DijkstraExpansion() {
 }
 
 void DijkstraExpansion::pushCur(int n, unsigned char* costs) {
+	printf("dijk n = %d\n", n);
+	printf("pending[n] = %d\n", pending_[n]);
+	printf("get cost = %d\n", getCost(costs, n));
+	printf("currentEnd_ = %d\n", currentEnd_);
+
 	if (n >= 0&& n<ns_ && !pending_[n] &&
 	getCost(costs, n)<lethal_cost_ && currentEnd_<PRIORITYBUFSIZE) {
 		currentBuffer_[currentEnd_++] = n;
@@ -69,7 +74,7 @@ bool DijkstraExpansion::calculatePotentials(unsigned char* costs,
 		float* potential) {
 
 	printf("calculatePotentials running...\n");
-
+	printf("unknown_ = %d,factor_ = %.4f,neutral_cost_ = %.4f\n",unknown_,factor_,neutral_cost_);
 	cells_visited_ = 0;
 	// priority buffers
 	threshold_ = lethal_cost_;
@@ -125,11 +130,10 @@ bool DijkstraExpansion::calculatePotentials(unsigned char* costs,
 	for (; cycle < cycles; cycle++) // go for this many cycles, unless interrupted
 			{
 		if (currentEnd_ == 0 && nextEnd_ == 0) // priority blocks empty
-		{
+				{
 			printf("priority blocks empty\n");
 			return false;
 		}
-
 
 		// stats
 		nc += currentEnd_;
@@ -211,23 +215,23 @@ inline void DijkstraExpansion::updateCell(unsigned char* costs,
 		if (pot < threshold_)    // low-cost buffer block
 				{
 			if (potential[n - 1] > pot + le)
-				pushNext(n - 1,costs);
+				pushNext(n - 1, costs);
 			if (potential[n + 1] > pot + re)
-				pushNext(n + 1,costs);
+				pushNext(n + 1, costs);
 			if (potential[n - nx_] > pot + ue)
-				pushNext(n - nx_,costs);
+				pushNext(n - nx_, costs);
 			if (potential[n + nx_] > pot + de)
-				pushNext(n + nx_,costs);
+				pushNext(n + nx_, costs);
 		} else            // overflow block
 		{
 			if (potential[n - 1] > pot + le)
-				pushOver(n - 1,costs);
+				pushOver(n - 1, costs);
 			if (potential[n + 1] > pot + re)
-				pushOver(n + 1,costs);
+				pushOver(n + 1, costs);
 			if (potential[n - nx_] > pot + ue)
-				pushOver(n - nx_,costs);
+				pushOver(n - nx_, costs);
 			if (potential[n + nx_] > pot + de)
-				pushOver(n + nx_,costs);
+				pushOver(n + nx_, costs);
 		}
 	}
 }

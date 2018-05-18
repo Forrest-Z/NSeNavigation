@@ -160,6 +160,7 @@ void NavigationApplication::planLoop() {
 			console.error("Make plan failure!");
 			goalCallbackExecutor->abort();
 //			is_walking = 0;
+			new_goal_trigger = true;
 			logInfo<< "global planner failed to make plan , maybe recovery should be triggered";
 			continue;
 		}

@@ -27,6 +27,7 @@ DijkstraExpansion::~DijkstraExpansion() {
 void DijkstraExpansion::pushCur(int n, unsigned char* costs) {
 	printf("dijk n = %d\n", n);
 	printf("pending[n] = %d\n", pending_[n]);
+	printf("costs[n] = %d",costs[n]);
 	printf("get cost = %d\n", getCost(costs, n));
 	printf("currentEnd_ = %d\n", currentEnd_);
 
@@ -74,7 +75,7 @@ bool DijkstraExpansion::calculatePotentials(unsigned char* costs,
 		float* potential) {
 
 	printf("calculatePotentials running...\n");
-	printf("unknown_ = %d,factor_ = %.4f,neutral_cost_ = %.4f\n",unknown_,factor_,neutral_cost_);
+	printf("unknown_ = %d,factor_ = %.4f,neutral_cost_ = %c\n",unknown_,factor_,neutral_cost_);
 	cells_visited_ = 0;
 	// priority buffers
 	threshold_ = lethal_cost_;
@@ -101,21 +102,31 @@ bool DijkstraExpansion::calculatePotentials(unsigned char* costs,
 		potential[k + nx_] = neutral_cost_ * 2 * dx * (1 - dy);
 		potential[k + nx_ + 1] = neutral_cost_ * 2 * (1 - dx) * (1 - dy); //*/
 
-		pushCur(k + 2, costs);
-		pushCur(k - 1, costs);
-		pushCur(k + nx_ - 1, costs);
-		pushCur(k + nx_ + 2, costs);
+//		pushCur(k + 2, costs);
+//		pushCur(k - 1, costs);
+//		pushCur(k + nx_ - 1, costs);
+//		pushCur(k + nx_ + 2, costs);
+//
+//		pushCur(k - nx_, costs);
+//		pushCur(k - nx_ + 1, costs);
+//		pushCur(k + nx_ * 2, costs);
+//		pushCur(k + nx_ * 2 + 1, costs);
 
-		pushCur(k - nx_, costs);
-		pushCur(k - nx_ + 1, costs);
-		pushCur(k + nx_ * 2, costs);
-		pushCur(k + nx_ * 2 + 1, costs);
+		pushCur(k+2,costs);
+	      push_cur(k - 1);
+	      push_cur(k + nx_ - 1);
+	      push_cur(k + nx_ + 2);
+
+	      push_cur(k - nx_);
+	      push_cur(k - nx_ + 1);
+	      push_cur(k + nx_ * 2);
+	      push_cur(k + nx_ * 2 + 1);
 	} else {
 		potential[k] = 0;
-		pushCur(k + 1, costs);
-		pushCur(k - 1, costs);
-		pushCur(k - nx_, costs);
-		pushCur(k + nx_, costs);
+	      push_cur(k + 1);
+	      push_cur(k - 1);
+	      push_cur(k - nx_);
+	      push_cur(k + nx_);
 	}
 
 	int nwv = 0;            // max priority block size

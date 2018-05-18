@@ -112,11 +112,13 @@ void NavigationApplication::listenLoop(){
 		sgbot::Pose2D pose;
 		if(!pose_cli->call(pose)){
 			logError<<"call pose failed";
-			return;
+			break;
 		}
 		float distance = sgbot::distance(pose,first_pose);
+//		float distance = 0.05f;
 		logInfo << "listen loop get pose = "<<pose.x()<<" ," << pose.y()<<" and  distance = "<<distance;
 		if(distance <= back_to_begin_tolerance && action_flag_ == ALONG_WALL && too_near_count >= 3){
+//		if(distance <= back_to_begin_tolerance){
 			logInfo << "back to begin action master control velocity and control to walking";
 			int action = MASTER_CONTROL_VELOCITY;
 			action_pub->publish(action);
@@ -150,6 +152,7 @@ void NavigationApplication::planLoop() {
 		if (!makePlan(goal, *latest_plan) && state != PLANNING) {
 			console.error("Make plan failure!");
 			goalCallbackExecutor->abort();
+			is_walking = 0;
 			logInfo<< "global planner failed to make plan , maybe recovery should be triggered";
 			continue;
 		}
@@ -175,17 +178,17 @@ void NavigationApplication::planLoop() {
 
 void NavigationApplication::controlLoop() {
 	while (running) {
-
+		logInfo<< "control loop state ="<<state;
 		NS_NaviCommon::Rate rate(controller_frequency_);
 		//TODO maybe controller_frequency should be used
 		controller_mutex.lock();
-		while ((state != CONTROLLING || state != WALKING)
+		while ((state != CONTROLLING && state != WALKING)
 				&& running) {
-			logInfo<< "controller_condition waiting all long ";
+			logInfo<< "controller_condition waiting all long state = "<<state;
 			controller_cond.wait(controller_mutex);
 		}
 		controller_mutex.unlock();
-		logInfo<< "control loop state ="<<state;
+
 		if (!running) {
 			console.message("Quit local planning loop...");
 			break;
@@ -440,5 +443,7 @@ void NavigationApplication::quit() {
 
 	running = false;
 	plan_thread.join();
+	listen_thread.join();
+	control_thread.join();
 }
 } /* namespace NS_Navigation */

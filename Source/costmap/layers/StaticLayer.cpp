@@ -45,7 +45,7 @@ void StaticLayer::loopStaticMap() {
 			if (map_cli->call(srv_map)) {
 					processMap(srv_map);
 			}else{
-				logInfo<<"call map failed";
+				logInfo<<"static layer call map failed";
 			}
 		}
 
@@ -185,7 +185,7 @@ void StaticLayer::reset() {
 void StaticLayer::updateBounds(double robot_x, double robot_y, double robot_yaw,
 		double* min_x, double* min_y, double* max_x, double* max_y) {
 	if (!map_received || !(has_updated_data || has_extra_bounds_)) {
-		printf("Not update bounds.\n");
+//		printf("Not update bounds.\n");
 		return;
 	}
 

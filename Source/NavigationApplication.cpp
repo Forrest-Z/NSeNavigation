@@ -149,11 +149,11 @@ void NavigationApplication::planLoop() {
 			console.message("Quit global planning loop...");
 			break;
 		}
-
-		if (!makePlan(goal, *latest_plan) && state != PLANNING) {
+		//&& state != PLANNING
+		if (!makePlan(goal, *latest_plan) ) {
 			console.error("Make plan failure!");
 			goalCallbackExecutor->abort();
-			is_walking = 0;
+//			is_walking = 0;
 			logInfo<< "global planner failed to make plan , maybe recovery should be triggered";
 			continue;
 		}

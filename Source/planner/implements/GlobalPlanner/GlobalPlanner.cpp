@@ -290,15 +290,14 @@ bool GlobalPlanner::getPlanFromPotential(double start_x, double start_y,
 		printf("NO PATH!\n");
 		return false;
 	}
-
+	logInfo << "path maker get path size = "<<path.size();
 	NS_NaviCommon::Time plan_time = NS_NaviCommon::Time::now();
 	for (int i = path.size() - 1; i >= 0; i--) {
 		std::pair<float, float> point = path[i];
 		//convert the plan to world coordinates
 		double world_x, world_y;
 		mapToWorld(point.first, point.second, world_x, world_y);
-
-		Pose2D pose;
+		logInfo << "path i "<<i << "point.x"<<point.first<<" , point y"<<point.second<<" world x = "<<world_x <<" y = "<<world_y;
 
 //		pose.header.stamp = plan_time;
 //        pose.header.frame_id = global_frame;
@@ -309,9 +308,7 @@ bool GlobalPlanner::getPlanFromPotential(double start_x, double start_y,
 //		pose.pose.orientation.y = 0.0;
 //		pose.pose.orientation.z = 0.0;
 //		pose.pose.orientation.w = 1.0;
-		pose.x() = world_x;
-		pose.y() = world_y;
-		pose.theta() = 0;
+		Pose2D pose(world_x,world_y,0.f);
 		plan.push_back(pose);
 	}
 

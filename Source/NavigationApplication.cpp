@@ -28,6 +28,8 @@ NavigationApplication::NavigationApplication() :
 //			boost::bind(&NavigationApplication::action_callback, this, _1));
 	action_pub = new NS_DataSet::Publisher<int>("MASTER_ACTION");
 	pose_cli = new NS_Service::Client<sgbot::Pose2D>("POSE");
+
+	twist_pub = new NS_DataSet::Publisher<sgbot::Velocity2D>("TWIST");
 }
 
 NavigationApplication::~NavigationApplication() {
@@ -38,6 +40,7 @@ NavigationApplication::~NavigationApplication() {
 	delete event_sub;
 	delete action_sub;
 	delete action_pub;
+	delete twist_pub;
 }
 void NavigationApplication::loadParameters() {
 	NS_NaviCommon::Parameter parameter;
@@ -79,6 +82,7 @@ void NavigationApplication::publishVelocity(double linear_x, double linear_y,
 	Velocity2D vel;
 	vel.linear = linear_x;
 	vel.angular = angular_z;
+	logInfo<<"--------------->publishVelocity to controller------------------------>"<<"linear_x = "<<linear_x<<" angular = "<<angular_z;
 	twist_pub->publish(vel);
 }
 bool NavigationApplication::goal_callback(sgbot::Pose2D& goal_from_app) {
@@ -447,7 +451,7 @@ void NavigationApplication::run() {
 	global_costmap->start();
 
 //	logInfo<< "search wall";
-//	current_state = 3;
+	current_state = 3;
 //	int action = SEARCH_WALL;
 //	action_flag_ = action;
 //	action_pub->publish(action);

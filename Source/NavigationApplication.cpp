@@ -164,7 +164,7 @@ void NavigationApplication::planLoop() {
 		//&& state != PLANNING
 		if (!makePlan(goal, *latest_plan)) {
 			console.error("Make plan failure!");
-			goalCallbackExecutor->abort();
+//			goalCallbackExecutor->abort();
 //			is_walking = 0;
 			new_goal_trigger = true;
 			logInfo<< "global planner failed to make plan , maybe recovery should be triggered";
@@ -283,7 +283,7 @@ void NavigationApplication::control_func() {
 		NS_NaviCommon::Time last_valid_control;
 		if (local_planner->isGoalReached()) {
 			console.message("The goal has reached!");
-			goalCallbackExecutor->done();
+//			goalCallbackExecutor->done();
 			//             printf("continue exploring? = %d\n", isExploring);
 			//             publishIsExploring();
 			resetState();

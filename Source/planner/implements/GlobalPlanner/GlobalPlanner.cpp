@@ -323,7 +323,7 @@ bool GlobalPlanner::getPlanFromPotential(double start_x, double start_y,
 		//convert the plan to world coordinates
 		double world_x, world_y;
 		mapToWorld(point.first, point.second, world_x, world_y);
-		logInfo<< "path i "<<i << "point.x"<<point.first<<" , point y"<<point.second<<" world x = "<<world_x <<" y = "<<world_y;
+		logInfo<< point.first<<","<<point.second;
 
 //		pose.header.stamp = plan_time;
 //        pose.header.frame_id = global_frame;

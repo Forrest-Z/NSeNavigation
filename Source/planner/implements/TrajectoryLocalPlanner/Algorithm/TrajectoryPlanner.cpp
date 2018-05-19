@@ -884,7 +884,7 @@ Trajectory TrajectoryPlanner::findBestPath(Pose2D global_pose,
 	std::vector<Point2D> footprint_list =
 			footprint_helper_.getFootprintCells(pos, footprint_spec_, costmap_,
 					true);
-	printf("footprint_list size = %d,footprint_list[0].x = %ld,y = %ld\n",
+	printf("footprint_list size = %d,footprint_list[0].x = %ld,y = %ld\n",footprint_list.size(),
 			footprint_list[0].x(), footprint_list[0].y());
 
 	//mark cells within the initial footprint of the robot
@@ -916,10 +916,13 @@ Trajectory TrajectoryPlanner::findBestPath(Pose2D global_pose,
 //      drive_velocities.setBasis(matrix);
 //    }
 	if (best.cost_ < 0) {
+		printf("best cost < 0 so assign drive vel to 0\n");
 		drive_velocities.angular = 0.0f;
 		drive_velocities.linear = 0.0f;
 	} else {
-
+		printf("best trajectory velocity x = %.4f,y = %.4f,theta = %.4f\n",best.xv_,best.yv_,best.thetav_);
+		drive_velocities.linear = best.xv_;
+		drive_velocities.angular = best.thetav_;
 	}
 
 	return best;

@@ -416,12 +416,12 @@ namespace NS_Planner
     printf("compute vel goal_x = %.4f,goal_y = %.4f\n", goal_x, goal_y);
     double yaw = goal_point.theta();
 
-//    FILE* global_pose_file;
-//    global_pose_file = fopen("/tmp/global_pose.log", "a+");
-//    fprintf(global_pose_file, "%.4f %.4f %.4f\n", global_pose.getOrigin().x(),
-//            global_pose.getOrigin().y(),
-//            NS_Transform::getYaw(global_pose.getRotation()));
-//    fclose(global_pose_file);
+    FILE* global_pose_file;
+    global_pose_file = fopen("/tmp/global_pose.log", "a+");
+    fprintf(global_pose_file, "%.4f %.4f %.4f\n", global_pose.x(),
+            global_pose.y(),
+            global_pose.theta());
+    fclose(global_pose_file);
 
     double goal_th = yaw;
 

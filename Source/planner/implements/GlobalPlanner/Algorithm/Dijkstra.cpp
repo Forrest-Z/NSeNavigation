@@ -25,11 +25,11 @@ DijkstraExpansion::~DijkstraExpansion() {
 }
 
 void DijkstraExpansion::pushCur(int n, unsigned char* costs) {
-	printf("dijk n = %d\n", n);
-	printf("pending[n] = %d\n", pending_[n]);
-	printf("costs[n] = %d",costs[n]);
-	printf("get cost = %.4f\n", getCost(costs, n));
-	printf("currentEnd_ = %d\n", currentEnd_);
+//	printf("dijk n = %d\n", n);
+//	printf("pending[n] = %d\n", pending_[n]);
+//	printf("costs[n] = %d",costs[n]);
+//	printf("get cost = %.4f\n", getCost(costs, n));
+//	printf("currentEnd_ = %d\n", currentEnd_);
 
 	if (n >= 0&& n<ns_ && !pending_[n] &&
 	static_cast<char>(getCost(costs, n))<lethal_cost_ && currentEnd_<PRIORITYBUFSIZE) {
@@ -66,7 +66,7 @@ void DijkstraExpansion::setSize(int xs, int ys) {
 float DijkstraExpansion::getCost(unsigned char* costs, int n)
 {
   float c = static_cast<float>( costs[n] );
-  printf("get cost in dijkstra = %.4f,lethal cost = %d,factor_ = %.4f,unknown = %d\n",c,lethal_cost_,factor_,unknown_ == 1?1:0);
+//  printf("get cost in dijkstra = %.4f,lethal cost = %d,factor_ = %.4f,unknown = %d\n",c,lethal_cost_,factor_,unknown_ == 1?1:0);
   if(static_cast<char>(c) < lethal_cost_ - 1 || (unknown_ && static_cast<char>(c) == 255))
   { // lethal_cost 253
     c = c * factor_ + static_cast< float >(neutral_cost_); // factor = 3.0  neutral_cost = 50

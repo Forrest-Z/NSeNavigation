@@ -63,6 +63,14 @@ void NavigationApplication::loadParameters() {
 	} else {
 		is_log_file = false;
 	}
+	//simple_turn
+	if (parameter.getParameter("simple_turn", 1) == 1) {
+		simple_turn = true;
+	} else {
+		simple_turn = false;
+	}
+	simple_turn_vel = parameter.getParameter("simple_turn_vel",0.3f);
+	simple_turn_tolerance = parameter.getParameter("simple_turn_tolerance",0.2f);
 
 }
 void NavigationApplication::runRecovery() {
@@ -82,7 +90,7 @@ void NavigationApplication::publishVelocity(double linear_x, double linear_y,
 	Velocity2D vel;
 	vel.linear = linear_x;
 	vel.angular = angular_z;
-	logInfo<<"--------------->publishVelocity to controller------------------------>"<<"linear_x = "<<linear_x<<" angular = "<<angular_z;
+//	logInfo<<"--------------->publishVelocity to controller------------------------>"<<"linear_x = "<<linear_x<<" angular = "<<angular_z;
 	twist_pub->publish(vel);
 }
 bool NavigationApplication::goal_callback(sgbot::Pose2D& goal_from_app) {

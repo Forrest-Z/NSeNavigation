@@ -363,7 +363,7 @@ namespace NS_Planner
     {
       if(costmap->getRobotPose(global_pose) == true)
       {
-        printf("trajectory compute vel get robot pose success\n");
+        logInfo <<("trajectory compute vel get robot pose success\n");
         getRobotPoseReady = 1;
         break;
       }
@@ -610,7 +610,7 @@ namespace NS_Planner
           "This planner has not been initialized, please call initialize() before using this planner.\n");
       return false;
     }
-    printf("reached_goal??????????????????????????? = %d\n", reached_goal_);
+    logInfo <<("reached_goal??????????????????????????? = %d\n", reached_goal_);
     //return flag set in controller
     return reached_goal_;
   }

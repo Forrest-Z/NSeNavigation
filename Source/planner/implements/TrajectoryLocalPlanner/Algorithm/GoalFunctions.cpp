@@ -20,6 +20,7 @@ namespace NS_Planner
   {
 //    double yaw = NS_Transform::getYaw(global_pose);
 	  double yaw = global_pose.theta();
+	  logInfo << "goal theta = "<<goal_th<<",pose theta = "<<yaw<<" goal angle diff  = "<<angleDiff(goal_th - yaw);
     return angleDiff(goal_th - yaw);
   }
 
@@ -39,9 +40,7 @@ namespace NS_Planner
       double distance_sq = x_diff * x_diff + y_diff * y_diff;
       if(distance_sq < 1)
       {
-        printf("Nearest waypoint to <%f, %f> is <%f, %f>\n",
-               global_pose.x(), global_pose.y(),
-               w.x(), w.y());
+        logInfo << "Nearest waypoint to <"<<global_pose.x()<<" , "<<global_pose.y()"> is < "<<w.x()<<" , "<< w.y()<<">";
         break;
       }
       it = plan.erase(it);

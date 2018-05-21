@@ -113,30 +113,73 @@ private:
 
 	void action_callback(int action_flag);
 	void turnleft() {
-		logInfo<<"turn left";
 		sgbot::Pose2D base_pose;
-		if(!pose_cli->call(base_pose)) {
-			logInfo << "left call pose 2d failed";
+		if (!pose_cli->call(base_pose)) {
+			logInfo<< "left call pose 2d failed";
 		}
-		///at base frame
-		sgbot::Pose2D pose2d(base_pose.x(),base_pose.y(),base_pose.theta() + M_PI_2);
-		goal = pose2d;
-		state = PLANNING;
-		runPlanner_ = true;
-		planner_cond.notify_one();
+		if (simple_turn) {
+			float target_theta = base_pose + M_PI_2;
+			logInfo<< "simple turn left target theta = "<<target_theta;
+			while (running) {
+				publishVelocity(0, 0, simple_turn_vel);
+				sgbot::Pose2D pose;
+				if (!pose_cli->call(pose)) {
+					logInfo<< "left call pose 2d failed";
+				}
+				logInfo<< "simple turn left current pose theta = "<<pose.theta();
+				if (sgbot::math::fabs(pose.theta() - target_theta)
+						<= simple_turn_tolerance) {
+					logInfo<< "simple turn left target reached";
+					publishZeroVelocity();
+					break;
+				}
+				sleep(1);
+			}
+
+		} else {
+			logInfo<<"turn left";
+			///at global frame
+			sgbot::Pose2D pose2d(base_pose.x(),base_pose.y(),base_pose.theta() + M_PI_2);
+			goal = pose2d;
+			state = PLANNING;
+			runPlanner_ = true;
+			planner_cond.notify_one();
+		}
+
 	}
 
 	void turnright() {
-		logInfo<<"turn right";
 		sgbot::Pose2D base_pose;
 		if(!pose_cli->call(base_pose)) {
 			logInfo << "right call pose 2d failed";
 		}
-		sgbot::Pose2D pose2d(base_pose.x(),base_pose.y(),base_pose.theta() - M_PI_2);
-		goal = pose2d;
-		state = PLANNING;
-		runPlanner_ = true;
-		planner_cond.notify_one();
+		if (simple_turn) {
+			float target_theta = base_pose - M_PI_2;
+			logInfo<< "simple turn right target theta = "<<target_theta;
+			while (running) {
+				publishVelocity(0, 0, -simple_turn_vel);
+				sgbot::Pose2D pose;
+				if (!pose_cli->call(pose)) {
+					logInfo<< "left call pose 2d failed";
+				}
+				logInfo<< "simple turn right current pose theta = "<<pose.theta();
+				if (sgbot::math::fabs(pose.theta() - target_theta)
+						<= simple_turn_tolerance) {
+					logInfo<< "simple turn right target reached";
+					publishZeroVelocity();
+					break;
+				}
+				sleep(1);
+			}
+
+		} else {
+			logInfo<<"turn right";
+			sgbot::Pose2D pose2d(base_pose.x(),base_pose.y(),base_pose.theta() - M_PI_2);
+			goal = pose2d;
+			state = PLANNING;
+			runPlanner_ = true;
+			planner_cond.notify_one();
+		}
 	}
 
 	void GoAhead(float distance) {
@@ -215,13 +258,13 @@ private:
 
 	NaviState state;
 
-	///publish velocity to controller
+///publish velocity to controller
 	NS_DataSet::Publisher<Velocity2D>* twist_pub;
-	///subscribe the goal from other
+///subscribe the goal from other
 	NS_DataSet::Subscriber<sgbot::Pose2D>* goal_sub;
-	///event from controller
+///event from controller
 	NS_DataSet::Subscriber<int>* event_sub;
-	///action pub and sub to controller
+///action pub and sub to controller
 	NS_DataSet::Publisher<int>* action_pub;
 	NS_DataSet::Subscriber<int>* action_sub;
 
@@ -255,6 +298,9 @@ private:
 	int state_array[8] = {RIGHT, ONE_STEP, RIGHT, RUN, LEFT, ONE_STEP, LEFT, RUN};
 	float one_step,run_distance;
 	bool is_log_file;
+	bool simple_turn;
+	float simple_turn_vel;
+	float simple_turn_tolerance;
 };
 
 }

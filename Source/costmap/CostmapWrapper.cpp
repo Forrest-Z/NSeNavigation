@@ -187,7 +187,7 @@ bool CostmapWrapper::getRobotPose(
 //	global_pose.theta() = 0.0f;
 	sgbot::Pose2D pose2d;
 	pose_cli->call(pose2d);
-	logInfo << "get robot pose = "<< pose2d.x()<<" , "<<pose2d.y();
+	logInfo << "get robot pose = ( "<< pose2d.x()<<" , "<<pose2d.y()<<" ) theta = "<<pose2d.theta();
 	global_pose = pose2d;
 	return true;
   }

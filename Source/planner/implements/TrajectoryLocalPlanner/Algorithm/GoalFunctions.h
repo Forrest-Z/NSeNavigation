@@ -9,6 +9,7 @@
 #include <std-math/math.h>
 
 #include "../../../../costmap/costmap_2d/CostMap2D.h"
+#include <log_tool.h>
 using namespace sgbot;
 namespace NS_Planner
 {

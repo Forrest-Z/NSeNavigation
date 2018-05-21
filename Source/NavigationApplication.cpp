@@ -457,7 +457,7 @@ void NavigationApplication::run() {
 	global_costmap->start();
 
 //	logInfo<< "search wall";
-	current_state = 3;
+	current_state = 0;
 //	int action = SEARCH_WALL;
 //	action_flag_ = action;
 //	action_pub->publish(action);

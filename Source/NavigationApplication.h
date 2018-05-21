@@ -38,6 +38,10 @@ enum EVENT
 	: int {
 		IDLE = 0, KNOCK_RELEASE, KNOCK_LEFT, KNOCK_RIGHT, KNOCK_CENTER, TOO_NEAR
 };
+//R right D down U up L left
+enum TRANSFORM_STATE {
+	R_X_D_Y = 0, U_X_R_Y, L_X_U_Y, D_X_L_Y
+};
 
 #define PLANNER_LOOP_TIMEOUT 100
 /**
@@ -113,6 +117,7 @@ private:
 
 	void action_callback(int action_flag);
 	void turnleft() {
+		transform_state = (++transform_state) % 4;
 		sgbot::Pose2D base_pose;
 		if (!pose_cli->call(base_pose)) {
 			logInfo<< "left call pose 2d failed";
@@ -160,6 +165,7 @@ private:
 	}
 
 	void turnright() {
+		transform_state = (--transform_state) % 4;
 		sgbot::Pose2D base_pose;
 		if(!pose_cli->call(base_pose)) {
 			logInfo << "right call pose 2d failed";
@@ -210,9 +216,9 @@ private:
 		if(!pose_cli->call(base_pose)) {
 			logInfo << "go ahead call pose 2d failed";
 		}
+		sgbot::Pose2D target_pose = transform_to_map(base_pose,distance);
 		logInfo<<"go ahead distance = "<<distance;
-		sgbot::Pose2D pose2d(base_pose.x() + distance,base_pose.y(),base_pose.theta());
-		goal = pose2d;
+		goal = target_pose;
 		state = PLANNING;
 		runPlanner_ = true;
 		planner_cond.notify_one();
@@ -227,6 +233,27 @@ private:
 	void Run() {
 		logInfo<<("run");
 		GoAhead(run_distance);
+	}
+	sgbot::Pose2D transform_to_map(sgbot::Pose2D& current_pose,const float& distance) {
+		logInfo << "transform state = "<<transform_state;
+		sgbot::Pose2D target_pose = current_pose;
+		if(transform_state == 0) {
+			target_pose.x() = current_pose.x() + distance;
+//			target_pose.y() = current_pose.y();
+//			target_pose.theta() = current_pose.theta();
+		} else if(transform_state == 1) {
+//			target_pose.x() = current_pose.x();
+			target_pose.y() = current_pose.y() - distance;
+//			target_pose.theta() = current_pose.theta();
+		} else if (transform_state == 2) {
+			target_pose.x() = current_pose.x() - distance;
+//			target_pose.y() = current_pose.y();
+//			target_pose.theta() = current_pose.theta();
+		} else if (transform_state == 3) {
+//			target_pose.x() = current_pose.x();
+			target_pose.y() = current_pose.y() + distance;
+//			target_pose.theta() = current_pose.theta();
+		}
 	}
 
 private:
@@ -297,7 +324,7 @@ private:
 ///global goal for visualized
 	NS_Service::Server<sgbot::Pose2D>* global_goal_srv;
 	sgbot::Pose2D global_goal;
-	///current pose for visualized
+///current pose for visualized
 	NS_Service::Server<sgbot::Pose2D>* current_pose_srv;
 	sgbot::Pose2D current_pose;
 	///plan for visualized
@@ -308,7 +335,7 @@ private:
 	NS_DataSet::Publisher<bool>* explore_pub;
 	///mission executor
 	NS_Mission::Executor* goalCallbackExecutor;
-	///state for walking,default 3
+	///state for walking,default 0
 	int current_state;
 	int first_trigger = 1;
 	//record first trigger too near pose
@@ -317,12 +344,14 @@ private:
 	bool is_walking;
 	int too_near_count = 0;
 	int action_flag_;
-	int state_array[8] = {RIGHT, ONE_STEP, RIGHT, RUN, LEFT, ONE_STEP, LEFT, RUN};
+	int state_array[8] = {RUN, LEFT, ONE_STEP, LEFT, RUN,RIGHT, ONE_STEP, RIGHT};
 	float one_step,run_distance;
 	bool is_log_file;
 	bool simple_turn;
 	float simple_turn_vel;
 	float simple_turn_tolerance;
+//	TRANSFORM_STATE transform_state = R_X_D_Y;
+	int transform_state;
 };
 
 }

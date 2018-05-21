@@ -56,7 +56,7 @@ void NavigationApplication::loadParameters() {
 	back_to_begin_tolerance = parameter.getParameter("back_to_begin_tolerance",
 			0.1f);
 	listen_frequency = parameter.getParameter("listen_frequency", 1.f);
-	one_step = parameter.getParameter("one_step", 0.2f);
+	one_step = parameter.getParameter("one_step", 0.25f);
 	run_distance = parameter.getParameter("run_distance", 2.f);
 	if (parameter.getParameter("is_log_file", 0) == 1) {
 		is_log_file = true;

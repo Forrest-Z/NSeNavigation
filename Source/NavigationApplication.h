@@ -40,7 +40,7 @@ enum EVENT
 };
 //R right D down U up L left
 enum TRANSFORM_STATE {
-	R_X_D_Y = 0, U_X_R_Y, L_X_U_Y, D_X_L_Y
+	R_X_U_Y = 0, U_X_L_Y, L_X_D_Y, D_X_R_Y
 };
 
 #define PLANNER_LOOP_TIMEOUT 100
@@ -243,7 +243,7 @@ private:
 //			target_pose.theta() = current_pose.theta();
 		} else if(transform_state == 1) {
 //			target_pose.x() = current_pose.x();
-			target_pose.y() = current_pose.y() - distance;
+			target_pose.y() = current_pose.y() + distance;
 //			target_pose.theta() = current_pose.theta();
 		} else if (transform_state == 2) {
 			target_pose.x() = current_pose.x() - distance;
@@ -251,7 +251,7 @@ private:
 //			target_pose.theta() = current_pose.theta();
 		} else if (transform_state == 3) {
 //			target_pose.x() = current_pose.x();
-			target_pose.y() = current_pose.y() + distance;
+			target_pose.y() = current_pose.y() - distance;
 //			target_pose.theta() = current_pose.theta();
 		}
 		return target_pose;

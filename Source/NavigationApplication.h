@@ -254,6 +254,7 @@ private:
 			target_pose.y() = current_pose.y() + distance;
 //			target_pose.theta() = current_pose.theta();
 		}
+		return target_pose;
 	}
 
 private:

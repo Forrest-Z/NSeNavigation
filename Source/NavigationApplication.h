@@ -131,6 +131,11 @@ private:
 						<= simple_turn_tolerance) {
 					logInfo<< "simple turn left target reached";
 					publishZeroVelocity();
+					if(is_walking) {
+						logInfo << "simple turn left reached continue walking";
+						current_state = (++current_state) % 8;
+						state = WALKING;
+					}
 					break;
 				}
 				sleep(1);
@@ -167,6 +172,11 @@ private:
 						<= simple_turn_tolerance) {
 					logInfo<< "simple turn right target reached";
 					publishZeroVelocity();
+					if(is_walking) {
+						logInfo << "simple turn right reached continue walking";
+						current_state = (++current_state) % 8;
+						state = WALKING;
+					}
 					break;
 				}
 				sleep(1);
@@ -268,9 +278,9 @@ private:
 	NS_DataSet::Publisher<int>* action_pub;
 	NS_DataSet::Subscriber<int>* action_sub;
 
-	///publisher goal
+///publisher goal
 	NS_DataSet::Publisher<sgbot::Pose2D>* goal_pub;
-	///client call  pose
+///client call  pose
 	NS_Service::Client<sgbot::Pose2D>* pose_cli;
 	///global goal for visualized
 	NS_Service::Server<sgbot::Pose2D>* global_goal_srv;

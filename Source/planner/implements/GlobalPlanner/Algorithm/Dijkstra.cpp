@@ -72,7 +72,7 @@ float DijkstraExpansion::getCost(unsigned char* costs, int n)
     c = c * factor_ + static_cast< float >(neutral_cost_); // factor = 3.0  neutral_cost = 50
     if(static_cast<char>(c) >= lethal_cost_)
       c = static_cast<float>(lethal_cost_) - 1;
-    printf("return c = %.4f\n",c);
+//    printf("return c = %.4f\n",c);
     return c;
   }
   return static_cast<float>(lethal_cost_);

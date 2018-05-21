@@ -126,6 +126,12 @@ private:
 				if (!pose_cli->call(pose)) {
 					logInfo<< "left call pose 2d failed";
 				}
+
+				if (base_pose.theta() > 0) {
+					if (pose.theta() < 0) {
+						pose.theta() += M_PI * 2;
+					}
+				}
 				logInfo<< "simple turn left current pose theta = "<<pose.theta();
 				if (sgbot::math::fabs(pose.theta() - target_theta)
 						<= simple_turn_tolerance) {
@@ -166,6 +172,12 @@ private:
 				sgbot::Pose2D pose;
 				if (!pose_cli->call(pose)) {
 					logInfo<< "left call pose 2d failed";
+				}
+
+				if(base_pose.theta() < 0) {
+					if(pose.theta() > 0) {
+						pose.theta() -= M_PI * 2;
+					}
 				}
 				logInfo<< "simple turn right current pose theta = "<<pose.theta();
 				if (sgbot::math::fabs(pose.theta() - target_theta)
@@ -282,7 +294,7 @@ private:
 	NS_DataSet::Publisher<sgbot::Pose2D>* goal_pub;
 ///client call  pose
 	NS_Service::Client<sgbot::Pose2D>* pose_cli;
-	///global goal for visualized
+///global goal for visualized
 	NS_Service::Server<sgbot::Pose2D>* global_goal_srv;
 	sgbot::Pose2D global_goal;
 	///current pose for visualized

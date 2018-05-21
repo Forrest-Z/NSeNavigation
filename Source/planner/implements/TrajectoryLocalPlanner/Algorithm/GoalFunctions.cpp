@@ -40,7 +40,7 @@ namespace NS_Planner
       double distance_sq = x_diff * x_diff + y_diff * y_diff;
       if(distance_sq < 1)
       {
-        logInfo << "Nearest waypoint to <"<<global_pose.x()<<" , "<<global_pose.y()"> is < "<<w.x()<<" , "<< w.y()<<">";
+        logInfo << "Nearest waypoint to <"<<global_pose.x()<<" , "<<global_pose.y()<<"> is < "<<w.x()<<" , "<< w.y()<<">";
         break;
       }
       it = plan.erase(it);

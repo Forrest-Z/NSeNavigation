@@ -118,7 +118,7 @@ private:
 			logInfo<< "left call pose 2d failed";
 		}
 		if (simple_turn) {
-			float target_theta = base_pose + M_PI_2;
+			float target_theta = base_pose.theta() + M_PI_2;
 			logInfo<< "simple turn left target theta = "<<target_theta;
 			while (running) {
 				publishVelocity(0, 0, simple_turn_vel);
@@ -154,7 +154,7 @@ private:
 			logInfo << "right call pose 2d failed";
 		}
 		if (simple_turn) {
-			float target_theta = base_pose - M_PI_2;
+			float target_theta = base_pose.theta() - M_PI_2;
 			logInfo<< "simple turn right target theta = "<<target_theta;
 			while (running) {
 				publishVelocity(0, 0, -simple_turn_vel);

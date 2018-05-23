@@ -116,14 +116,22 @@ private:
 	void event_callback(int event_flag);
 
 	void action_callback(int action_flag);
+
+	void prepare_for_walk();
 	void turnleft() {
-		transform_state = (++transform_state) % 4;
+//		transform_state = (++transform_state) % 4;
 		sgbot::Pose2D base_pose;
 		if (!pose_cli->call(base_pose)) {
 			logInfo<< "left call pose 2d failed";
 		}
 		if (simple_turn) {
-			float target_theta = base_pose.theta() + M_PI_2;
+			NS_NaviCommon::Rate rate(0.5f);
+//			float target_theta = base_pose.theta() + M_PI_2;
+			float target_theta = callback_theta + M_PI_2;
+			if(callback_theta > 0 && callback_theta + M_PI_2 > M_PI){
+				target_theta = target_theta - M_PI * 2;
+				callback_theta = target_theta;
+			}
 			logInfo<< "simple turn left target theta = "<<target_theta;
 			while (running) {
 				publishVelocity(0, 0, simple_turn_vel);
@@ -132,11 +140,11 @@ private:
 					logInfo<< "left call pose 2d failed";
 				}
 
-				if (base_pose.theta() > 0) {
-					if (pose.theta() < 0) {
-						pose.theta() += M_PI * 2;
-					}
-				}
+//				if (callback_theta > 0) {
+//					if (pose.theta() < 0) {
+//						pose.theta() += M_PI * 2;
+//					}
+//				}
 				logInfo<< "simple turn left current pose theta = "<<pose.theta();
 				if (sgbot::math::fabs(pose.theta() - target_theta)
 						<= simple_turn_tolerance) {
@@ -149,7 +157,7 @@ private:
 					}
 					break;
 				}
-				sleep(1);
+				rate.sleep();
 			}
 
 		} else {
@@ -171,7 +179,12 @@ private:
 			logInfo << "right call pose 2d failed";
 		}
 		if (simple_turn) {
-			float target_theta = base_pose.theta() - M_PI_2;
+			NS_NaviCommon::Rate rate(0.5f);
+			float target_theta = callback_theta - M_PI_2;
+			if(callback_theta < 0 && callback_theta - M_PI_2 < -M_PI){
+				target_theta = target_theta + M_PI * 2;
+					callback_theta = target_theta;
+			}
 			logInfo<< "simple turn right target theta = "<<target_theta;
 			while (running) {
 				publishVelocity(0, 0, -simple_turn_vel);
@@ -180,11 +193,11 @@ private:
 					logInfo<< "left call pose 2d failed";
 				}
 
-				if(base_pose.theta() < 0) {
-					if(pose.theta() > 0) {
-						pose.theta() -= M_PI * 2;
-					}
-				}
+//				if(callback_theta < 0) {
+//					if(pose.theta() > 0) {
+//						pose.theta() -= M_PI * 2;
+//					}
+//				}
 				logInfo<< "simple turn right current pose theta = "<<pose.theta();
 				if (sgbot::math::fabs(pose.theta() - target_theta)
 						<= simple_turn_tolerance) {
@@ -197,7 +210,7 @@ private:
 					}
 					break;
 				}
-				sleep(1);
+				rate.sleep();
 			}
 
 		} else {
@@ -211,6 +224,9 @@ private:
 	}
 
 	void GoAhead(float distance) {
+		for(int i = 0; i < 4 ; ++i){
+			logInfo << "corner points = "<<point_vec[i].x()<<" , "<<point_vec[i].y();
+		}
 		//qian +x , zuo +y
 		sgbot::Pose2D base_pose;
 		if(!pose_cli->call(base_pose)) {
@@ -232,28 +248,35 @@ private:
 
 	void Run() {
 		logInfo<<("run");
+//		run_distance = sgbot::distance(point_vec[0],point_vec[1]);
+
 		GoAhead(run_distance);
 	}
+
 	sgbot::Pose2D transform_to_map(sgbot::Pose2D& current_pose,const float& distance) {
 		logInfo << "transform state = "<<transform_state;
 		sgbot::Pose2D target_pose = current_pose;
-		if(transform_state == 0) {
-			target_pose.x() = current_pose.x() + distance;
-//			target_pose.y() = current_pose.y();
-//			target_pose.theta() = current_pose.theta();
-		} else if(transform_state == 1) {
-//			target_pose.x() = current_pose.x();
-			target_pose.y() = current_pose.y() + distance;
-//			target_pose.theta() = current_pose.theta();
-		} else if (transform_state == 2) {
-			target_pose.x() = current_pose.x() - distance;
-//			target_pose.y() = current_pose.y();
-//			target_pose.theta() = current_pose.theta();
-		} else if (transform_state == 3) {
-//			target_pose.x() = current_pose.x();
-			target_pose.y() = current_pose.y() - distance;
-//			target_pose.theta() = current_pose.theta();
-		}
+
+		sgbot::tf::Transform2D map_transform(current_pose.x(),current_pose.y(),current_pose.theta(),1);
+		target_pose = map_transform.transform( sgbot::Pose2D(distance,0,0) );
+		logInfo << "transformed pose = "<<target_pose.x()<<" , "<<target_pose.y()<<" theta = "<<target_pose.theta();
+//		if(transform_state == 0) {
+//			target_pose.x() = current_pose.x() + distance;
+////			target_pose.y() = current_pose.y();
+////			target_pose.theta() = current_pose.theta();
+//		} else if(transform_state == 1) {
+////			target_pose.x() = current_pose.x();
+//			target_pose.y() = current_pose.y() + distance;
+////			target_pose.theta() = current_pose.theta();
+//		} else if (transform_state == 2) {
+//			target_pose.x() = current_pose.x() - distance;
+////			target_pose.y() = current_pose.y();
+////			target_pose.theta() = current_pose.theta();
+//		} else if (transform_state == 3) {
+////			target_pose.x() = current_pose.x();
+//			target_pose.y() = current_pose.y() - distance;
+////			target_pose.theta() = current_pose.theta();
+//		}
 		return target_pose;
 	}
 
@@ -342,7 +365,7 @@ private:
 	//record first trigger too near pose
 	sgbot::Pose2D first_pose;
 	///
-	bool is_walking;
+	bool is_walking,is_preparing,is_ready_for_walk;
 	int too_near_count = 0;
 	int action_flag_;
 	int state_array[8] = {RUN, LEFT, ONE_STEP, LEFT, RUN,RIGHT, ONE_STEP, RIGHT};
@@ -353,6 +376,11 @@ private:
 	float simple_turn_tolerance;
 //	TRANSFORM_STATE transform_state = R_X_D_Y;
 	int transform_state;
+
+	//
+	std::vector<sgbot::Point2D> point_vec;
+
+	float callback_theta;
 };
 
 }

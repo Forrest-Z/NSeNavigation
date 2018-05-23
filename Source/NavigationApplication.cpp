@@ -127,6 +127,14 @@ void NavigationApplication::event_callback(int event_flag) {
 		++too_near_count;
 	}
 }
+void NavigationApplication::prepare_for_walk(){
+	logInfo << "prepare for walking,is walking = "<<is_walking<<" corner point[0]  = "<<point_vec[0].x()<<" , "<<point_vec[0].y();
+	is_preparing = 1;
+	goal = sgbot::Pose2D(point_vec[0].x(),point_vec[0].y(),callback_theta);
+	state = PLANNING;
+	runPlanner_ = true;
+	planner_cond.notify_one();
+}
 void NavigationApplication::listenLoop() {
 	NS_NaviCommon::Rate rate(listen_frequency);
 	while (running) {
@@ -140,15 +148,26 @@ void NavigationApplication::listenLoop() {
 		if (distance <= back_to_begin_tolerance && action_flag_ == ALONG_WALL
 				&& too_near_count >= 3) {
 //		if(distance <= back_to_begin_tolerance){
-			logInfo<< "back to begin action master control velocity and control to walking";
+			logInfo<< "back to begin action master control velocity and prepare for walking";
+			//record callback theta for walk and turn
+			callback_theta = pose.theta();
 			int action = MASTER_CONTROL_VELOCITY;
 			action_pub->publish(action);
+			prepare_for_walk();
+			back_to_begin_tolerance = 0.f;
+		}
+		if(action_flag_ == ALONG_WALL && (too_near_count == 2 || too_near_count == 3 || too_near_count == 4 || too_near_count == 5) ){
+			sgbot::Point2D point(pose.x(),pose.y());
+			point_vec.push_back(point);
+		}
+		if(is_ready_for_walk){
+			logInfo <<"ready for walk , so turn left first and start walking";
+			turnleft();
 			state = WALKING;
 			is_walking = 1;
 			controller_mutex.lock();
 			controller_cond.notify_one();
 			controller_mutex.unlock();
-			back_to_begin_tolerance = 0.f;
 		}
 		rate.sleep();
 	}
@@ -298,6 +317,10 @@ void NavigationApplication::control_func() {
 			planner_mutex.lock();
 			runPlanner_ = false;
 			planner_mutex.unlock();
+			if(is_preparing){
+				is_ready_for_walk = 1;
+				is_preparing = 0;
+			}
 			if(is_walking) {
 				logInfo << "goal reached continue walking";
 				current_state = (++current_state) % 8;
@@ -470,7 +493,7 @@ void NavigationApplication::run() {
 	controller_mutex.lock();
 	controller_cond.notify_one();
 	controller_mutex.unlock();
-
+	callback_theta = 0f;
 
 //	planner_mutex.lock();
 //	state = PLANNING;

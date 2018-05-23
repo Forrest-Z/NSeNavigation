@@ -493,7 +493,7 @@ void NavigationApplication::run() {
 	controller_mutex.lock();
 	controller_cond.notify_one();
 	controller_mutex.unlock();
-	callback_theta = 0f;
+	callback_theta = 0.f;
 
 //	planner_mutex.lock();
 //	state = PLANNING;

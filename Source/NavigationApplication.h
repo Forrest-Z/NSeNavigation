@@ -246,7 +246,7 @@ private:
 
 	void Run() {
 		logInfo<<("run");
-//		run_distance = sgbot::distance(point_vec[0],point_vec[1]);
+		run_distance = sgbot::distance(point_vec[0],point_vec[1]);
 
 		GoAhead(run_distance);
 	}

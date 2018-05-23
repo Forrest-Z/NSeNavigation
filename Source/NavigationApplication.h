@@ -173,7 +173,7 @@ private:
 	}
 
 	void turnright() {
-		transform_state = (--transform_state) % 4;
+//		transform_state = (--transform_state) % 4;
 		sgbot::Pose2D base_pose;
 		if(!pose_cli->call(base_pose)) {
 			logInfo << "right call pose 2d failed";
@@ -224,9 +224,7 @@ private:
 	}
 
 	void GoAhead(float distance) {
-		for(int i = 0; i < 4 ; ++i){
-			logInfo << "corner points = "<<point_vec[i].x()<<" , "<<point_vec[i].y();
-		}
+
 		//qian +x , zuo +y
 		sgbot::Pose2D base_pose;
 		if(!pose_cli->call(base_pose)) {

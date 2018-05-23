@@ -379,6 +379,8 @@ private:
 	std::vector<sgbot::Point2D> point_vec;
 
 	float callback_theta;
+
+	sgbot::Pose2D triggered_pose;
 };
 
 }

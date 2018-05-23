@@ -21,11 +21,11 @@ NavigationApplication::NavigationApplication() :
 //
 //	goal_pub = new NS_DataSet::Publisher<sgbot::Pose2D>("GOAL");
 
-//	event_sub = new NS_DataSet::Subscriber<int>("SLAVE_EVENT",
-//			boost::bind(&NavigationApplication::event_callback, this, _1));
+	event_sub = new NS_DataSet::Subscriber<int>("SLAVE_EVENT",
+			boost::bind(&NavigationApplication::event_callback, this, _1));
 //
-//	action_sub = new NS_DataSet::Subscriber<int>("SLAVE_ACTION",
-//			boost::bind(&NavigationApplication::action_callback, this, _1));
+	action_sub = new NS_DataSet::Subscriber<int>("SLAVE_ACTION",
+			boost::bind(&NavigationApplication::action_callback, this, _1));
 	action_pub = new NS_DataSet::Publisher<int>("MASTER_ACTION");
 	pose_cli = new NS_Service::Client<sgbot::Pose2D>("POSE");
 
@@ -142,9 +142,9 @@ void NavigationApplication::listenLoop() {
 		if (!pose_cli->call(pose)) {
 			logError<<"call pose failed";
 		}
-		float distance = sgbot::distance(sgbot::Point2D(pose.x(),pose.y()), point_vec[0]);
+		float distance = sgbot::distance(pose, triggered_pose);
 //		float distance = 0.05f;
-		logInfo<< "point vec[0] = "<<point_vec[0].x()<<" , "<<point_vec[0].y()<<"..listen loop get pose = "<<pose.x()<<" ," << pose.y()<<" and  distance = "<<distance;
+		logInfo<< "triggered_pose = "<<triggered_pose.x()<<" , "<<triggered_pose.y()<<"..listen loop get pose = "<<pose.x()<<" ," << pose.y()<<" and  distance = "<<distance;
 		if (distance <= back_to_begin_tolerance && action_flag_ == ALONG_WALL
 				&& too_near_count >= 3) {
 //		if(distance <= back_to_begin_tolerance){
@@ -171,6 +171,11 @@ void NavigationApplication::listenLoop() {
 		}
 		if(action_flag_ == ALONG_WALL && (too_near_count == 2 || too_near_count == 3 || too_near_count == 4 || too_near_count == 5) ){
 			sgbot::Point2D point(pose.x(),pose.y());
+			logInfo << "push back point "<<too_near_count - 1<< " = "<<pose.x()<<" , "<<pose.y();
+			if(too_near_count == 2){
+				logInfo <<"too near count == 2 assign triggered_pose"<<triggered_pose.x()<<" , "<<triggered_pose.y();
+				triggered_pose = pose;
+			}
 			point_vec.push_back(point);
 		}
 //		if(is_ready_for_walk){
@@ -488,32 +493,26 @@ void NavigationApplication::run() {
 	control_thread = boost::thread(
 			boost::bind(&NavigationApplication::controlLoop, this));
 
-//	listen_thread = boost::thread(
-//			boost::bind(&NavigationApplication::listenLoop, this));
+	listen_thread = boost::thread(
+			boost::bind(&NavigationApplication::listenLoop, this));
 	global_costmap->start();
 
 //	logInfo<< "search wall";
 	current_state = 0;
-//	int action = SEARCH_WALL;
-//	action_flag_ = action;
-//	action_pub->publish(action);
+	int action = SEARCH_WALL;
+	action_flag_ = action;
+	action_pub->publish(action);
 
 
 ///below are test for debug
-	sleep(5);
-	state = WALKING;
-	is_walking = 1;
-	controller_mutex.lock();
-	controller_cond.notify_one();
-	controller_mutex.unlock();
-	callback_theta = 0.f;
+//	sleep(5);
+//	state = WALKING;
+//	is_walking = 1;
+//	controller_mutex.lock();
+//	controller_cond.notify_one();
+//	controller_mutex.unlock();
+//	callback_theta = 0.f;
 
-//	planner_mutex.lock();
-//	state = PLANNING;
-//	goal = sgbot::Pose2D(1.0,1.0,0);
-//	planner_cond.notify_one();
-//	runPlanner_ = true;
-//	planner_mutex.unlock();
 }
 
 void NavigationApplication::quit() {

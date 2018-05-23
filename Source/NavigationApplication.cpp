@@ -69,8 +69,9 @@ void NavigationApplication::loadParameters() {
 	} else {
 		simple_turn = false;
 	}
-	simple_turn_vel = parameter.getParameter("simple_turn_vel",0.3f);
-	simple_turn_tolerance = parameter.getParameter("simple_turn_tolerance",0.2f);
+	simple_turn_vel = parameter.getParameter("simple_turn_vel", 0.3f);
+	simple_turn_tolerance = parameter.getParameter("simple_turn_tolerance",
+			0.2f);
 
 }
 void NavigationApplication::runRecovery() {
@@ -123,8 +124,24 @@ void NavigationApplication::event_callback(int event_flag) {
 				first_trigger = 0;
 			}
 		}
-		logInfo << "too near count ++";
 		++too_near_count;
+		logInfo << "too near count ++ = "<<too_near_count;
+
+		if(too_near_count >= 2 ) {
+			sgbot::Pose2D pose;
+			if (!pose_cli->call(pose)) {
+				logError<<"call pose failed";
+			}
+			sgbot::Point2D point(pose.x(),pose.y());
+			logInfo << "push back point "<<too_near_count - 1<< " = "<<pose.x()<<" , "<<pose.y();
+			if(too_near_count == 2 && trigger_times == 1) {
+				triggered_pose = pose;
+				logInfo <<"too near count == 2 assign triggered_pose"<<triggered_pose.x()<<" , "<<triggered_pose.y();
+				trigger_times = 0;
+			}
+			point_vec.push_back(point);
+		}
+
 	}
 }
 //void NavigationApplication::prepare_for_walk(){
@@ -162,22 +179,12 @@ void NavigationApplication::listenLoop() {
 			controller_cond.notify_one();
 			controller_mutex.unlock();
 
-			for(int i = 0; i < point_vec.size() ; ++i){
+			for(int i = 0; i < point_vec.size(); ++i) {
 				logInfo << "corner points = "<<point_vec[i].x()<<" , "<<point_vec[i].y();
 			}
 
 //			prepare_for_walk();
 			back_to_begin_tolerance = 0.f;
-		}
-		if(action_flag_ == ALONG_WALL && (too_near_count == 2 || too_near_count == 3 || too_near_count == 4 || too_near_count == 5) ){
-			sgbot::Point2D point(pose.x(),pose.y());
-			logInfo << "push back point "<<too_near_count - 1<< " = "<<pose.x()<<" , "<<pose.y();
-			if(too_near_count == 2 && trigger_times == 1){
-				triggered_pose = pose;
-				logInfo <<"too near count == 2 assign triggered_pose"<<triggered_pose.x()<<" , "<<triggered_pose.y();
-				trigger_times = 0;
-			}
-			point_vec.push_back(point);
 		}
 //		if(is_ready_for_walk){
 //			logInfo <<"ready for walk , so turn left first and start walking";
@@ -503,7 +510,6 @@ void NavigationApplication::run() {
 	int action = SEARCH_WALL;
 	action_flag_ = action;
 	action_pub->publish(action);
-
 
 ///below are test for debug
 //	sleep(5);

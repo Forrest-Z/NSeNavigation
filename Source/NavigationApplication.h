@@ -381,6 +381,8 @@ private:
 	float callback_theta;
 
 	sgbot::Pose2D triggered_pose;
+
+	int trigger_times = 1;
 };
 
 }

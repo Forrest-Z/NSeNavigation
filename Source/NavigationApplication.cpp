@@ -172,9 +172,10 @@ void NavigationApplication::listenLoop() {
 		if(action_flag_ == ALONG_WALL && (too_near_count == 2 || too_near_count == 3 || too_near_count == 4 || too_near_count == 5) ){
 			sgbot::Point2D point(pose.x(),pose.y());
 			logInfo << "push back point "<<too_near_count - 1<< " = "<<pose.x()<<" , "<<pose.y();
-			if(too_near_count == 2){
-				logInfo <<"too near count == 2 assign triggered_pose"<<triggered_pose.x()<<" , "<<triggered_pose.y();
+			if(too_near_count == 2 && trigger_times == 1){
 				triggered_pose = pose;
+				logInfo <<"too near count == 2 assign triggered_pose"<<triggered_pose.x()<<" , "<<triggered_pose.y();
+				trigger_times = 0;
 			}
 			point_vec.push_back(point);
 		}

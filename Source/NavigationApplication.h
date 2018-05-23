@@ -125,7 +125,7 @@ private:
 			logInfo<< "left call pose 2d failed";
 		}
 		if (simple_turn) {
-			NS_NaviCommon::Rate rate(0.5f);
+			NS_NaviCommon::Rate rate(2);
 //			float target_theta = base_pose.theta() + M_PI_2;
 			float target_theta = callback_theta + M_PI_2;
 			if(callback_theta > 0 && callback_theta + M_PI_2 > M_PI){
@@ -179,7 +179,7 @@ private:
 			logInfo << "right call pose 2d failed";
 		}
 		if (simple_turn) {
-			NS_NaviCommon::Rate rate(0.5f);
+			NS_NaviCommon::Rate rate(2);
 			float target_theta = callback_theta - M_PI_2;
 			if(callback_theta < 0 && callback_theta - M_PI_2 < -M_PI){
 				target_theta = target_theta + M_PI * 2;

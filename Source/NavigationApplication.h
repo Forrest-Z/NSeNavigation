@@ -128,10 +128,10 @@ private:
 			NS_NaviCommon::Rate rate(2);
 //			float target_theta = base_pose.theta() + M_PI_2;
 			float target_theta = callback_theta + M_PI_2;
-			if(callback_theta > 0 && callback_theta + M_PI_2 > M_PI){
+			if(callback_theta > 0 && callback_theta + M_PI_2 >= M_PI - 0.002){
 				target_theta = target_theta - M_PI * 2;
-				callback_theta = target_theta;
 			}
+			callback_theta = target_theta;
 			logInfo<< "simple turn left target theta = "<<target_theta;
 			while (running) {
 				publishVelocity(0, 0, simple_turn_vel);
@@ -181,10 +181,10 @@ private:
 		if (simple_turn) {
 			NS_NaviCommon::Rate rate(2);
 			float target_theta = callback_theta - M_PI_2;
-			if(callback_theta < 0 && callback_theta - M_PI_2 < -M_PI){
+			if(callback_theta < 0 && callback_theta - M_PI_2 <= -M_PI + 0.002){
 				target_theta = target_theta + M_PI * 2;
-					callback_theta = target_theta;
 			}
+			callback_theta = target_theta;
 			logInfo<< "simple turn right target theta = "<<target_theta;
 			while (running) {
 				publishVelocity(0, 0, -simple_turn_vel);

@@ -16,8 +16,8 @@ namespace NS_Navigation {
 NavigationApplication::NavigationApplication() :
 		new_global_plan_(false), runPlanner_(false) {
 	// TODO Auto-generated constructor stub
-//	goal_sub = new NS_DataSet::Subscriber<sgbot::Pose2D>("GOAL",
-//			boost::bind(&NavigationApplication::goal_callback, this, _1));
+	goal_sub = new NS_DataSet::Subscriber<sgbot::Pose2D>("GOAL_FROM_APP",
+			boost::bind(&NavigationApplication::goal_callback, this, _1));
 //
 //	goal_pub = new NS_DataSet::Publisher<sgbot::Pose2D>("GOAL");
 
@@ -394,22 +394,14 @@ void NavigationApplication::control_func() {
 	}
 }
 sgbot::Pose2D NavigationApplication::goalToGlobalFrame(sgbot::Pose2D& goal) {
-	//map_to_odom * odom_to_base;
-	NS_Service::Client<Transform2D> odom_tf_cli("BASE_ODOM_TF");
-	NS_Service::Client<Transform2D> map_tf_cli("ODOM_MAP_TF");
-	Transform2D odom_transform, map_transform;
-	if (odom_tf_cli.call(odom_transform) == false) {
-		logError<<"get odometry transform failed";
+	sgbot::Pose2D pose,target_pose;
+	if (pose_cli->call(pose)) {
+		sgbot::tf::Transform2D map_transform(current_pose.x(), current_pose.y(),
+				current_pose.theta(), 1);
+		target_pose = map_transform.transform(goal);
+		logInfo<<"pose 2d in global frame is "<<target_pose.x()<<" "<<target_pose.y()<<" "<<target_pose.theta();
 	}
-	if (map_tf_cli.call(map_transform) == false) {
-		logError<<"get map transform failed";
-	}
-//	sgbot::Pose2D pose2d_result = map_transform.transform(
-//			odom_transform.transform(goal));
-	sgbot::Pose2D pose2d_result = (map_transform * odom_transform).transform(
-			goal);
-	logInfo<<"pose 2d in global frame is "<<pose2d_result.x()<<" "<<pose2d_result.y()<<" "<<pose2d_result.theta();
-	return pose2d_result;
+	return target_pose;
 }
 bool NavigationApplication::makePlan(const sgbot::Pose2D& goal,
 		std::vector<sgbot::Pose2D>& plan) {

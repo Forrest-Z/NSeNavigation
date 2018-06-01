@@ -118,6 +118,8 @@ private:
 	void action_callback(int action_flag);
 
 	void prepare_for_walk();
+
+	void search_go_wall();
 	void turnleft() {
 //		transform_state = (++transform_state) % 4;
 		sgbot::Pose2D base_pose;
@@ -338,7 +340,9 @@ private:
 ///action pub and sub to controller
 	NS_DataSet::Publisher<int>* action_pub;
 	NS_DataSet::Subscriber<int>* action_sub;
-
+///pose sync pub
+	NS_DataSet::Publisher<float>* pose_theta_pub;
+	NS_DataSet::Publisher<float>* pose_distance_pub;
 ///publisher goal
 	NS_DataSet::Publisher<sgbot::Pose2D>* goal_pub;
 ///client call  pose

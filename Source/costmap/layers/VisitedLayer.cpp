@@ -13,10 +13,14 @@ VisitedLayer::VisitedLayer() {
 	// TODO Auto-generated constructor stub
 	pose_cli = new NS_Service::Client<sgbot::Pose2D>("POSE");
 	map_cli = new NS_Service::Client<sgbot::Map2D>("MAP");
+	rect_p = new Rect();
 }
 
 VisitedLayer::~VisitedLayer() {
 	// TODO Auto-generated destructor stub
+	delete pose_cli;
+	delete map_cli;
+	delete rect_p;
 }
 void VisitedLayer::loadParameters(){
 	NS_NaviCommon::Parameter parameter;

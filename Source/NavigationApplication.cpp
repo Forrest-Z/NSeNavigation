@@ -9,7 +9,7 @@
 #include <Parameter/Parameter.h>
 #include "planner/implements/GlobalPlanner/GlobalPlanner.h"
 #include "planner/implements/TrajectoryLocalPlanner/TrajectoryLocalPlanner.h"
-
+//#include "layers/VisitedLayer.h"
 #include <type/map2d.h>
 namespace NS_Navigation {
 
@@ -30,6 +30,10 @@ NavigationApplication::NavigationApplication() :
 	pose_cli = new NS_Service::Client<sgbot::Pose2D>("POSE");
 
 	twist_pub = new NS_DataSet::Publisher<sgbot::Velocity2D>("TWIST");
+
+	pose_theta_pub = new NS_DataSet::Publisher<float>("BASE_REG_PLAN_THETA");
+	pose_distance_pub = new NS_DataSet::Publisher<float>(
+			"BASE_REG_PLAN_DISTANCE");
 }
 
 NavigationApplication::~NavigationApplication() {
@@ -41,6 +45,8 @@ NavigationApplication::~NavigationApplication() {
 	delete action_sub;
 	delete action_pub;
 	delete twist_pub;
+	delete pose_theta_pub;
+	delete pose_distance_pub;
 }
 void NavigationApplication::loadParameters() {
 	NS_NaviCommon::Parameter parameter;
@@ -107,6 +113,16 @@ bool NavigationApplication::goal_callback(sgbot::Pose2D& goal_from_app) {
 
 	return true;
 }
+sgbot::Pose2D NavigationApplication::goalToGlobalFrame(sgbot::Pose2D& goal) {
+	sgbot::Pose2D pose, target_pose;
+	if (pose_cli->call(pose)) {
+		sgbot::tf::Transform2D map_transform(current_pose.x(), current_pose.y(),
+				current_pose.theta(), 1);
+		target_pose = map_transform.transform(goal);
+		logInfo<<"pose 2d in global frame is "<<target_pose.x()<<" "<<target_pose.y()<<" "<<target_pose.theta();
+	}
+	return target_pose;
+}
 
 void NavigationApplication::action_callback(int action_flag) {
 	logInfo<< "action callback flag = "<<action_flag;
@@ -144,6 +160,7 @@ void NavigationApplication::event_callback(int event_flag) {
 
 	}
 }
+
 //void NavigationApplication::prepare_for_walk(){
 //	logInfo << "prepare for walking,is walking = "<<is_walking<<" corner point[0]  = "<<point_vec[0].x()<<" , "<<point_vec[0].y();
 //	is_preparing = 1;
@@ -152,52 +169,61 @@ void NavigationApplication::event_callback(int event_flag) {
 //	runPlanner_ = true;
 //	planner_cond.notify_one();
 //}
-void NavigationApplication::listenLoop() {
-	NS_NaviCommon::Rate rate(listen_frequency);
-	while (running) {
-		sgbot::Pose2D pose;
-		if (!pose_cli->call(pose)) {
-			logError<<"call pose failed";
-		}
-		float distance = sgbot::distance(pose, triggered_pose);
-//		float distance = 0.05f;
-		logInfo<< "triggered_pose = "<<triggered_pose.x()<<" , "<<triggered_pose.y()<<"..listen loop get pose = "<<pose.x()<<" ," << pose.y()<<" and  distance = "<<distance;
-		if (distance <= back_to_begin_tolerance && action_flag_ == ALONG_WALL
-				&& too_near_count >= 3) {
-//		if(distance <= back_to_begin_tolerance){
-			logInfo<< "back to first corner point master control velocity and ready for walking";
-			//record callback theta for walk and turn
-			callback_theta = pose.theta();
-			int action = MASTER_CONTROL_VELOCITY;
-			action_pub->publish(action);
 
-			logInfo <<"ready for walking , so turn left first and start walking";
-			turnleft();
-			state = WALKING;
-			is_walking = 1;
-			controller_mutex.lock();
-			controller_cond.notify_one();
-			controller_mutex.unlock();
-
-			for(int i = 0; i < point_vec.size(); ++i) {
-				logInfo << "corner points = "<<point_vec[i].x()<<" , "<<point_vec[i].y();
-			}
-
-//			prepare_for_walk();
-			back_to_begin_tolerance = 0.f;
-		}
-//		if(is_ready_for_walk){
-//			logInfo <<"ready for walk , so turn left first and start walking";
+//void NavigationApplication::listenLoop() {
+//	NS_NaviCommon::Rate rate(listen_frequency);
+//	while (running) {
+//		sgbot::Pose2D pose;
+//		if (!pose_cli->call(pose)) {
+//			logError<<"call pose failed";
+//		}
+//		float distance = sgbot::distance(pose, triggered_pose);
+////		float distance = 0.05f;
+//		logInfo<< "triggered_pose = "<<triggered_pose.x()<<" , "<<triggered_pose.y()<<"..listen loop get pose = "<<pose.x()<<" ," << pose.y()<<" and  distance = "<<distance;
+//		if (distance <= back_to_begin_tolerance && action_flag_ == ALONG_WALL
+//				&& too_near_count >= 3) {
+////		if(distance <= back_to_begin_tolerance){
+//			logInfo<< "back to first corner point master control velocity and ready for walking";
+//			//record callback theta for walk and turn
+//			callback_theta = pose.theta();
+//			int action = MASTER_CONTROL_VELOCITY;
+//			action_pub->publish(action);
+//
+//			logInfo <<"ready for walking , so turn left first and start walking";
 //			turnleft();
 //			state = WALKING;
 //			is_walking = 1;
 //			controller_mutex.lock();
 //			controller_cond.notify_one();
 //			controller_mutex.unlock();
+//
+//			for(int i = 0; i < point_vec.size(); ++i) {
+//				logInfo << "corner points = "<<point_vec[i].x()<<" , "<<point_vec[i].y();
+//			}
+//
+////			prepare_for_walk();
+//			back_to_begin_tolerance = 0.f;
 //		}
-		rate.sleep();
-	}
+////		if(is_ready_for_walk){
+////			logInfo <<"ready for walk , so turn left first and start walking";
+////			turnleft();
+////			state = WALKING;
+////			is_walking = 1;
+////			controller_mutex.lock();
+////			controller_cond.notify_one();
+////			controller_mutex.unlock();
+////		}
+//		rate.sleep();
+//	}
+//}
+
+void NavigationApplication::search_go_wall() {
+	std::vector<boost::shared_ptr<NS_CostMap::CostmapLayer> >* layer_vec_p =
+			global_costmap->getLayeredCostmap()->getPlugins();
+	boost::shared_ptr<NS_CostMap::VisitedLayer> visited_layer =
+			(*layer_vec_p)[2];
 }
+
 void NavigationApplication::planLoop() {
 	NS_NaviCommon::Rate rate(planner_frequency_);
 
@@ -393,16 +419,7 @@ void NavigationApplication::control_func() {
 		}
 	}
 }
-sgbot::Pose2D NavigationApplication::goalToGlobalFrame(sgbot::Pose2D& goal) {
-	sgbot::Pose2D pose,target_pose;
-	if (pose_cli->call(pose)) {
-		sgbot::tf::Transform2D map_transform(current_pose.x(), current_pose.y(),
-				current_pose.theta(), 1);
-		target_pose = map_transform.transform(goal);
-		logInfo<<"pose 2d in global frame is "<<target_pose.x()<<" "<<target_pose.y()<<" "<<target_pose.theta();
-	}
-	return target_pose;
-}
+
 bool NavigationApplication::makePlan(const sgbot::Pose2D& goal,
 		std::vector<sgbot::Pose2D>& plan) {
 
@@ -493,15 +510,15 @@ void NavigationApplication::run() {
 	control_thread = boost::thread(
 			boost::bind(&NavigationApplication::controlLoop, this));
 
-	listen_thread = boost::thread(
-			boost::bind(&NavigationApplication::listenLoop, this));
+//	listen_thread = boost::thread(
+//			boost::bind(&NavigationApplication::listenLoop, this));
 	global_costmap->start();
 
 //	logInfo<< "search wall";
 	current_state = 0;
-	int action = SEARCH_WALL;
-	action_flag_ = action;
-	action_pub->publish(action);
+//	int action = SEARCH_WALL;
+//	action_flag_ = action;
+//	action_pub->publish(action);
 
 ///below are test for debug
 //	sleep(5);

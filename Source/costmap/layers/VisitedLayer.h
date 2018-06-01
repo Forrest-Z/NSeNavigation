@@ -15,6 +15,9 @@
 namespace NS_CostMap {
 class Rect {
 public:
+	Rect(){
+
+	}
 	Rect(sgbot::Pose2D center_, float width_, float height_) :
 			center(center_), width(width_), height(height_) {
 		left_down_p = sgbot::Point2D(center.x() - width / 2,
@@ -170,9 +173,9 @@ public:
 				std::pow((x1 - x2), 2) + std::pow((y1 - y2), 2)));
 		return d;
 	}
-	Rect drawRectangle(const sgbot::Pose2D& center, const float& rec_x,
+	void generateRectangle(const sgbot::Pose2D& center, const float& rec_x,
 			const float& rec_y) {
-		return Rect(center,rec_x,rec_y);
+		rect_p = new Rect(center,rec_x,rec_y);
 	}
 private:
 	bool active;
@@ -186,6 +189,8 @@ private:
 	float sweep_rec_x, sweep_rec_y;
 	//frontier threshold
 	int frontiers_threshold;
+	//current rectangle
+	Rect* rect_p;
 };
 
 } /* namespace NS_CostMap */

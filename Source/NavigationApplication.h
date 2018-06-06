@@ -9,7 +9,7 @@
 #define NAVIGATIONAPPLICATION_H_
 #include <Application/Application.h>
 #include <transform/transform2d.h>
-#include <costmap/layers/VisitedLayer.h>
+#include "costmap/layers/VisitedLayer.h"
 #include <std-math/math.h>
 #include "planner/base/GlobalPlannerBase.h"
 #include "planner/base/LocalPlannerBase.h"

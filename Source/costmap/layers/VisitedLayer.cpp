@@ -5,8 +5,8 @@
  *      Author: pengjiawei
  */
 
-#include <costmap/layers/VisitedLayer.h>
-
+#include "../layers/VisitedLayer.h"
+#include <Parameter/Parameter.h>
 namespace NS_CostMap {
 
 VisitedLayer::VisitedLayer() {

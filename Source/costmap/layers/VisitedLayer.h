@@ -8,7 +8,8 @@
 #ifndef COSTMAP_LAYERS_VISITEDLAYER_H_
 #define COSTMAP_LAYERS_VISITEDLAYER_H_
 #include "../costmap_2d/CostMapLayer.h"
-#include <Parameter/Parameter.h>
+#include "../costmap_2d/LayeredCostMap.h"
+
 #include <Time/Rate.h>
 #include <Service/Client.h>
 #include "log_tool.h"

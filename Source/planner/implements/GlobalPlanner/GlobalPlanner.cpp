@@ -9,8 +9,9 @@
 
 #include "Algorithm/QuadraticCalculator.h"
 #include "Algorithm/GradientPath.h"
-#include "Algorithm/Astar.h"
+
 #include "Algorithm/Dijkstra.h"
+#include "Algorithm/Astar.h"
 #include <Parameter/Parameter.h>
 #include <Console/Console.h>
 

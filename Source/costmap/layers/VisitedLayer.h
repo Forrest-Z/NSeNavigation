@@ -18,7 +18,7 @@ public:
 	Rect(){
 
 	}
-	Rect(sgbot::Pose2D center_, float width_, float height_) :
+	Rect(sgbot::Pose2D center_, float width_, float height_,float near_corner_tolerance_) :
 			center(center_), width(width_), height(height_) {
 		left_down_p = sgbot::Point2D(center.x() - width / 2,
 				center.y() - height / 2);
@@ -28,6 +28,7 @@ public:
 				center.y() + height / 2);
 		left_up_p = sgbot::Point2D(center.x() - width / 2,
 				center.y() + height / 2);
+		near_corner_tolerance = near_corner_tolerance_;
 	}
 	bool isInside(sgbot::Pose2D pose) {
 		if (pose.x() > left_down_p.x() && pose.x() < right_down_p.x()
@@ -37,9 +38,23 @@ public:
 			return false;
 		}
 	}
+	//1,2,3,4
+	int isNearCorner(sgbot::Pose2D pose){
+		sgbot::Point2D point = sgbot::Point2D(pose.x(),pose.y());
+		if( sgbot::distance(left_down_p,point) <= near_corner_tolerance){
+			return 1;
+		}else if( sgbot::distance(right_down_p,point) <= near_corner_tolerance ){
+			return 2;
+		}else if( sgbot::distance(right_up_p,point) <= near_corner_tolerance ){
+			return 3;
+		}else if( sgbot::distance(left_up_p,point) <= near_corner_tolerance ){
+			return 4;
+		}
+		return 0;
+	}
 private:
 	sgbot::Pose2D center;
-	float width, height;
+	float width, height,near_corner_tolerance;
 	sgbot::Point2D left_down_p, right_down_p, right_up_p, left_up_p;
 };
 /*
@@ -75,7 +90,10 @@ public:
 		int index = x + y * size_x_;
 		map_vec[index] = 1;
 	}
-	int searchWall();
+	int searchWallPoint();
+	///search wall on the front of robot
+	int searchFrontWall();
+
 	bool is_frontier_point(sgbot::Map2D& map, int index, bool* frontier_flag) {
 		if (frontier_flag[index] == true) {
 			return false;
@@ -173,9 +191,9 @@ public:
 				std::pow((x1 - x2), 2) + std::pow((y1 - y2), 2)));
 		return d;
 	}
-	void generateRectangle(const sgbot::Pose2D& center, const float& rec_x,
-			const float& rec_y) {
-		rect_p = new Rect(center,rec_x,rec_y);
+	Rect* generateRectangle(const sgbot::Pose2D& center) {
+		rect_p = new Rect(center,sweep_rec_x,sweep_rec_y,near_corner_tolerance);
+		return rect_p;
 	}
 private:
 	bool active;
@@ -191,6 +209,8 @@ private:
 	int frontiers_threshold;
 	//current rectangle
 	Rect* rect_p;
+	//near corner tolerance
+	float near_corner_tolerance;
 };
 
 } /* namespace NS_CostMap */

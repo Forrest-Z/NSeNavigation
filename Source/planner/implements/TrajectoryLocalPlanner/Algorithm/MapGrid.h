@@ -111,7 +111,7 @@ namespace NS_Planner
     /**
      * return a value that indicates cell is in obstacle
      */
-    inline double obstacleCosts()
+    inline float obstacleCosts()
     {
       return map_.size();
     }
@@ -120,7 +120,7 @@ namespace NS_Planner
      * returns a value indicating cell was not reached by wavefront
      * propagation of set cells. (is behind walls, regarding the region covered by grid)
      */
-    inline double unreachableCellCosts()
+    inline float unreachableCellCosts()
     {
       return map_.size() + 1;
     }
@@ -145,7 +145,7 @@ namespace NS_Planner
     adjustPlanResolution(
         const std::vector< Pose2D >& global_plan_in,
         std::vector< Pose2D >& global_plan_out,
-        double resolution);
+        float resolution);
 
     /**
      * @brief  Compute the distance from each cell in the local map grid to the planned path
@@ -177,7 +177,7 @@ namespace NS_Planner
     setLocalGoal(const NS_CostMap::Costmap2D& costmap,
                  const std::vector< Pose2D >& global_plan);
 
-    double goal_x_, goal_y_; /**< @brief The goal distance was last computed from */
+    float goal_x_, goal_y_; /**< @brief The goal distance was last computed from */
 
     unsigned int size_x_, size_y_; ///< @brief The dimensions of the grid
     int times;

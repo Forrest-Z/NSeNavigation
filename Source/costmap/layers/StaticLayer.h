@@ -26,8 +26,8 @@ public:
 	reset();
 
 	virtual void
-	updateBounds(double robot_x, double robot_y, double robot_yaw,
-			double* min_x, double* min_y, double* max_x, double* max_y);
+	updateBounds(float robot_x, float robot_y, float robot_yaw,
+			float* min_x, float* min_y, float* max_x, float* max_y);
 	virtual void
 	updateCosts(Costmap2D& master_grid, int min_i, int min_j, int max_i,
 			int max_j);
@@ -49,7 +49,7 @@ private:
 
 	unsigned char lethal_threshold_, unknown_cost_value_;
 
-	double map_update_frequency_;
+	float map_update_frequency_;
 
 private:
 

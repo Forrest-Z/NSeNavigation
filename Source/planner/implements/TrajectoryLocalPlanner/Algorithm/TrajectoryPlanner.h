@@ -12,7 +12,7 @@
 
 //we'll take in a path as a vector of poses
 #include <transform/transform2d.h>
-
+#include <std-math/math.h>
 //for creating a local cost grid
 #include "FootprintHelper.h"
 #include "MapCell.h"

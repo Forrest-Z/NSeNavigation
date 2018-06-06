@@ -7,7 +7,7 @@ using namespace std;
 namespace NS_CostMap
 {
   Costmap2D::Costmap2D(unsigned int cells_size_x, unsigned int cells_size_y,
-                       double resolution, double origin_x, double origin_y,
+                       float resolution, float origin_x, float origin_y,
                        unsigned char default_value)
       : size_x_(cells_size_x), size_y_(cells_size_y), resolution_(resolution),
         origin_x_(origin_x), origin_y_(origin_y), costmap_(NULL),
@@ -37,7 +37,7 @@ namespace NS_CostMap
   }
 
   void Costmap2D::resizeMap(unsigned int size_x, unsigned int size_y,
-                            double resolution, double origin_x, double origin_y)
+                            float resolution, float origin_x, float origin_y)
   {
     size_x_ = size_x;
     size_y_ = size_y;
@@ -66,9 +66,9 @@ namespace NS_CostMap
       memset(costmap_ + y, default_value_, len * sizeof(unsigned char));
   }
 
-  bool Costmap2D::copyCostmapWindow(const Costmap2D& map, double win_origin_x,
-                                    double win_origin_y, double win_size_x,
-                                    double win_size_y)
+  bool Costmap2D::copyCostmapWindow(const Costmap2D& map, float win_origin_x,
+                                    float win_origin_y, float win_size_x,
+                                    float win_size_y)
   {
     // check for self windowing
     if(this == &map)
@@ -151,9 +151,9 @@ namespace NS_CostMap
     delete access_;
   }
 
-  unsigned int Costmap2D::cellDistance(double world_dist)
+  unsigned int Costmap2D::cellDistance(float world_dist)
   {
-    double cells_dist = max(0.0, ceil(world_dist / resolution_));
+    float cells_dist = max(0.0f, ceil(world_dist / resolution_));
     return (unsigned int)cells_dist;
   }
 
@@ -174,7 +174,7 @@ namespace NS_CostMap
   }
 
 
-  void Costmap2D::updateOrigin(double new_origin_x, double new_origin_y)
+  void Costmap2D::updateOrigin(float new_origin_x, float new_origin_y)
   {
     // project the new origin into the grid
     int cell_ox, cell_oy;
@@ -183,7 +183,7 @@ namespace NS_CostMap
 
     // compute the associated world coordinates for the origin cell
     // because we want to keep things grid-aligned
-    double new_grid_ox, new_grid_oy;
+    float new_grid_ox, new_grid_oy;
     new_grid_ox = origin_x_ + cell_ox * resolution_;
     new_grid_oy = origin_y_ + cell_oy * resolution_;
 

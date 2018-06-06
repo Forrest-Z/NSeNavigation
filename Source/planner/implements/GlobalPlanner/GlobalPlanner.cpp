@@ -9,6 +9,7 @@
 
 #include "Algorithm/QuadraticCalculator.h"
 #include "Algorithm/GradientPath.h"
+#include "Algorithm/Astar.h"
 #include "Algorithm/Dijkstra.h"
 #include <Parameter/Parameter.h>
 #include <Console/Console.h>
@@ -64,13 +65,16 @@ void GlobalPlanner::onInitialize() {
 		p_calc_ = new QuadraticCalculator(cx, cy);
 
 		//use dijkstra directly
-//		if (parameter.getParameter("use_dijkstra", 1) == 1) {
-//			DijkstraExpansion* de = new DijkstraExpansion(p_calc_, cx, cy);
-//			de->setPreciseStart(true);
-//			planner_ = de;
-//		}
-		planner_ = new DijkstraExpansion(p_calc_, cx, cy);
-		planner_->setPreciseStart(true);
+		if (parameter.getParameter("use_dijkstra", 1) == 1) {
+			DijkstraExpansion* de = new DijkstraExpansion(p_calc_, cx, cy);
+			de->setPreciseStart(true);
+			planner_ = de;
+//			planner_ = new DijkstraExpansion(p_calc_, cx, cy);
+//					planner_->setPreciseStart(true);
+		}else{
+			planner_ = new AStarExpansion (p_calc_, cx, cy);
+		}
+
 
 		/*
 		 * 获取 use_grid_path 参数值，根据参数值创建 path_maker_ 实例，用 GridPath 还是 GradientPath

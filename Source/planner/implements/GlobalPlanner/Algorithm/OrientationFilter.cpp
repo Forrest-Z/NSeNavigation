@@ -71,7 +71,7 @@ namespace NS_Planner
         x1 = path[index + 1].x(),
         y1 = path[index + 1].y();
 
-    double angle = atan2(y1 - y0, x1 - x0);
+    double angle = sgbot::math::atan2(y1 - y0, x1 - x0);
     set_angle(&path[index], angle);
   }
 

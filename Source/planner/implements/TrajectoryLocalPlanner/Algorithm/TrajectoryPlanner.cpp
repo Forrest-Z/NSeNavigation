@@ -309,11 +309,11 @@ double TrajectoryPlanner::headingDiff(int cell_x, int cell_y, double x,
 		if (costmap_.worldToMap(global_plan_[i].x(), global_plan_[i].y(),
 				goal_cell_x, goal_cell_y)) {
 			if (lineCost(cell_x, goal_cell_x, cell_y, goal_cell_y) >= 0) {
-				double gx, gy;
+				float gx, gy;
 				costmap_.mapToWorld(goal_cell_x, goal_cell_y, gx, gy);
 				return fabs(
 						angleDiff(
-								atan2(gy - y, gx - x) - heading));
+								sgbot::math::atan2(gy - y, gx - x) - heading));
 			}
 		}
 	}
@@ -942,5 +942,5 @@ void TrajectoryPlanner::getLocalGoal(double& x, double& y) {
 }
 
 }
-;
+
 

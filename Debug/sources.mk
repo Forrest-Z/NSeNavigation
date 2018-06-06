@@ -28,6 +28,7 @@ Source/costmap \
 Source/costmap/costmap_2d \
 Source/costmap/layers \
 Source/costmap/utils \
+Source/planner/implements/FTCLocalPlanner \
 Source/planner/implements/GlobalPlanner/Algorithm \
 Source/planner/implements/GlobalPlanner \
 Source/planner/implements/TrajectoryLocalPlanner/Algorithm \

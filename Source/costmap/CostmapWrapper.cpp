@@ -8,7 +8,7 @@
 #include "CostmapWrapper.h"
 #include "layers/StaticLayer.h"
 #include "layers/InflationLayer.h"
-
+#include "layers/VisitedLayer.h"
 #include <Time/Rate.h>
 #include "utils/Footprint.h"
 #include "socket_tool.h"
@@ -210,6 +210,13 @@ void CostmapWrapper::initialize() {
 	{
 		InflationLayer* inflation_layer = new InflationLayer();
 		boost::shared_ptr < CostmapLayer > layer(inflation_layer);
+		layered_costmap->addPlugin(layer);
+	}
+
+	if(layered_costmap)
+	{
+		VisitedLayer* visited_layer = new VisitedLayer();
+		boost::shared_ptr < CostmapLayer > layer(visited_layer);
 		layered_costmap->addPlugin(layer);
 	}
 

@@ -9,6 +9,8 @@
 #define NAVIGATIONAPPLICATION_H_
 #include <Application/Application.h>
 #include <transform/transform2d.h>
+#include <costmap/layers/VisitedLayer.h>
+#include <std-math/math.h>
 #include "planner/base/GlobalPlannerBase.h"
 #include "planner/base/LocalPlannerBase.h"
 #include <boost/thread/thread.hpp>
@@ -28,11 +30,10 @@ enum S_STATE {
 };
 enum ACTION
 	: int {
-		SEARCH_WALL = 0,
-	GOT_WALL,
+	MASTER_CONTROL,
+	GOTO_WALL,
 	ALONG_WALL,
-	MASTER_PLAN_POSE,
-	MASTER_CONTROL_VELOCITY
+	WALK_S_PATH
 };
 enum EVENT
 	: int {
@@ -42,7 +43,10 @@ enum EVENT
 enum TRANSFORM_STATE {
 	R_X_U_Y = 0, U_X_L_Y, L_X_D_Y, D_X_R_Y
 };
-
+enum GLOBAL_STATE{
+	CIRCLE,
+	WALK_S
+};
 #define PLANNER_LOOP_TIMEOUT 100
 /**
  *关于导航功能的类
@@ -120,6 +124,14 @@ private:
 	void prepare_for_walk();
 
 	void search_go_wall();
+
+	void trigger_loop_turn();
+
+	void back_to_frontier_s();
+
+	void walk_s_state();
+
+	void find_front_wall();
 	void turnleft() {
 //		transform_state = (++transform_state) % 4;
 		sgbot::Pose2D base_pose;
@@ -357,6 +369,9 @@ private:
 	NS_Service::Server<std::vector<sgbot::Pose2D> >* plan_srv;
 	std::vector<sgbot::Pose2D> global_plan;
 
+	///current rectangle
+	NS_CostMap::Rect* current_rect;
+
 	///TODO not sure how to do this
 	NS_DataSet::Publisher<bool>* explore_pub;
 	///mission executor
@@ -366,6 +381,8 @@ private:
 	int first_trigger = 1;
 	//record first trigger too near pose
 	sgbot::Pose2D first_pose;
+	///GLOBAL_STATE
+	GLOBAL_STATE global_state;
 	///
 	bool is_walking,is_preparing,is_ready_for_walk;
 	int too_near_count = 0;

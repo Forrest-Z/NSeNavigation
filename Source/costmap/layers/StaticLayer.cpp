@@ -114,7 +114,7 @@ unsigned char StaticLayer::interpretValue(const sgbot::Map2D& new_map,int i,int 
 	else if (trinary_costmap_)
 		return FREE_SPACE;
 
-	double scale = (double) new_map.getPoint(i,j) / lethal_threshold_;
+	float scale = (float) new_map.getPoint(i,j) / lethal_threshold_;
 	return scale * LETHAL_OBSTACLE;
 }
 
@@ -187,8 +187,8 @@ void StaticLayer::reset() {
 	activate();
 }
 
-void StaticLayer::updateBounds(double robot_x, double robot_y, double robot_yaw,
-		double* min_x, double* min_y, double* max_x, double* max_y) {
+void StaticLayer::updateBounds(float robot_x, float robot_y, float robot_yaw,
+		float* min_x, float* min_y, float* max_x, float* max_y) {
 	if (!map_received || !(has_updated_data || has_extra_bounds_)) {
 //		printf("Not update bounds.\n");
 		return;
@@ -196,7 +196,7 @@ void StaticLayer::updateBounds(double robot_x, double robot_y, double robot_yaw,
 
 //    useExtraBounds(min_x, min_y, max_x, max_y);
 
-	double wx, wy;
+	float wx, wy;
 
 	mapToWorld(x_, y_, wx, wy);
 	*min_x = std::min(wx, *min_x);

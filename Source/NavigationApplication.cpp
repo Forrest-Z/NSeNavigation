@@ -9,6 +9,7 @@
 #include <Parameter/Parameter.h>
 #include "planner/implements/GlobalPlanner/GlobalPlanner.h"
 #include "planner/implements/TrajectoryLocalPlanner/TrajectoryLocalPlanner.h"
+#include "planner/implements/FTCLocalPlanner/ftc_planner.h"
 //#include "layers/VisitedLayer.h"
 #include <type/map2d.h>
 namespace NS_Navigation {
@@ -21,19 +22,18 @@ NavigationApplication::NavigationApplication() :
 //
 //	goal_pub = new NS_DataSet::Publisher<sgbot::Pose2D>("GOAL");
 
-	event_sub = new NS_DataSet::Subscriber<int>("SLAVE_EVENT",
-			boost::bind(&NavigationApplication::event_callback, this, _1));
-//
-	action_sub = new NS_DataSet::Subscriber<int>("SLAVE_ACTION",
-			boost::bind(&NavigationApplication::action_callback, this, _1));
+//	event_sub = new NS_DataSet::Subscriber<int>("SLAVE_EVENT",
+//			boost::bind(&NavigationApplication::event_callback, this, _1));
+//	action_sub = new NS_DataSet::Subscriber<int>("SLAVE_ACTION",
+//			boost::bind(&NavigationApplication::action_callback, this, _1));
 	action_pub = new NS_DataSet::Publisher<int>("MASTER_ACTION");
 	pose_cli = new NS_Service::Client<sgbot::Pose2D>("POSE");
 
 	twist_pub = new NS_DataSet::Publisher<sgbot::Velocity2D>("TWIST");
 
-	pose_theta_pub = new NS_DataSet::Publisher<float>("BASE_REG_PLAN_THETA");
+	pose_theta_pub = new NS_DataSet::Publisher<float>("BORDER_THETA");
 	pose_distance_pub = new NS_DataSet::Publisher<float>(
-			"BASE_REG_PLAN_DISTANCE");
+			"BORDER_DIST");
 }
 
 NavigationApplication::~NavigationApplication() {
@@ -55,7 +55,7 @@ void NavigationApplication::loadParameters() {
 	global_planner_type_ = parameter.getParameter("global_planner_type",
 			"global_planner");
 	local_planner_type_ = parameter.getParameter("local_planner_type",
-			"trajectory_local_planner");
+			"ftc_local_planner");
 	planner_frequency_ = parameter.getParameter("planner_frequency", 0.0f);
 	controller_frequency_ = parameter.getParameter("controller_frequency",
 			5.0f);
@@ -220,10 +220,63 @@ void NavigationApplication::event_callback(int event_flag) {
 void NavigationApplication::search_go_wall() {
 	std::vector<boost::shared_ptr<NS_CostMap::CostmapLayer> >* layer_vec_p =
 			global_costmap->getLayeredCostmap()->getPlugins();
-	boost::shared_ptr<NS_CostMap::VisitedLayer> visited_layer =
-			(*layer_vec_p)[2];
-}
+	boost::shared_ptr<NS_CostMap::CostmapLayer> costmap_layer =
+			layer_vec_p->at(2);
+	boost::shared_ptr<NS_CostMap::VisitedLayer> visited_layer = boost::dynamic_pointer_cast<NS_CostMap::VisitedLayer>(costmap_layer);
+	unsigned int first_frontier_index = visited_layer->searchWallPoint();
+	unsigned int x1,y1;
+	global_costmap->getCostmap()->indexToCells(first_frontier_index,x1,y1);
+	float world_x,world_y;
+	global_costmap->getCostmap()->mapToWorld(x1,y1,world_x,world_y);
+	first_pose.x() = world_x;
+	first_pose.y() = world_y;
+	logInfo << " searched wall = "<<world_x<<" , "<<world_y;
+	sgbot::Pose2D pose;
+	if(pose_cli->call(pose)){
+		float theta = sgbot::math::atan2(world_y = pose.y() , world_x - pose.x());
+		logInfo << " publish theta = "<<theta;
+		pose_theta_pub->publish(theta);
+		///go to wall
+		int action = GOTO_WALL;
+		action_pub->publish(action);
+	}
 
+}
+void NavigationApplication::trigger_loop_turn(){
+	std::vector<boost::shared_ptr<NS_CostMap::CostmapLayer> >* layer_vec_p =
+				global_costmap->getLayeredCostmap()->getPlugins();
+		boost::shared_ptr<NS_CostMap::CostmapLayer> costmap_layer =
+				layer_vec_p->at(2);
+		boost::shared_ptr<NS_CostMap::VisitedLayer> visited_layer = boost::dynamic_pointer_cast<NS_CostMap::VisitedLayer>(costmap_layer);
+
+	sgbot::Pose2D pose;
+	if(pose_cli->call(pose)){
+		if( current_rect->isNearCorner(pose) ){
+			logInfo << "current pose is near corner";
+			float theta = M_PI / 2;
+			pose_theta_pub->publish(theta);
+		}
+	}
+
+}
+void NavigationApplication::back_to_frontier_s(){
+	sgbot::Pose2D pose;
+	if( pose_cli->call(pose) ){
+		if( sgbot::distance(first_pose,pose) < back_to_begin_tolerance && global_state == CIRCLE){
+			int action = WALK_S_PATH; ///from loop to walk s,action = spath
+			logInfo << "pub action walk s path";
+			global_state = WALK_S;
+			action_pub->publish(action);
+		}
+	}
+
+}
+void NavigationApplication::find_front_wall(){
+	sgbot::Pose2D pose;
+	if(pose_cli->call(pose)){
+
+	}
+}
 void NavigationApplication::planLoop() {
 	NS_NaviCommon::Rate rate(planner_frequency_);
 
@@ -484,7 +537,12 @@ void NavigationApplication::run() {
 
 	//load local planner
 
-	local_planner = new NS_Planner::TrajectoryLocalPlanner();
+    if (local_planner_type_ == "trajectory_local_planner")
+    {
+      local_planner = new NS_Planner::TrajectoryLocalPlanner ();
+    }else{
+    	local_planner = new NS_Planner::FTCPlanner();
+    }
 
 	local_planner->initialize(global_costmap);
 
@@ -514,6 +572,8 @@ void NavigationApplication::run() {
 //			boost::bind(&NavigationApplication::listenLoop, this));
 	global_costmap->start();
 
+
+	global_state = CIRCLE;
 //	logInfo<< "search wall";
 	current_state = 0;
 //	int action = SEARCH_WALL;
@@ -529,6 +589,17 @@ void NavigationApplication::run() {
 //	controller_mutex.unlock();
 //	callback_theta = 0.f;
 
+	//generate rectangle
+	logInfo << "generate first rectangle";
+	std::vector<boost::shared_ptr<NS_CostMap::CostmapLayer> >* layer_vec_p =
+				global_costmap->getLayeredCostmap()->getPlugins();
+		boost::shared_ptr<NS_CostMap::CostmapLayer> costmap_layer =
+				layer_vec_p->at(2);
+		boost::shared_ptr<NS_CostMap::VisitedLayer> visited_layer = boost::dynamic_pointer_cast<NS_CostMap::VisitedLayer>(costmap_layer);
+
+	sgbot::Pose2D pose;
+	pose_cli->call(pose);
+	current_rect = visited_layer->generateRectangle(pose);
 }
 
 void NavigationApplication::quit() {

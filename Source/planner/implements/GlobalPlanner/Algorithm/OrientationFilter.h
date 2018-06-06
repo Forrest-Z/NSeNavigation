@@ -2,7 +2,7 @@
 #define _ORIENTATION_FILTER_H_
 
 #include <transform/transform2d.h>
-
+#include <std-math/math.h>
 using namespace sgbot;
 namespace NS_Planner
 {

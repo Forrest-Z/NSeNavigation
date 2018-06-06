@@ -12,6 +12,7 @@ RM := rm -rf
 -include Source/planner/implements/TrajectoryLocalPlanner/subdir.mk
 -include Source/planner/implements/GlobalPlanner/Algorithm/subdir.mk
 -include Source/planner/implements/GlobalPlanner/subdir.mk
+-include Source/planner/implements/FTCLocalPlanner/subdir.mk
 -include Source/costmap/utils/subdir.mk
 -include Source/costmap/layers/subdir.mk
 -include Source/costmap/costmap_2d/subdir.mk

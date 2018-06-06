@@ -20,7 +20,7 @@ public:
 	 *
 	 */
 	Costmap2D(unsigned int cells_size_x, unsigned int cells_size_y,
-			double resolution, double origin_x, double origin_y,
+			float resolution, float origin_x, float origin_y,
 			unsigned char default_value = 0);
 
 	Costmap2D(const Costmap2D& map);
@@ -34,8 +34,8 @@ public:
 	 * @brief  Turn this costmap into a copy of a window of a costmap passed in
 	 */
 	bool
-	copyCostmapWindow(const Costmap2D& map, double win_origin_x,
-			double win_origin_y, double win_size_x, double win_size_y);
+	copyCostmapWindow(const Costmap2D& map, float win_origin_x,
+			float win_origin_y, float win_size_x, float win_size_y);
 
 	/**
 	 * @brief  Default constructor
@@ -63,7 +63,7 @@ public:
 	/**
 	 * 全局坐标点转像素点
 	 */
-	bool worldToMap(double wx, double wy, unsigned int& mx, unsigned int& my) const{
+	bool worldToMap(float wx, float wy, unsigned int& mx, unsigned int& my) const{
 		if (wx < origin_x_ || wy < origin_y_)
 			return false;
 
@@ -79,10 +79,10 @@ public:
 	/**
 	 * 将点的转换强制控制在边界内，以免超出地图尺寸
 	 */
-	void worldToMapEnforceBounds(double wx, double wy, int& mx, int& my) {
+	void worldToMapEnforceBounds(float wx, float wy, int& mx, int& my) {
 		// Here we avoid doing any math to wx,wy before comparing them to
 		// the bounds, so their values can go out to the max and min values
-		// of double floating point.
+		// of float floating point.
 		if (wx < origin_x_) {
 			mx = 0;
 		} else if (wx > resolution_ * size_x_ + origin_x_) {
@@ -103,7 +103,7 @@ public:
 	/**
 	 * 全局像素点转坐标点
 	 */
-	void mapToWorld(unsigned int mx, unsigned int my, double& wx, double& wy) const{
+	void mapToWorld(unsigned int mx, unsigned int my, float& wx, float& wy) const{
 		wx = origin_x_ + (mx + 0.5) * resolution_;
 		wy = origin_y_ + (my + 0.5) * resolution_;
 	}
@@ -148,35 +148,35 @@ public:
 	/**
 	 * 获取x方向的长度(米)
 	 */
-	double getSizeInMetersX() {
+	float getSizeInMetersX() {
 		return (size_x_ - 1 + 0.5) * resolution_;
 	}
 
 	/**
 	 * 获取y方向的长度(米)
 	 */
-	double getSizeInMetersY() {
+	float getSizeInMetersY() {
 		return (size_y_ - 1 + 0.5) * resolution_;
 	}
 
 	/**
 	 * 获取costmap原点x坐标
 	 */
-	double getOriginX() {
+	float getOriginX() {
 		return origin_x_;
 	}
 
 	/**
 	 * 获取costmap原点y坐标
 	 */
-	double getOriginY() {
+	float getOriginY() {
 		return origin_y_;
 	}
 
 	/**
 	 * 获取costmap像素
 	 */
-	double getResolution() const{
+	float getResolution() const{
 		return resolution_;
 	}
 
@@ -222,7 +222,7 @@ public:
 	 * @param  new_origin_y The y coordinate of the new origin
 	 */
 	virtual void
-	updateOrigin(double new_origin_x, double new_origin_y);
+	updateOrigin(float new_origin_x, float new_origin_y);
 
 	/**
 	 * @brief  Save the costmap out to a pgm file
@@ -232,8 +232,8 @@ public:
 	saveMap(std::string file_name);
 
 	void
-	resizeMap(unsigned int size_x, unsigned int size_y, double resolution,
-			double origin_x, double origin_y);
+	resizeMap(unsigned int size_x, unsigned int size_y, float resolution,
+			float origin_x, float origin_y);
 
 	void
 	resetMap(unsigned int x0, unsigned int y0, unsigned int xn,
@@ -243,7 +243,7 @@ public:
 	 * 像素距离
 	 */
 	unsigned int
-	cellDistance(double world_dist);
+	cellDistance(float world_dist);
 
 	typedef boost::recursive_mutex mutex_t;
 	mutex_t*
@@ -332,8 +332,8 @@ protected:
 //      unsigned int offset = y0 * size_x_ + x0;
 //
 //      // we need to chose how much to scale our dominant dimension, based on the maximum length of the line
-//      double dist = hypot(dx, dy);
-//      double scale = (dist == 0.0) ? 1.0 : std::min(1.0, max_length / dist);
+//      float dist = hypot(dx, dy);
+//      float scale = (dist == 0.0) ? 1.0 : std::min(1.0, max_length / dist);
 //
 //      // if x is dominant
 //      if(abs_dx >= abs_dy)
@@ -383,9 +383,9 @@ private:
 protected:
 	unsigned int size_x_;
 	unsigned int size_y_;
-	double resolution_;
-	double origin_x_;
-	double origin_y_;
+	float resolution_;
+	float origin_x_;
+	float origin_y_;
 	unsigned char* costmap_;
 	unsigned char default_value_;
 

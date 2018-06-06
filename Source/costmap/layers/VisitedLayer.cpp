@@ -29,6 +29,8 @@ void VisitedLayer::loadParameters(){
 	sweep_rec_x = parameter.getParameter("sweep_rec_x",2.f);
 	sweep_rec_y = parameter.getParameter("sweep_rec_y",2.f);
 	frontiers_threshold = parameter.getParameter("frontiers_threshold",10);
+	//10cm
+	near_corner_tolerance = parameter.getParameter("near_corner_tolerance",0.1f);
 }
 
 void VisitedLayer::onInitialize() {
@@ -82,14 +84,16 @@ void VisitedLayer::coverage() {
 		rate.sleep();
 	}
 }
-int VisitedLayer::searchWall() {
+int VisitedLayer::searchWallPoint() {
 	sgbot::Pose2D pose;
 	sgbot::Map2D map;
 	if (!pose_cli->call(pose) || map_cli->call(map) ) {
 		logInfo<<"search wall call pose failed";
 	} else {
+		unsigned int map_x,map_y;
+		worldToMap(pose.x(),pose.y(),map_x,map_y);
 		std::queue<int> queue1;
-		int robot_index = pose.x() + pose.y() * size_x_;
+		int robot_index = map_x + map_y * size_x_;
 		bool visited[size_x_ * size_y_] = {false};
 		bool frontier_flag[size_x_ * size_y_] = {false};
 		queue1.push(robot_index);
@@ -106,7 +110,7 @@ int VisitedLayer::searchWall() {
 					frontier_flag[neithbor_vec[i]] = true;
 					if (times++ == 0) {
 						int d = distance(neithbor_vec[i] % size_x_, neithbor_vec[i] / size_x_,
-								pose.x(), pose.y());
+								map_x,map_y);
 						std::vector<int> frontiers = build_frontier(map, robot_index, neithbor_vec[i],
 								frontier_flag, d);
 						if(frontiers.size() > frontiers_threshold){
@@ -121,6 +125,52 @@ int VisitedLayer::searchWall() {
 			}
 		}
 	}
+
+}
+
+int VisitedLayer::searchFrontWall(){
+
+	sgbot::Pose2D pose;
+	sgbot::Map2D map;
+	if (!pose_cli->call(pose) || map_cli->call(map) ) {
+		logInfo<<"search wall call pose failed";
+	} else {
+		std::queue<int> queue1;
+		unsigned int map_x,map_y;
+		worldToMap(pose.x(),pose.y(),map_x,map_y);
+		int robot_index = map_x + map_y * size_x_;
+		bool visited[size_x_ * size_y_] = {false};
+		bool frontier_flag[size_x_ * size_y_] = {false};
+		queue1.push(robot_index);
+		while (!queue1.empty()) {
+			int front = queue1.front();
+			queue1.pop();
+			visited[front] = true;
+			std::vector<int> neithbor_vec = neighborhood4(front);
+			for (int i = 0; i < neithbor_vec.size(); ++i) {
+				if (is_frontier_point(map, neithbor_vec[i], frontier_flag)) {
+					//this is the first frontier point so we need record it
+					int first_frontier = neithbor_vec[i];
+					printf("%d,%d\n", neithbor_vec[i] % size_x_, neithbor_vec[i] / size_x_);
+					frontier_flag[neithbor_vec[i]] = true;
+					if (times++ == 0) {
+						int d = distance(neithbor_vec[i] % size_x_, neithbor_vec[i] / size_x_,
+								map_x, map_y);
+						std::vector<int> frontiers = build_frontier(map, robot_index, neithbor_vec[i],
+								frontier_flag, d);
+						if(frontiers.size() > frontiers_threshold){
+							return first_frontier;
+						}
+					}
+				}
+				if (!visited[neithbor_vec[i]]) {
+					visited[neithbor_vec[i]] = true;
+					queue1.push(neithbor_vec[i]);
+				}
+			}
+		}
+	}
+
 
 }
 

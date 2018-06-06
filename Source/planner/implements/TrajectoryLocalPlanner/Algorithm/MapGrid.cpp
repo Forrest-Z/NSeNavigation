@@ -95,7 +95,7 @@ namespace NS_Planner
       return false;
     }
 
-    double new_target_dist = current_cell->target_dist + 1;
+    float new_target_dist = current_cell->target_dist + 1;
     if(new_target_dist < check_cell->target_dist)
     {
       check_cell->target_dist = new_target_dist;
@@ -117,32 +117,32 @@ namespace NS_Planner
   void MapGrid::adjustPlanResolution(
       const std::vector< Pose2D >& global_plan_in,
       std::vector< Pose2D >& global_plan_out,
-      double resolution)
+      float resolution)
   {
     if(global_plan_in.size() == 0)
     {
       return;
     }
-    double last_x = global_plan_in[0].x();
-    double last_y = global_plan_in[0].y();
+    float last_x = global_plan_in[0].x();
+    float last_y = global_plan_in[0].y();
     global_plan_out.push_back(global_plan_in[0]);
 
     // we can take "holes" in the plan smaller than 2 grid cells (squared = 4)
-    double min_sq_resolution = resolution * resolution * 4;
+    float min_sq_resolution = resolution * resolution * 4;
 
     for(unsigned int i = 1; i < global_plan_in.size(); ++i)
     {
-      double loop_x = global_plan_in[i].x();
-      double loop_y = global_plan_in[i].y();
-      double sqdist = (loop_x - last_x) * (loop_x - last_x) + (loop_y - last_y) * (loop_y - last_y);
+      float loop_x = global_plan_in[i].x();
+      float loop_y = global_plan_in[i].y();
+      float sqdist = (loop_x - last_x) * (loop_x - last_x) + (loop_y - last_y) * (loop_y - last_y);
 //      printf("sqdist = %.4f,resolution = %.4f,min_sq_resolution = %.4f\n",
 //             sqdist, resolution, min_sq_resolution);
       if(sqdist > min_sq_resolution)
       {
         int steps = ((sqrt(sqdist) - sqrt(min_sq_resolution)) / resolution) - 1;
         // add a points in-between
-        double deltax = (loop_x - last_x) / steps;
-        double deltay = (loop_y - last_y) / steps;
+        float deltax = (loop_x - last_x) / steps;
+        float deltay = (loop_y - last_y) / steps;
         // TODO: Interpolate orientation
         for(int j = 1; j < steps; ++j)
         {
@@ -183,8 +183,8 @@ namespace NS_Planner
     // put global path points into local map until we reach the border of the local map
     for(i = 0; i < adjusted_global_plan.size(); ++i)
     {
-      double g_x = adjusted_global_plan[i].x();
-      double g_y = adjusted_global_plan[i].y();
+      float g_x = adjusted_global_plan[i].x();
+      float g_y = adjusted_global_plan[i].y();
       unsigned int map_x, map_y;
       if(costmap.worldToMap(g_x, g_y, map_x, map_y) && costmap.getCost(map_x,
                                                                        map_y) != NS_CostMap::NO_INFORMATION)
@@ -229,8 +229,8 @@ namespace NS_Planner
     // skip global path points until we reach the border of the local map
     for(unsigned int i = 0; i < adjusted_global_plan.size(); ++i)
     {
-      double g_x = adjusted_global_plan[i].x();
-      double g_y = adjusted_global_plan[i].y();
+      float g_x = adjusted_global_plan[i].x();
+      float g_y = adjusted_global_plan[i].y();
       unsigned int map_x, map_y;
       if(costmap.worldToMap(g_x, g_y, map_x, map_y) && costmap.getCost(map_x,
                                                                        map_y) != NS_CostMap::NO_INFORMATION)

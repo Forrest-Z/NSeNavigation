@@ -109,12 +109,14 @@ namespace NS_Planner
 
         bool getPoseInPlan(const std::vector<sgbot::Pose2D>& global_plan,sgbot::Pose2D& goal_pose,int plan_point);
 
+        ///result + theta_a = theta_b , and -pi <= result <= pi
         float angleDiff(float theta_a,float theta_b){
-        	float angle_abs = sgbot::math::fabs(theta_a - theta_b);
-        	if(angle_abs >= 3.1415){
-        		angle_abs = 2 * 3.1415 - angle_abs;
+        	float angle = theta_b - theta_a;
+        	float a = sgbot::math::fmod(sgbot::math::fmod(angle, 2.0 * M_PI) + 2.0 * M_PI , 2.0 * M_PI);
+        	if(a > M_PI){
+        		a -= 2.0*M_PI;
         	}
-        	return angle_abs;
+        	return a;
         }
         //global plan which we run along
         std::vector<sgbot::Pose2D> global_plan_;

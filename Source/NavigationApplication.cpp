@@ -251,8 +251,8 @@ void NavigationApplication::trigger_loop_turn(){
 
 	sgbot::Pose2D pose;
 	if(pose_cli->call(pose)){
-		if( current_rect->isNearCorner(pose) ){
-			logInfo << "current pose is near corner";
+		if( current_rect->isNearCorner(pose) && global_state == CIRCLE){
+			logInfo << "current pose is near corner trigger loop turn";
 			float theta = M_PI / 2;
 			pose_theta_pub->publish(theta);
 		}

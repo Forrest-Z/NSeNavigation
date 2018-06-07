@@ -78,7 +78,7 @@ namespace NS_Planner
             stand_at_goal_ = false;
             logInfo << "FTCPlanner: New Goal. Start new routine.";
         }
-        logInfo << "set plan size = "<<global_plan_.size()<<"get goal pose = "<<goal_pose_.x()<<" , "<<goal_pose_.y();
+        logInfo << "set plan size = "<<global_plan_.size()<<"get goal pose = "<<goal_pose_.x()<<" , "<<goal_pose_.y()<<" , "<<goal_pose_.theta();
         old_goal_pose_ = goal_pose_;
 
         return true;
@@ -102,7 +102,7 @@ namespace NS_Planner
         else
         {
         	float distance = sgbot::distance(goal_pose_,current_pose);
-
+        	logInfo << "second part is near enough distance = "<<distance;
             //Check if robot near enough to global goal.
             if(distance > position_accuracy && !stand_at_goal_)
             {
@@ -124,6 +124,7 @@ namespace NS_Planner
             //Third part of the routine. Rotate at goal to goal orientation.
             else
             {
+            	logInfo << "third part rotate to the goal";
                 if(!stand_at_goal_)
                 {
                     logInfo << ("FTCPlanner: Stand at goal. Rotate to goal orientation.");

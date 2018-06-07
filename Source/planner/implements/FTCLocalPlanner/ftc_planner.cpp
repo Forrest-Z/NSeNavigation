@@ -27,7 +27,7 @@ namespace NS_Planner
         rotation_accuracy = parameter.getParameter("rotation_accuracy", 0.1f);
         max_rotation_vel = parameter.getParameter("max_rotation_vel",0.8f);
         min_rotation_vel = parameter.getParameter("min_rotation_vel",0.2f);
-        max_x_vel = parameter.getParameter("max_x_vel", 0.2f);
+        max_x_vel = parameter.getParameter("max_x_vel", 0.1f);
         sim_time = parameter.getParameter("sim_time",0.4f);
 
         acceleration_x = parameter.getParameter("acceleration_x",0.1f);
@@ -152,12 +152,13 @@ namespace NS_Planner
     {
         int max_point = 0;
         sgbot::Pose2D x_pose;
-
+        clipped_global_plan_.clear();
         for (unsigned int i = 0; i < global_plan_.size(); i++)
         {
             getPoseInPlan(global_plan_,x_pose,i);
             float distance = sgbot::distance(x_pose,current_pose);
 
+            clipped_global_plan_.push_back(x_pose);
             max_point = i-1;
             //If distance higher than maximal moveable distance in sim_time.
             if(distance > (max_x_vel*sim_time))
@@ -202,7 +203,7 @@ namespace NS_Planner
         for(int i = 0; i <= point; i++)
         {
             sgbot::Pose2D x_pose;
-            x_pose=global_plan_.at(point);
+            x_pose=clipped_global_plan_.at(point);
 
             //Calculate the angles between robotpose and global plan point pose
             float angle_to_goal = sgbot::math::atan2(x_pose.y() - current_pose.y(),
@@ -230,7 +231,7 @@ namespace NS_Planner
             //Slow down
             if(max_rotation_vel >= fabs(angle) * (acceleration_z+slow_down_factor))
             {
-                logInfo << "FTCPlanner: Slow down.";
+                logInfo << "FTCPlanner: rotate Slow down.";
                 if(angle < 0)
                 {
                     if(cmd_vel_angular_z_rotate_ >= -min_rotation_vel)
@@ -319,7 +320,7 @@ namespace NS_Planner
         double cmd_vel_angular_z_old = cmd_vel_angular_z_;
 
         sgbot::Pose2D x_pose;
-        x_pose = global_plan_.at(max_point);
+        x_pose = clipped_global_plan_.at(max_point);
 
         distance = sgbot::distance(x_pose,current_pose);
         angle = calculateGlobalPlanAngle(current_pose, global_plan_, max_point);
@@ -430,7 +431,7 @@ namespace NS_Planner
         for (int i = 0; i <= max_points; i++)
         {
             sgbot::Pose2D x_pose;
-            x_pose = global_plan_.at(i);
+            x_pose = clipped_global_plan_.at(i);
 
             unsigned int x;
             unsigned int y;
@@ -462,7 +463,7 @@ namespace NS_Planner
 
         FILE* file = fopen("/tmp/ftc_local_plan.log","w+");
         for(int i = 0;i < max_point;++i){
-        	fprintf(file,"%d %d\n",global_plan_[i].x(),global_plan_[i].y());
+        	fprintf(file,"%d %d\n",clipped_global_plan_[i].x(),clipped_global_plan_[i].y());
         }
         delete file;
     }

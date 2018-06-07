@@ -121,6 +121,8 @@ namespace NS_Planner
         //global plan which we run along
         std::vector<sgbot::Pose2D> global_plan_;
 
+        //the plan contains the points from begin to max_point
+        std::vector<sgbot::Pose2D> clipped_global_plan_;
         //check if plan first at first time
         bool first_setPlan_;
         //last point of the global plan in global frame

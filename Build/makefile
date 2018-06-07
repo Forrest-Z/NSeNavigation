@@ -53,7 +53,7 @@ all: NSeNavigation
 NSeNavigation: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross G++ Linker'
-	arm-openwrt-linux-muslgnueabi-g++ -L$(STAGING_DIR)/usr/lib -L$(TOPDIR)/prebuilt/gcc/linux-x86/arm/toolchain-sunxi/toolchain/lib -o "SeNavigation" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-openwrt-linux-muslgnueabi-g++ -L$(STAGING_DIR)/usr/lib -L$(TOPDIR)/prebuilt/gcc/linux-x86/arm/toolchain-sunxi/toolchain/lib -o "NSeNavigation" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 

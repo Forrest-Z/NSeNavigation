@@ -78,7 +78,7 @@ namespace NS_Planner
             stand_at_goal_ = false;
             logInfo << "FTCPlanner: New Goal. Start new routine.";
         }
-        logInfo << "set plan get goal pose = "<<goal_pose_.x()<<" , "<<goal_pose_.y();
+        logInfo << "set plan size = "<<global_plan_.size()<<"get goal pose = "<<goal_pose_.x()<<" , "<<goal_pose_.y();
         old_goal_pose_ = goal_pose_;
 
         return true;
@@ -204,13 +204,14 @@ namespace NS_Planner
             x_pose=global_plan_.at(point);
 
             //Calculate the angles between robotpose and global plan point pose
-            double angle_to_goal = sgbot::math::atan2(x_pose.y() - current_pose.y(),
+            float angle_to_goal = sgbot::math::atan2(x_pose.y() - current_pose.y(),
                                          x_pose.x() - current_pose.x());
             angle += angle_to_goal;
         }
 
         //average
         angle = angle/(point+1);
+        logInfo << "angle average = "<<angle;
         float angle_diff = angleDiff(current_th, angle);
         logInfo <<"global plan angle diff = "<<angle_diff;
         return angle_diff;

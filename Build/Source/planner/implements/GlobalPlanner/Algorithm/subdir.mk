@@ -4,18 +4,21 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
+../Source/planner/implements/GlobalPlanner/Algorithm/Astar.cpp \
 ../Source/planner/implements/GlobalPlanner/Algorithm/Dijkstra.cpp \
 ../Source/planner/implements/GlobalPlanner/Algorithm/GradientPath.cpp \
 ../Source/planner/implements/GlobalPlanner/Algorithm/OrientationFilter.cpp \
 ../Source/planner/implements/GlobalPlanner/Algorithm/QuadraticCalculator.cpp 
 
 OBJS += \
+./Source/planner/implements/GlobalPlanner/Algorithm/Astar.o \
 ./Source/planner/implements/GlobalPlanner/Algorithm/Dijkstra.o \
 ./Source/planner/implements/GlobalPlanner/Algorithm/GradientPath.o \
 ./Source/planner/implements/GlobalPlanner/Algorithm/OrientationFilter.o \
 ./Source/planner/implements/GlobalPlanner/Algorithm/QuadraticCalculator.o 
 
 CPP_DEPS += \
+./Source/planner/implements/GlobalPlanner/Algorithm/Astar.d \
 ./Source/planner/implements/GlobalPlanner/Algorithm/Dijkstra.d \
 ./Source/planner/implements/GlobalPlanner/Algorithm/GradientPath.d \
 ./Source/planner/implements/GlobalPlanner/Algorithm/OrientationFilter.d \

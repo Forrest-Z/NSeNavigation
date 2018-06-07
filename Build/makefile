@@ -12,6 +12,7 @@ RM := rm -rf
 -include Source/planner/implements/TrajectoryLocalPlanner/subdir.mk
 -include Source/planner/implements/GlobalPlanner/Algorithm/subdir.mk
 -include Source/planner/implements/GlobalPlanner/subdir.mk
+-include Source/planner/implements/FTCLocalPlanner/subdir.mk
 -include Source/costmap/utils/subdir.mk
 -include Source/costmap/layers/subdir.mk
 -include Source/costmap/costmap_2d/subdir.mk
@@ -52,7 +53,7 @@ all: NSeNavigation
 NSeNavigation: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross G++ Linker'
-	arm-openwrt-linux-muslgnueabi-g++ -L$(SENAVICOMMON_PATH)/Build -L$(TOPDIR)/prebuilt/gcc/linux-x86/arm/toolchain-sunxi/toolchain/lib -L$(STAGING_DIR)/usr/lib -o "SeNavigation" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-openwrt-linux-muslgnueabi-g++ -L$(STAGING_DIR)/usr/lib -L$(TOPDIR)/prebuilt/gcc/linux-x86/arm/toolchain-sunxi/toolchain/lib -o "NSeNavigation" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 

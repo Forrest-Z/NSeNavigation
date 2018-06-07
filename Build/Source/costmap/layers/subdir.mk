@@ -5,15 +5,18 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
 ../Source/costmap/layers/InflationLayer.cpp \
-../Source/costmap/layers/StaticLayer.cpp 
+../Source/costmap/layers/StaticLayer.cpp \
+../Source/costmap/layers/VisitedLayer.cpp 
 
 OBJS += \
 ./Source/costmap/layers/InflationLayer.o \
-./Source/costmap/layers/StaticLayer.o 
+./Source/costmap/layers/StaticLayer.o \
+./Source/costmap/layers/VisitedLayer.o 
 
 CPP_DEPS += \
 ./Source/costmap/layers/InflationLayer.d \
-./Source/costmap/layers/StaticLayer.d 
+./Source/costmap/layers/StaticLayer.d \
+./Source/costmap/layers/VisitedLayer.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

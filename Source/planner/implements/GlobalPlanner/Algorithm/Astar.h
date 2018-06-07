@@ -1,10 +1,11 @@
 #ifndef _ASTAR_H_
 #define _ASTAR_H_
 
-#include "Expander.h"
+
 #include <vector>
 #include <algorithm>
-
+#include "../../../../costmap/costmap_2d/CostValues.h"
+#include "Expander.h"
 namespace NS_Planner
 {
   

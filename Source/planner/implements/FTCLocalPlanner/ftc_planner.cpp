@@ -292,7 +292,7 @@ namespace NS_Planner
                     cmd_vel.angular = cmd_vel_angular_z_rotate_;
                 }
             }
-            logInfo << ("FTCPlanner: cmd_vel.z: %f, angle: %f", cmd_vel.angular, angle);
+            logInfo << "FTCPlanner: cmd_vel.z: "<<cmd_vel.angular<<", angle: "<< angle;
             return true;
         }
         else
@@ -406,7 +406,7 @@ namespace NS_Planner
         cmd_vel.linear = cmd_vel_linear_x_;
         cmd_vel.angular = cmd_vel_angular_z_;
         cmd_vel_angular_z_rotate_ = cmd_vel_angular_z_;
-        logInfo << ("FTCPlanner: max_point: %d, distance: %f, x_vel: %f, rot_vel: %f, angle: %f", max_point, distance, cmd_vel.linear, cmd_vel.angular, angle);
+        logInfo << "FTCPlanner: max_point: "<<max_point<<", distance: "<<distance<<", x_vel: "<<cmd_vel.linear<<", rot_vel: "<<cmd_vel.angular<<", angle: "<<angle;
 
         return max_point;
     }

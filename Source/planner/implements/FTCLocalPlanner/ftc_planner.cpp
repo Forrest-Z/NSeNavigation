@@ -212,6 +212,7 @@ namespace NS_Planner
         }
 
         //average
+        logInfo << "point = "<<point<<" . "<<"angle before average = "<<angle;
         angle = angle/(point+1);
         logInfo << "angle average = "<<angle;
         float angle_diff = angleDiff(current_th, angle);

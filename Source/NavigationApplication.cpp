@@ -56,7 +56,7 @@ void NavigationApplication::loadParameters() {
 			"global_planner");
 	local_planner_type_ = parameter.getParameter("local_planner_type",
 			"ftc_local_planner");
-	planner_frequency_ = parameter.getParameter("planner_frequency", 0.0f);
+	planner_frequency_ = parameter.getParameter("planner_frequency", 1.0f);
 	controller_frequency_ = parameter.getParameter("controller_frequency",
 			5.0f);
 	back_to_begin_tolerance = parameter.getParameter("back_to_begin_tolerance",
@@ -410,7 +410,7 @@ void NavigationApplication::controlLoop() {
 
 void NavigationApplication::control_func() {
 	logInfo<< "control func hold until control finished";
-	while(running) {
+//	while(running) {
 		Velocity2D cmd_vel;
 		NS_NaviCommon::Time last_valid_control;
 		if (local_planner->isGoalReached()) {
@@ -426,11 +426,11 @@ void NavigationApplication::control_func() {
 //				is_ready_for_walk = 1;
 //				is_preparing = 0;
 //			}
-			if(is_walking) {
-				logInfo << "goal reached continue walking";
-				current_state = (++current_state) % 8;
-				state = WALKING;
-			}
+//			if(is_walking) {
+//				logInfo << "goal reached continue walking";
+//				current_state = (++current_state) % 8;
+//				state = WALKING;
+//			}
 			return;
 		}
 
@@ -470,7 +470,7 @@ void NavigationApplication::control_func() {
 				return;
 			}
 		}
-	}
+//	}
 }
 
 bool NavigationApplication::makePlan(const sgbot::Pose2D& goal,
@@ -600,6 +600,7 @@ void NavigationApplication::run() {
 	sgbot::Pose2D pose;
 	pose_cli->call(pose);
 	current_rect = visited_layer->generateRectangle(pose);
+
 }
 
 void NavigationApplication::quit() {

@@ -206,7 +206,7 @@ namespace NS_Planner
             x_pose=clipped_global_plan_.at(point);
 
             //Calculate the angles between robotpose and global plan point pose
-            float angle_to_goal = sgbot::math::atan2(x_pose.y() - current_pose.y(),
+            float angle_to_goal = std::atan2(x_pose.y() - current_pose.y(),
                                          x_pose.x() - current_pose.x());
             logInfo << "calculate plan angle x pose = "<<x_pose.x()<<" , "<<x_pose.y()<<" , current pose = "<<current_pose.x()<<" , "<<current_pose.y();
             logInfo << "angle to goal = "<<angle_to_goal;

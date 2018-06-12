@@ -126,57 +126,8 @@ void CostmapWrapper::loadParameters() {
 	origin_y_ = 0.0;
 }
 
-void CostmapWrapper::prepareMap() {
-//    Costmap2D* costmap_ = layered_costmap->getCostmap();
-//
-//    boost::unique_lock < Costmap2D::mutex_t > lock(*(costmap_->getMutex()));
-//
-//    double resolution = costmap_->getResolution();
-//
-//    map.header.stamp = NS_NaviCommon::Time::now();
-//    map.info.resolution = resolution;
-//
-//    map.info.width = costmap_->getSizeInCellsX();
-//    map.info.height = costmap_->getSizeInCellsY();
-//
-//    double wx, wy;
-//    costmap_->mapToWorld(0, 0, wx, wy);
-//    map.info.origin.position.x = wx - resolution / 2;
-//    map.info.origin.position.y = wy - resolution / 2;
-//    map.info.origin.position.z = 0.0;
-//    map.info.origin.orientation.w = 1.0;
-//    saved_origin_x = costmap_->getOriginX();
-//    saved_origin_y = costmap_->getOriginY();
-//
-//    map.data.resize(map.info.width * map.info.height);
-//
-//    unsigned char* data = costmap_->getCharMap();
-//    for(unsigned int i = 0; i < map.data.size(); i++)
-//    {
-//      map.data[i] = cost_translation_table[data[i]];
-//    }
-}
 
-///TODO change the data structure of service transform
 bool CostmapWrapper::getRobotPose(Pose2D& global_pose) const {
-//	NS_Service::Client <Transform2D> odom_tf_cli("BASE_ODOM_TF");
-//	NS_Service::Client <Transform2D> map_tf_cli("ODOM_MAP_TF");
-//	Transform2D odom_transform,map_transform;
-//	if(odom_tf_cli.call(odom_transform) == false){
-//		logError<<"get odometry transform failed";
-//	}
-//	if(map_tf_cli.call(map_transform) == false){
-//		logError<<"get map transform failed";
-//	}
-//	Transform2D transform2d = odom_transform * map_transform;
-//	float scalar;
-//	transform2d.getValue(global_pose.x(),global_pose.y(),global_pose.theta(),scalar);
-//	global_pose.x() = 1.0f;
-//	global_pose.y() = 1.0f;
-//	global_pose.theta() = 0.0f;
-
-
-
 	sgbot::Pose2D pose2d;
 	pose_cli->call(pose2d);
 	logInfo<< "get robot pose = ( "<< pose2d.x()<<" , "<<pose2d.y()<<" ) theta = "<<pose2d.theta();
@@ -236,8 +187,6 @@ void CostmapWrapper::initialize() {
 		printf("Footprint parameter parse failure!\n");
 		return;
 	}
-
-//   footprint_from_param = makeFootprintFromRadius(footprint_radius);
 	logInfo << "initial footprint.size() = "<<footprint_from_param.size();
 	setPaddedRobotFootprint (footprint_from_param);
 

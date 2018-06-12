@@ -16,8 +16,6 @@ namespace NS_Planner
 
   double getYaw(Pose2D pose)
   {
-    //return tf::getYaw(pose.pose.orientation);
-//    return NS_Transform::getYaw(pose.pose.orientation);
 	  return pose.theta();
   }
 

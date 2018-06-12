@@ -5,18 +5,15 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
 ../Source/Main.cpp \
-../Source/NavigationApplication.cpp \
-../Source/test.cpp 
+../Source/NavigationApplication.cpp 
 
 OBJS += \
 ./Source/Main.o \
-./Source/NavigationApplication.o \
-./Source/test.o 
+./Source/NavigationApplication.o 
 
 CPP_DEPS += \
 ./Source/Main.d \
-./Source/NavigationApplication.d \
-./Source/test.d 
+./Source/NavigationApplication.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

@@ -151,6 +151,7 @@ namespace NS_Planner
         float acceleration_x,acceleration_z;
         float slow_down_factor;
         float local_planner_frequence;
+        int collision_threshold;
     };
 };
 #endif

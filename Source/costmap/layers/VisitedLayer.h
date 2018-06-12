@@ -16,10 +16,11 @@
 namespace NS_CostMap {
 class Rect {
 public:
-	Rect(){
+	Rect() {
 
 	}
-	Rect(sgbot::Pose2D center_, float width_, float height_,float near_corner_tolerance_) :
+	Rect(sgbot::Pose2D center_, float width_, float height_,
+			float near_corner_tolerance_) :
 			center(center_), width(width_), height(height_) {
 		left_down_p = sgbot::Point2D(center.x() - width / 2,
 				center.y() - height / 2);
@@ -40,22 +41,24 @@ public:
 		}
 	}
 	//1,2,3,4
-	int isNearCorner(sgbot::Pose2D pose){
-		sgbot::Point2D point = sgbot::Point2D(pose.x(),pose.y());
-		if( sgbot::distance(left_down_p,point) <= near_corner_tolerance){
+	int isNearCorner(sgbot::Pose2D pose) {
+		sgbot::Point2D point = sgbot::Point2D(pose.x(), pose.y());
+		if (sgbot::distance(left_down_p, point) <= near_corner_tolerance) {
 			return 1;
-		}else if( sgbot::distance(right_down_p,point) <= near_corner_tolerance ){
+		} else if (sgbot::distance(right_down_p, point)
+				<= near_corner_tolerance) {
 			return 2;
-		}else if( sgbot::distance(right_up_p,point) <= near_corner_tolerance ){
+		} else if (sgbot::distance(right_up_p, point)
+				<= near_corner_tolerance) {
 			return 3;
-		}else if( sgbot::distance(left_up_p,point) <= near_corner_tolerance ){
+		} else if (sgbot::distance(left_up_p, point) <= near_corner_tolerance) {
 			return 4;
 		}
 		return 0;
 	}
 private:
 	sgbot::Pose2D center;
-	float width, height,near_corner_tolerance;
+	float width, height, near_corner_tolerance;
 	sgbot::Point2D left_down_p, right_down_p, right_up_p, left_up_p;
 };
 /*
@@ -93,26 +96,33 @@ public:
 	}
 	int searchWallPoint();
 	///search wall on the front of robot
-	int searchFrontWall();
+	std::vector<int> searchFrontWall();
 
-	bool is_frontier_point(sgbot::Map2D& map, int index, bool* frontier_flag) {
+	sgbot::tf::Transform2D constructTf(const sgbot::Pose2D& pose) {
+		//world to map translation
+		sgbot::tf::Transform2D map_transform(pose.x() / resolution_,
+				pose.y() / resolution_, pose.theta(), 1);
+		return map_transform;
+	}
+	bool isFrontierPoint(const sgbot::Map2D& map, const sgbot::Pose2D& pose,
+			int index, bool* frontier_flag) {
 		if (frontier_flag[index] == true) {
 			return false;
 		}
 		int x = index % size_x_;
 		int y = index / size_x_;
 		//lethal obstacle and  one of 4 nbor is inscribed obstacle
-		if (map.isEdge(x,y)) {
-			for (int nbr : neighborhood4(index)) {
+		if (map.isEdge(x, y)) {
+			for (int nbr : neighborhood4(pose, index)) {
 				//    if (map_[nbr] == FREE_SPACE) {
-				if (map.isKnown(nbr % size_x_,nbr / size_x_)) {
+				if (map.isKnown(nbr % size_x_, nbr / size_x_)) {
 					return true;
 				}
 			}
 		}
 		return false;
 	}
-	std::vector<int> build_frontier(sgbot::Map2D &map, int robot_index,
+	std::vector<int> buildFrontier(const sgbot::Map2D &map,const sgbot::Pose2D& pose,int robot_index,
 			int start_index, bool *frontier_flag, int limit_distance) {
 		std::vector<int> frontiers;
 		std::queue<int> queue1;
@@ -120,9 +130,9 @@ public:
 		while (!queue1.empty()) {
 			int front = queue1.front();
 			queue1.pop();
-			std::vector<int> n8_vec = neighborhood4(front);
+			std::vector<int> n8_vec = neighborhood4(pose,front);
 			for (int i = 0; i < n8_vec.size(); ++i) {
-				if (is_frontier_point(map, n8_vec[i], frontier_flag)) {
+				if (isFrontierPoint(map,pose, n8_vec[i], frontier_flag)) {
 					if (distance(robot_index % size_x_, robot_index / size_x_,
 							n8_vec[i] % size_x_, n8_vec[i] / size_x_))
 						frontier_flag[n8_vec[i]] = true;
@@ -140,49 +150,101 @@ public:
 		printf("frontiers size = %d\n", frontiers.size());
 		return frontiers;
 	}
-	std::vector<int> neighborhood4(int idx) {
+	std::vector<int> neighborhood4(const sgbot::Pose2D& pose, int idx) {
 		std::vector<int> out;
 
 		if (idx > size_x_ * size_y_ - 1) {
 			printf("Evaluating nhood for offmap point\n");
 			return out;
 		}
-
+		sgbot::tf::Transform2D transform = constructTf(pose);
+		int result_idx = 0;
 		if (idx % size_x_ > 0) {
-			out.push_back(idx - 1);
+			result_idx = idx - 1;
+			sgbot::Point2D construct_pose = transform.transform(
+					sgbot::Point2D(result_idx % size_x_, result_idx / size_x_));
+			int idx_x = construct_pose.x();
+			int idx_y = construct_pose.y();
+			out.push_back(idx_x + idx_y * size_x_);
+//			out.push_back(idx - 1);
 		}
 		if (idx % size_x_ < size_x_ - 1) {
-			out.push_back(idx + 1);
+//			out.push_back(idx + 1);
+			result_idx = idx + 1;
+			sgbot::Point2D construct_pose = transform.transform(
+					sgbot::Point2D(result_idx % size_x_, result_idx / size_x_));
+			int idx_x = construct_pose.x();
+			int idx_y = construct_pose.y();
+			out.push_back(idx_x + idx_y * size_x_);
 		}
 		if (idx >= size_x_) {
-			out.push_back(idx - size_x_);
+//			out.push_back(idx - size_x_);
+			result_idx = idx - size_x_;
+			sgbot::Point2D construct_pose = transform.transform(
+					sgbot::Point2D(result_idx % size_x_, result_idx / size_x_));
+			int idx_x = construct_pose.x();
+			int idx_y = construct_pose.y();
+			out.push_back(idx_x + idx_y * size_x_);
 		}
 		if (idx < size_x_ * (size_y_ - 1)) {
-			out.push_back(idx + size_x_);
+//			out.push_back(idx + size_x_);
+			result_idx = idx + size_x_;
+			sgbot::Point2D construct_pose = transform.transform(
+					sgbot::Point2D(result_idx % size_x_, result_idx / size_x_));
+			int idx_x = construct_pose.x();
+			int idx_y = construct_pose.y();
+			out.push_back(idx_x + idx_y * size_x_);
 		}
+
 		return out;
 	}
 	//6 4 8
 	//1 * 2
 	//5 3 7
-	std::vector<int> neighborhood8(int idx) {
-		std::vector<int> out = neighborhood4(idx);
+	std::vector<int> neighborhood8(const sgbot::Pose2D& pose, int idx) {
+		std::vector<int> out = neighborhood4(pose, idx);
 
 		if (idx > size_x_ * size_y_ - 1) {
 			return out;
 		}
-
+		int result_idx = 0;
+		sgbot::tf::Transform2D transform = constructTf(pose);
 		if (idx % size_x_ > 0 && idx >= size_x_) {
-			out.push_back(idx - 1 - size_x_);
+//			out.push_back(idx - 1 - size_x_);
+			result_idx = idx - 1 - size_x_;
+			sgbot::Point2D construct_pose = transform.transform(
+					sgbot::Point2D(result_idx % size_x_, result_idx / size_x_));
+			int idx_x = construct_pose.x();
+			int idx_y = construct_pose.y();
+			out.push_back(idx_x + idx_y * size_x_);
+
 		}
 		if (idx % size_x_ > 0 && idx < size_x_ * (size_y_ - 1)) {
-			out.push_back(idx - 1 + size_x_);
+//			out.push_back(idx - 1 + size_x_);
+			result_idx = idx - 1 + size_x_;
+			sgbot::Point2D construct_pose = transform.transform(
+					sgbot::Point2D(result_idx % size_x_, result_idx / size_x_));
+			int idx_x = construct_pose.x();
+			int idx_y = construct_pose.y();
+			out.push_back(idx_x + idx_y * size_x_);
 		}
 		if (idx % size_x_ < size_x_ - 1 && idx >= size_x_) {
-			out.push_back(idx + 1 - size_x_);
+//			out.push_back(idx + 1 - size_x_);
+			result_idx = idx + 1 - size_x_;
+			sgbot::Point2D construct_pose = transform.transform(
+					sgbot::Point2D(result_idx % size_x_, result_idx / size_x_));
+			int idx_x = construct_pose.x();
+			int idx_y = construct_pose.y();
+			out.push_back(idx_x + idx_y * size_x_);
 		}
 		if (idx % size_x_ < size_x_ - 1 && idx < size_x_ * (size_y_ - 1)) {
-			out.push_back(idx + 1 + size_x_);
+//			out.push_back(idx + 1 + size_x_);
+			result_idx = idx + 1 + size_x_;
+			sgbot::Point2D construct_pose = transform.transform(
+					sgbot::Point2D(result_idx % size_x_, result_idx / size_x_));
+			int idx_x = construct_pose.x();
+			int idx_y = construct_pose.y();
+			out.push_back(idx_x + idx_y * size_x_);
 		}
 
 		return out;
@@ -193,7 +255,8 @@ public:
 		return d;
 	}
 	Rect* generateRectangle(const sgbot::Pose2D& center) {
-		rect_p = new Rect(center,sweep_rec_x,sweep_rec_y,near_corner_tolerance);
+		rect_p = new Rect(center, sweep_rec_x, sweep_rec_y,
+				near_corner_tolerance);
 		return rect_p;
 	}
 private:

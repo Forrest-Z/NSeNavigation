@@ -30,10 +30,7 @@ enum S_STATE {
 };
 enum ACTION
 	: int {
-	MASTER_CONTROL,
-	GOTO_WALL,
-	ALONG_WALL,
-	WALK_S_PATH
+		MASTER_CONTROL, GOTO_WALL, ALONG_WALL, WALK_S_PATH
 };
 enum EVENT
 	: int {
@@ -43,9 +40,8 @@ enum EVENT
 enum TRANSFORM_STATE {
 	R_X_U_Y = 0, U_X_L_Y, L_X_D_Y, D_X_R_Y
 };
-enum GLOBAL_STATE{
-	CIRCLE,
-	WALK_S
+enum GLOBAL_STATE {
+	CIRCLE, WALK_S
 };
 #define PLANNER_LOOP_TIMEOUT 100
 /**
@@ -56,7 +52,7 @@ public:
 	NavigationApplication();
 	virtual ~NavigationApplication();
 
-	void control_func();
+	void controlFunc();
 
 	virtual void
 	run();
@@ -117,21 +113,25 @@ private:
 	void
 	resetState();
 
-	void event_callback(int event_flag);
+	void eventCallback(int event_flag);
 
-	void action_callback(int action_flag);
+	void actionCallback(int action_flag);
 
-	void prepare_for_walk();
+//	void prepare_for_walk();
 
-	void search_go_wall();
+////	///
+	void searchGoWall();
 
-	void trigger_loop_turn();
+	void triggerLoopTurn();
 
-	void back_to_frontier_s();
+	void backToWalkS();
 
-	void walk_s_state();
+	void findFrontWall();
 
-	void find_front_wall();
+	void fullCoverage();
+
+	void wolkSComplete();
+////
 	void turnleft() {
 //		transform_state = (++transform_state) % 4;
 		sgbot::Pose2D base_pose;
@@ -142,7 +142,7 @@ private:
 			NS_NaviCommon::Rate rate(2);
 //			float target_theta = base_pose.theta() + M_PI_2;
 			float target_theta = callback_theta + M_PI_2;
-			if(callback_theta > 0 && callback_theta + M_PI_2 >= M_PI - 0.002){
+			if (callback_theta > 0 && callback_theta + M_PI_2 >= M_PI - 0.002) {
 				target_theta = target_theta - M_PI * 2;
 			}
 			callback_theta = target_theta;
@@ -195,7 +195,7 @@ private:
 		if (simple_turn) {
 			NS_NaviCommon::Rate rate(2);
 			float target_theta = callback_theta - M_PI_2;
-			if(callback_theta < 0 && callback_theta - M_PI_2 <= -M_PI + 0.002){
+			if(callback_theta < 0 && callback_theta - M_PI_2 <= -M_PI + 0.002) {
 				target_theta = target_theta + M_PI * 2;
 			}
 			callback_theta = target_theta;
@@ -266,33 +266,25 @@ private:
 	}
 
 	sgbot::Pose2D transform_to_map(sgbot::Pose2D& current_pose,const float& distance) {
-		logInfo << "transform state = "<<transform_state;
 		sgbot::Pose2D target_pose = current_pose;
 
 		sgbot::tf::Transform2D map_transform(current_pose.x(),current_pose.y(),current_pose.theta(),1);
 		target_pose = map_transform.transform( sgbot::Pose2D(distance,0,0) );
 		logInfo << "transformed pose = "<<target_pose.x()<<" , "<<target_pose.y()<<" theta = "<<target_pose.theta();
-//		if(transform_state == 0) {
-//			target_pose.x() = current_pose.x() + distance;
-////			target_pose.y() = current_pose.y();
-////			target_pose.theta() = current_pose.theta();
-//		} else if(transform_state == 1) {
-////			target_pose.x() = current_pose.x();
-//			target_pose.y() = current_pose.y() + distance;
-////			target_pose.theta() = current_pose.theta();
-//		} else if (transform_state == 2) {
-//			target_pose.x() = current_pose.x() - distance;
-////			target_pose.y() = current_pose.y();
-////			target_pose.theta() = current_pose.theta();
-//		} else if (transform_state == 3) {
-////			target_pose.x() = current_pose.x();
-//			target_pose.y() = current_pose.y() - distance;
-////			target_pose.theta() = current_pose.theta();
-//		}
 		return target_pose;
 	}
 
 private:
+	boost::shared_ptr<NS_CostMap::VisitedLayer>& get_visited_layer() {
+		std::vector<boost::shared_ptr<NS_CostMap::CostmapLayer> >* layer_vec_p =
+		global_costmap->getLayeredCostmap()->getPlugins();
+		boost::shared_ptr<NS_CostMap::CostmapLayer> costmap_layer =
+		layer_vec_p->at(2);
+		static boost::shared_ptr<NS_CostMap::VisitedLayer> visited_layer =
+		boost::dynamic_pointer_cast<NS_CostMap::VisitedLayer>(
+				costmap_layer);
+		return visited_layer;
+	}
 	std::string global_planner_type_;
 	std::string local_planner_type_;
 	/// 全局规划频率
@@ -365,7 +357,7 @@ private:
 ///current pose for visualized
 	NS_Service::Server<sgbot::Pose2D>* current_pose_srv;
 	sgbot::Pose2D current_pose;
-	///plan for visualized
+///plan for visualized
 	NS_Service::Server<std::vector<sgbot::Pose2D> >* plan_srv;
 	std::vector<sgbot::Pose2D> global_plan;
 
@@ -393,10 +385,9 @@ private:
 	bool simple_turn;
 	float simple_turn_vel;
 	float simple_turn_tolerance;
-//	TRANSFORM_STATE transform_state = R_X_D_Y;
-	int transform_state;
 
-	//
+
+//
 	std::vector<sgbot::Point2D> point_vec;
 
 	float callback_theta;

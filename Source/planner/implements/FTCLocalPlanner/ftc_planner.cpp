@@ -34,6 +34,7 @@ namespace NS_Planner
         acceleration_z = parameter.getParameter("acceleration_z",0.1f);
         slow_down_factor = parameter.getParameter("slow_down_factor",1.f);
         local_planner_frequence = parameter.getParameter("local_planner_frequence",20.f);
+        collision_threshold = parameter.getParameter("collision_threshold",128);
         logInfo <<"ftc planner initialized";
     }
 
@@ -441,7 +442,7 @@ namespace NS_Planner
             costmap->getCostmap()->worldToMap(x_pose.x(), x_pose.y(), x, y);
             unsigned char costs = costmap->getCostmap()->getCost(x, y);
             //Near at obstacle
-            if(costs > 0)
+            if(costs > static_cast<unsigned char>(collision_threshold) )
             {
                 if(!rotate_to_global_plan_)
                 {

@@ -6,7 +6,7 @@
 #include "PotentialCalculator.h"
 
 #include <Console/Console.h>
-
+#include <log_tool.h>
 namespace NS_Planner
 {
 

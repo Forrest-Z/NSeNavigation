@@ -128,10 +128,10 @@ bool GlobalPlanner::makePlan(const Pose2D& start, const Pose2D& goal,
 	double circumscribed_radius =
 	costmap->getLayeredCostmap()->getCircumscribedRadius();
 
-	std::cout << "size in cell x "<< nx<<" , ny = "<<ny << " , resolution = " << resolution
+	logInfo << "size in cell x "<< nx<<" , ny = "<<ny << " , resolution = " << resolution
 	<< " , inscribed_radius = " << inscribe_radius
-	<< " ,circumscribed_radius = " << circumscribed_radius << "\n";
-	std::cout << "origin x = "<< costmap->getLayeredCostmap()->getCostmap()->getOriginX()<<", y = "
+	<< " ,circumscribed_radius = " << circumscribed_radius ;
+	logInfo << "origin x = "<< costmap->getLayeredCostmap()->getCostmap()->getOriginX()<<", y = "
 	<< costmap->getLayeredCostmap()->getCostmap()->getOriginY();
 
 	if (!initialized_) {

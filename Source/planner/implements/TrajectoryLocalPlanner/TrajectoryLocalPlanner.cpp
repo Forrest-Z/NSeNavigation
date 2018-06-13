@@ -383,9 +383,7 @@ namespace NS_Planner
     if(prune_plan_)
       prunePlan(global_pose, global_plan_, global_plan_);
 
-    printf("compute vel global_pose x = %.4f,y = %.4f,w = %.4f\n",
-           global_pose.x(), global_pose.y(),
-           global_pose.theta());
+    logInfo << "compute vel global_pose x = "<<global_pose.x()<<",y = "<<global_pose.y()<<",theta = "<<global_pose.theta();
 
 
     Velocity2D drive_cmds;
@@ -504,9 +502,8 @@ namespace NS_Planner
       return false;
     }
 
-    printf(
-        "A valid velocity command of (%.2f, 0.0f, %.2f) was found for this cycle.\n",
-        cmd_vel.linear, cmd_vel.angular);
+    logInfo <<
+        "A valid velocity command of ("<<cmd_vel.linear<<" , "<<cmd_vel.angular<<") was found for this cycle";
 
     // Fill out the local plan
     for(unsigned int i = 0; i < path.getPointsSize(); ++i)

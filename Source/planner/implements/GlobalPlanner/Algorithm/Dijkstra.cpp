@@ -88,8 +88,8 @@ bool DijkstraExpansion::calculatePotentials(unsigned char* costs,
 		double start_x, double start_y, double end_x, double end_y, int cycles,
 		float* potential) {
 
-	printf("calculatePotentials running...\n");
-	printf("unknown_ = %d,factor_ = %.4f,neutral_cost_ = %d,lethal_cost_ = %d\n",unknown_,factor_,neutral_cost_,lethal_cost_);
+	logInfo << ("calculatePotentials running...\n");
+	logInfo << "unknown_ = %d,factor_ = %.4f,neutral_cost_ = %d,lethal_cost_ = %d "<< unknown_<<" , "<<factor_<<" , "<<neutral_cost_<<" , "<<lethal_cost_;
 	cells_visited_ = 0;
 	// priority buffers
 	threshold_ = lethal_cost_;
@@ -150,13 +150,13 @@ bool DijkstraExpansion::calculatePotentials(unsigned char* costs,
 	// set up start cell
 	int startCell = toIndex(end_x, end_y);
 
-	printf("Beforing for loop...\n");
+	logInfo <<"Beforing for loop...\n";
 
 	for (; cycle < cycles; cycle++) // go for this many cycles, unless interrupted
 			{
 		if (currentEnd_ == 0 && nextEnd_ == 0) // priority blocks empty
 				{
-			printf("priority blocks empty\n");
+			logInfo <<"priority blocks empty\n";
 			return false;
 		}
 
@@ -199,7 +199,7 @@ bool DijkstraExpansion::calculatePotentials(unsigned char* costs,
 			break;
 	}
 
-	printf("---------After for loop...----------------\n");
+	logInfo << ("---------After for loop...----------------\n");
 
 	//ROS_INFO("CYCLES %d/%d ", cycle, cycles);
 	if (cycle < cycles)

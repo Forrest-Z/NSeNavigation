@@ -526,15 +526,13 @@ bool NavigationApplication::makePlan(const sgbot::Pose2D& goal,
 		return false;
 	}
 
-	console.debug("Plans computed, %d points to go...", plan.size());
+	logInfo << "Plans computed,  points to go... = " << plan.size();
 	global_plan.resize(plan.size());
 	for (size_t i = 0; i < plan.size(); i++) {
-		console.debug("[%d] x = %lf, y = %lf", (i + 1), plan[i].x(),
-				plan[i].y());
 		global_plan[i] = plan[i];
 		printf("%lf,%lf,\n", plan[i].x(), plan[i].y());
 	}
-	printf("global_plan is assigned and size = %d\n", global_plan.size());
+	logInfo << "global_plan is assigned and size  = "<< global_plan.size();
 	return true;
 
 }

@@ -901,7 +901,7 @@ Trajectory TrajectoryPlanner::findBestPath(Pose2D global_pose,
 	//rollout trajectories and find the minimum cost one
 	Trajectory best = createTrajectories(pos[0], pos[1], pos[2], vel[0], vel[1],
 			vel[2], acc_lim_x_, acc_lim_y_, acc_lim_theta_);
-	printf("Trajectories created\n");
+	logInfo << "Trajectories created\n";
 
 //    if(best.cost_ < 0)
 //    {

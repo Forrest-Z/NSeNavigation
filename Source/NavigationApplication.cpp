@@ -290,6 +290,11 @@ void NavigationApplication::findFrontWall() {
 		float theta = std::atan2(end_y - start_y,end_x - start_x);
 		logInfo <<"found frontier wall theta = "<<theta;
 		pose_theta_pub->publish(theta);
+		float world_x,world_y;
+		global_costmap->getCostmap()->mapToWorld(start_x,start_y,world_x,world_y);
+		float distance = sgbot::distance(pose,sgbot::Pose2D(world_x,world_y,0.f) );
+		logInfo << "front wall distance = "<<distance;
+		pose_distance_pub->publish(distance);
 	}
 }
 
@@ -304,6 +309,11 @@ void NavigationApplication::wolkSComplete() {
 	global_costmap->getCostmap()->worldToMap(pose.x(),pose.y(),map_x,map_y);
 	int index = map_x + map_y * global_costmap->getCostmap()->getSizeInMetersX();
 	std::vector<int> nei_8 = visited_layer->neighborhood8(pose,index);
+	for(int&& value : nei_8){
+		int map_x,map_y;
+		global_costmap->getCostmap()->indexToCells(value,map_x,map_y);
+
+	}
 }
 
 void NavigationApplication::planLoop() {

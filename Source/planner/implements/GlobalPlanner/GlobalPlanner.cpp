@@ -212,16 +212,16 @@ bool GlobalPlanner::makePlan(const Pose2D& start, const Pose2D& goal,
 	outlineMap(costmap->getLayeredCostmap()->getCostmap()->getCharMap(), nx, ny,
 			NS_CostMap::LETHAL_OBSTACLE);
 
-	FILE* map_file = fopen("/tmp/before_costmap.log", "w+");
-	int index = 0;
-	for (unsigned int i = 0; i < ny; ++i) {
-		for (unsigned int j = 0; j < nx; ++j) {
-			fprintf(map_file, "%d %d %d\n",j,i, char_map[index] );
-			++index;
-		}
-
-	}
-	fclose(map_file);
+//	FILE* map_file = fopen("/tmp/before_costmap.log", "w+");
+//	int index = 0;
+//	for (unsigned int i = 0; i < ny; ++i) {
+//		for (unsigned int j = 0; j < nx; ++j) {
+//			fprintf(map_file, "%d %d %d\n",j,i, char_map[index] );
+//			++index;
+//		}
+//
+//	}
+//	fclose(map_file);
 	/*
 	 * 此处开始调用算法
 	 */

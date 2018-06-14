@@ -230,16 +230,16 @@ bool GlobalPlanner::makePlan(const Pose2D& start, const Pose2D& goal,
 			start_y, goal_x, goal_y, nx * ny * 2, potential_array_);
 
 
-	FILE* after_map_file = fopen("/tmp/after_costmap.log", "w+");
-		index = 0;
-		for (unsigned int i = 0; i < ny; ++i) {
-			for (unsigned int j = 0; j < nx; ++j) {
-				fprintf(after_map_file, "%d %d %d\n",j,i, char_map[index] );
-				++index;
-			}
-
-		}
-		fclose(after_map_file);
+//	FILE* after_map_file = fopen("/tmp/after_costmap.log", "w+");
+//		index = 0;
+//		for (unsigned int i = 0; i < ny; ++i) {
+//			for (unsigned int j = 0; j < nx; ++j) {
+//				fprintf(after_map_file, "%d %d %d\n",j,i, char_map[index] );
+//				++index;
+//			}
+//
+//		}
+//		fclose(after_map_file);
 
 	///计算终点周围方圆2个像素的点的potential值，防止值为POT_HIGH
 	planner_->clearEndpoint(

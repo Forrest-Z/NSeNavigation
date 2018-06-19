@@ -168,10 +168,12 @@ sgbot::Pose2D NavigationApplication::goalToGlobalFrame(sgbot::Pose2D& goal) {
 //}
 
 void NavigationApplication::listenLoop() {
+	NS_NaviCommon::Rate rate(1.f);
 	while (running) {
 		backToWalkS();
 		findFrontWall();
 		wolkSComplete();
+		rate.sleep();
 	}
 }
 void NavigationApplication::mappingCallback(int flag){
@@ -628,6 +630,10 @@ void NavigationApplication::run() {
 //	controller_cond.notify_one();
 //	controller_mutex.unlock();
 //	callback_theta = 0.f;
+
+	backToWalkS();
+		findFrontWall();
+		wolkSComplete();
 
 	//generate rectangle
 	logInfo<< "generate first rectangle";

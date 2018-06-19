@@ -18,7 +18,7 @@ NavigationApplication::NavigationApplication() :
 	// TODO Auto-generated constructor stub
 	goal_sub = new NS_DataSet::Subscriber<sgbot::Pose2D>("GOAL_FROM_APP",
 			boost::bind(&NavigationApplication::goal_callback, this, _1));
-	mapping_sub = new NS_DataSet::Subscriber<int>("MAPPING",
+	mapping_sub = new NS_DataSet::Subscriber<int>("MAP_READY",
 			boost::bind(&NavigationApplication::mappingCallback, this, _1));
 //	event_sub = new NS_DataSet::Subscriber<int>("SLAVE_EVENT",
 //			boost::bind(&NavigationApplication::eventCallback, this, _1));

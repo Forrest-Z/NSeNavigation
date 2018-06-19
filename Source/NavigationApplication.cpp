@@ -112,8 +112,8 @@ bool NavigationApplication::goal_callback(sgbot::Pose2D& goal_from_app) {
 sgbot::Pose2D NavigationApplication::goalToGlobalFrame(sgbot::Pose2D& goal) {
 	sgbot::Pose2D pose, target_pose;
 	if (pose_cli->call(pose)) {
-		sgbot::tf::Transform2D map_transform(pose.x(), pose.y(),
-				pose.theta(), 1);
+		sgbot::tf::Transform2D map_transform(pose.x(), pose.y(), pose.theta(),
+				1);
 		target_pose = map_transform.transform(goal);
 		logInfo<<"pose 2d in global frame is "<<target_pose.x()<<" "<<target_pose.y()<<" "<<target_pose.theta();
 	}
@@ -166,52 +166,13 @@ sgbot::Pose2D NavigationApplication::goalToGlobalFrame(sgbot::Pose2D& goal) {
 //	planner_cond.notify_one();
 //}
 
-//void NavigationApplication::listenLoop() {
-//	NS_NaviCommon::Rate rate(listen_frequency);
-//	while (running) {
-//		sgbot::Pose2D pose;
-//		if (!pose_cli->call(pose)) {
-//			logError<<"call pose failed";
-//		}
-//		float distance = sgbot::distance(pose, triggered_pose);
-////		float distance = 0.05f;
-//		logInfo<< "triggered_pose = "<<triggered_pose.x()<<" , "<<triggered_pose.y()<<"..listen loop get pose = "<<pose.x()<<" ," << pose.y()<<" and  distance = "<<distance;
-//		if (distance <= back_to_begin_tolerance && action_flag_ == ALONG_WALL
-//				&& too_near_count >= 3) {
-////		if(distance <= back_to_begin_tolerance){
-//			logInfo<< "back to first corner point master control velocity and ready for walking";
-//			//record callback theta for walk and turn
-//			callback_theta = pose.theta();
-//			int action = MASTER_CONTROL_VELOCITY;
-//			action_pub->publish(action);
-//
-//			logInfo <<"ready for walking , so turn left first and start walking";
-//			turnleft();
-//			state = WALKING;
-//			is_walking = 1;
-//			controller_mutex.lock();
-//			controller_cond.notify_one();
-//			controller_mutex.unlock();
-//
-//			for(int i = 0; i < point_vec.size(); ++i) {
-//				logInfo << "corner points = "<<point_vec[i].x()<<" , "<<point_vec[i].y();
-//			}
-//
-////			prepare_for_walk();
-//			back_to_begin_tolerance = 0.f;
-//		}
-////		if(is_ready_for_walk){
-////			logInfo <<"ready for walk , so turn left first and start walking";
-////			turnleft();
-////			state = WALKING;
-////			is_walking = 1;
-////			controller_mutex.lock();
-////			controller_cond.notify_one();
-////			controller_mutex.unlock();
-////		}
-//		rate.sleep();
-//	}
-//}
+void NavigationApplication::listenLoop() {
+	while (running) {
+		backToWalkS();
+		findFrontWall();
+		wolkSComplete();
+	}
+}
 
 void NavigationApplication::searchGoWall() {
 	std::vector<boost::shared_ptr<NS_CostMap::CostmapLayer> >* layer_vec_p =
@@ -262,21 +223,23 @@ void NavigationApplication::triggerLoopTurn() {
 }
 void NavigationApplication::backToWalkS() {
 	sgbot::Pose2D pose;
-	if (pose_cli->call(pose)) {
-		if (sgbot::distance(first_pose, pose) < back_to_begin_tolerance
-				&& global_state == CIRCLE) {
+	if (pose_cli->call(pose) && global_state == CIRCLE) {
+		if (sgbot::distance(first_pose, pose) < back_to_begin_tolerance) {
 			int action = WALK_S_PATH; ///from loop to walk s,action = spath
-			logInfo<< "pub action walk s path";
+			logInfo<< "pub action walk s path and start coverage";
 			global_state = WALK_S;
 			action_pub->publish(action);
+			int start_coverage = 1;
+			coverage_pub->publish(start_coverage);
 		}
 	}
 
 }
 void NavigationApplication::findFrontWall() {
 	sgbot::Pose2D pose;
-	if (pose_cli->call(pose)) {
-		boost::shared_ptr<NS_CostMap::VisitedLayer> visited_layer = get_visited_layer();
+	if (pose_cli->call(pose) && global_state == WALK_S) {
+		boost::shared_ptr<NS_CostMap::VisitedLayer> visited_layer =
+				get_visited_layer();
 		std::vector<int> walls = visited_layer->searchFrontWall();
 		int start_x = walls[0]
 				% global_costmap->getCostmap()->getSizeInCellsX();
@@ -287,33 +250,52 @@ void NavigationApplication::findFrontWall() {
 				% global_costmap->getCostmap()->getSizeInCellsX();
 		int end_y = walls.back()
 				/ global_costmap->getCostmap()->getSizeInCellsX();
-		float theta = std::atan2(end_y - start_y,end_x - start_x);
-		logInfo <<"found frontier wall theta = "<<theta;
-		pose_theta_pub->publish(theta);
-		float world_x,world_y;
-		global_costmap->getCostmap()->mapToWorld(start_x,start_y,world_x,world_y);
-		float distance = sgbot::distance(pose,sgbot::Pose2D(world_x,world_y,0.f) );
-		logInfo << "front wall distance = "<<distance;
-		pose_distance_pub->publish(distance);
+
+		float world_x, world_y;
+		global_costmap->getCostmap()->mapToWorld(start_x, start_y, world_x,
+				world_y);
+		float distance = sgbot::distance(pose,
+				sgbot::Pose2D(world_x, world_y, 0.f));
+		logInfo<< "front wall distance = "<<distance;
+		if (distance < 0.3f) {
+			float theta = std::atan2(end_y - start_y, end_x - start_x);
+			logInfo<<"found frontier wall theta = "<<theta;
+			pose_theta_pub->publish(theta);
+			pose_distance_pub->publish(distance);
+		}
+
 	}
 }
-
+//need to search another area uncovered
 void NavigationApplication::fullCoverage() {
 
 }
 void NavigationApplication::wolkSComplete() {
-	boost::shared_ptr<NS_CostMap::VisitedLayer> visited_layer = get_visited_layer();
-	sgbot::Pose2D pose;
-	pose_cli->call(pose);
-	unsigned int map_x,map_y;
-	global_costmap->getCostmap()->worldToMap(pose.x(),pose.y(),map_x,map_y);
-	int index = map_x + map_y * global_costmap->getCostmap()->getSizeInMetersX();
-	std::vector<int> nei_8 = visited_layer->neighborhood8(pose,index);
-	for(int&& value : nei_8){
-		int map_x,map_y;
-		global_costmap->getCostmap()->indexToCells(value,map_x,map_y);
-
+	if (global_state == CIRCLE) {
+		boost::shared_ptr<NS_CostMap::VisitedLayer> visited_layer =
+				get_visited_layer();
+		sgbot::Pose2D pose;
+		pose_cli->call(pose);
+		unsigned int map_x, map_y;
+		global_costmap->getCostmap()->worldToMap(pose.x(), pose.y(), map_x,
+				map_y);
+		int index = map_x
+				+ map_y * global_costmap->getCostmap()->getSizeInMetersX();
+		std::vector<int> nei_8 = visited_layer->neighborhood8(pose, index);
+		int covered_count = 0;
+		for (auto value : nei_8) {
+			unsigned int map_x, map_y;
+			global_costmap->getCostmap()->indexToCells(value, map_x, map_y);
+			if (visited_layer->isCovered(map_x, map_y)) {
+				++covered_count;
+				if (covered_count >= 3) {
+					break;
+				}
+			}
+		}
+		logInfo<< "covered complete current pose = "<<pose.x()<<" , "<<pose.y();
 	}
+
 }
 
 void NavigationApplication::planLoop() {
@@ -536,13 +518,13 @@ bool NavigationApplication::makePlan(const sgbot::Pose2D& goal,
 		return false;
 	}
 
-	logInfo << "Plans computed,  points to go... = " << plan.size();
+	logInfo<< "Plans computed,  points to go... = " << plan.size();
 	global_plan.resize(plan.size());
 	for (size_t i = 0; i < plan.size(); i++) {
 		global_plan[i] = plan[i];
 		printf("%lf,%lf,\n", plan[i].x(), plan[i].y());
 	}
-	logInfo << "global_plan is assigned and size  = "<< global_plan.size();
+	logInfo<< "global_plan is assigned and size  = "<< global_plan.size();
 	return true;
 
 }
@@ -604,8 +586,8 @@ void NavigationApplication::run() {
 	control_thread = boost::thread(
 			boost::bind(&NavigationApplication::controlLoop, this));
 
-//	listen_thread = boost::thread(
-//			boost::bind(&NavigationApplication::listenLoop, this));
+	listen_thread = boost::thread(
+			boost::bind(&NavigationApplication::listenLoop, this));
 	global_costmap->start();
 
 	global_state = CIRCLE;

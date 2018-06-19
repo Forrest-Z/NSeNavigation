@@ -349,6 +349,8 @@ private:
 	NS_DataSet::Publisher<float>* pose_distance_pub;
 ///publisher goal
 	NS_DataSet::Publisher<sgbot::Pose2D>* goal_pub;
+///publish start to coverage
+	NS_DataSet::Publisher< int >* coverage_pub;
 ///client call  pose
 	NS_Service::Client<sgbot::Pose2D>* pose_cli;
 ///global goal for visualized

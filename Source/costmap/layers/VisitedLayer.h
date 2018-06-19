@@ -12,6 +12,7 @@
 
 #include <Time/Rate.h>
 #include <Service/Client.h>
+#include <DataSet/Subscriber.h>
 #include <log_tool.h>
 namespace NS_CostMap {
 class Rect {
@@ -89,7 +90,13 @@ public:
 
 	void loadParameters();
 	void coverage();
-
+	bool isCovered(const unsigned int& x, const unsigned int& y){
+		return map_vec[x + y * size_x_] == 1;
+	}
+	void startCoverage(int start_coverage){
+		logInfo << "start to coverage = "<<start_coverage;
+		coverage_loop = boost::thread(boost::bind(&VisitedLayer::coverage, this));
+	}
 	void markCell(const unsigned int& x, const unsigned int& y) {
 		int index = x + y * size_x_;
 		map_vec[index] = 1;
@@ -265,6 +272,7 @@ private:
 	std::vector<int> index_vec;
 	NS_Service::Client<sgbot::Pose2D>* pose_cli;
 	NS_Service::Client<sgbot::Map2D>* map_cli;
+	NS_DataSet::Subscriber< int >* coverage_sub;
 	boost::thread coverage_loop;
 	int times = 0;
 	//unit m
@@ -275,6 +283,8 @@ private:
 	Rect* rect_p;
 	//near corner tolerance
 	float near_corner_tolerance;
+	//start to coverage
+	int is_coveraging;
 };
 
 } /* namespace NS_CostMap */

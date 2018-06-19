@@ -13,6 +13,8 @@ VisitedLayer::VisitedLayer() {
 	// TODO Auto-generated constructor stub
 	pose_cli = new NS_Service::Client<sgbot::Pose2D>("POSE");
 	map_cli = new NS_Service::Client<sgbot::Map2D>("MAP");
+	coverage_sub = new NS_DataSet::Subscriber<int>("COVERAGE",
+			boost::bind(&VisitedLayer::startCoverage, this, _1));
 	rect_p = new Rect();
 }
 
@@ -21,6 +23,7 @@ VisitedLayer::~VisitedLayer() {
 	delete pose_cli;
 	delete map_cli;
 	delete rect_p;
+	delete coverage_sub;
 }
 void VisitedLayer::loadParameters() {
 	NS_NaviCommon::Parameter parameter;
@@ -36,11 +39,12 @@ void VisitedLayer::loadParameters() {
 
 void VisitedLayer::onInitialize() {
 	logInfo<< "visited layer on initialize";
+
 	loadParameters();
 }
 void VisitedLayer::activate() {
 	active = true;
-	coverage_loop = boost::thread(boost::bind(&VisitedLayer::coverage, this));
+
 }
 
 void VisitedLayer::deactivate() {
@@ -77,11 +81,11 @@ void VisitedLayer::coverage() {
 					map_x, map_y);
 			logInfo<< "pose = "<<pose.x()<<" , "<<pose.y()<<" . map_x = "<<map_x<<" , "<<map_y;
 			int index = map_x + map_y * size_x_;
-			if (std::find(index_vec.begin(), index_vec.end(), index)
-					!= index_vec.end()) {
-				index_vec.push_back(index);
-				logInfo<<"index vec size = "<<index_vec.size();
-			}
+//			if (std::find(index_vec.begin(), index_vec.end(), index)
+//					!= index_vec.end()) {
+//				index_vec.push_back(index);
+//				logInfo<<"index vec size = "<<index_vec.size();
+//			}
 			markCell(map_x, map_y);
 		}
 		rate.sleep();

@@ -18,7 +18,8 @@ NavigationApplication::NavigationApplication() :
 	// TODO Auto-generated constructor stub
 	goal_sub = new NS_DataSet::Subscriber<sgbot::Pose2D>("GOAL_FROM_APP",
 			boost::bind(&NavigationApplication::goal_callback, this, _1));
-
+	mapping_sub = new NS_DataSet::Subscriber<int>("MAPPING",
+			boost::bind(&NavigationApplication::mappingCallback, this, _1));
 //	event_sub = new NS_DataSet::Subscriber<int>("SLAVE_EVENT",
 //			boost::bind(&NavigationApplication::eventCallback, this, _1));
 //	action_sub = new NS_DataSet::Subscriber<int>("SLAVE_ACTION",
@@ -173,7 +174,11 @@ void NavigationApplication::listenLoop() {
 		wolkSComplete();
 	}
 }
-
+void NavigationApplication::mappingCallback(int flag){
+	logInfo <<"start mapping so start listening loop thread";
+	listen_thread = boost::thread(
+				boost::bind(&NavigationApplication::listenLoop, this));
+}
 void NavigationApplication::searchGoWall() {
 	std::vector<boost::shared_ptr<NS_CostMap::CostmapLayer> >* layer_vec_p =
 			global_costmap->getLayeredCostmap()->getPlugins();
@@ -268,7 +273,25 @@ void NavigationApplication::findFrontWall() {
 }
 //need to search another area uncovered
 void NavigationApplication::fullCoverage() {
-
+	if (global_state == CIRCLE) {
+		boost::shared_ptr<NS_CostMap::VisitedLayer> visited_layer =
+				get_visited_layer();
+		sgbot::Pose2D pose;
+		pose_cli->call(pose);
+		int result_idx;
+		visited_layer->nearestCell(result_idx, pose);
+		int index_x = result_idx % global_costmap->getCostmap()->getSizeInCellsX();
+		int index_y = result_idx / global_costmap->getCostmap()->getSizeInCellsX();
+		logInfo<< "full coveraged search new area index x = "<<index_x <<" , "<<index_y;
+		logInfo<<"and now run planner";
+		float world_x,world_y;
+		global_costmap->getCostmap()->mapToWorld(index_x,index_y,world_x,world_y);
+		sgbot::Pose2D pose2d(world_x, world_y,0.f);
+		goal = pose2d;
+		state = PLANNING;
+		runPlanner_ = true;
+		planner_cond.notify_one();
+	}
 }
 void NavigationApplication::wolkSComplete() {
 	if (global_state == CIRCLE) {
@@ -295,7 +318,7 @@ void NavigationApplication::wolkSComplete() {
 		}
 		logInfo<< "covered complete current pose = "<<pose.x()<<" , "<<pose.y();
 	}
-
+	fullCoverage();
 }
 
 void NavigationApplication::planLoop() {

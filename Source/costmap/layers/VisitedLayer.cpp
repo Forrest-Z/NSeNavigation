@@ -110,7 +110,6 @@ int VisitedLayer::searchWallPoint() {
 			visited[front] = true;
 			std::vector<int> neithbor_vec = neighborhood4(pose,front);
 			for (int i = 0; i < neithbor_vec.size(); ++i) {
-
 				if (isFrontierPoint(map,pose, neithbor_vec[i], frontier_flag)) {
 					//this is the first frontier point so we need record it
 					int first_frontier = neithbor_vec[i];

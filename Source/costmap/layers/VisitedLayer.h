@@ -90,11 +90,11 @@ public:
 
 	void loadParameters();
 	void coverage();
-	bool isCovered(const unsigned int& x, const unsigned int& y){
+	bool isCovered(const unsigned int& x, const unsigned int& y) {
 		return map_vec[x + y * size_x_] == 1;
 	}
-	void startCoverage(int start_coverage){
-		logInfo << "start to coverage = "<<start_coverage;
+	void startCoverage(int start_coverage) {
+		logInfo<<"start to coverage = "<<start_coverage;
 		coverage_loop = boost::thread(boost::bind(&VisitedLayer::coverage, this));
 	}
 	void markCell(const unsigned int& x, const unsigned int& y) {
@@ -129,6 +129,46 @@ public:
 		}
 		return false;
 	}
+	bool nearestCell(int& result,sgbot::Pose2D pose) {
+		sgbot::Map2D map;
+		map_cli->call(map);
+		unsigned int map_x,map_y;
+		worldToMap(pose.x(),pose.y(),map_x,map_y);
+		int start = map_x + map_y * size_x_;
+		if (start >= size_x_* size_y_) {
+			return false;
+		}
+
+		// initialize breadth first search
+		std::queue<int> bfs;
+		std::vector<bool> visited_flag(size_x_* size_y_, false);
+
+		// push initial cell
+		bfs.push(start);
+		visited_flag[start] = true;
+
+		// search for neighbouring cell matching value
+		while (!bfs.empty()) {
+			unsigned int idx = bfs.front();
+			bfs.pop();
+
+			if (map.isKnown(idx % size_x_,idx / size_x_)) {
+				result = idx;
+				return true;
+			}
+
+			// iterate over all adjacent unvisited cells
+			for (auto nbr : neighborhood8(pose,idx)) {
+				if (!visited_flag[nbr]) {
+					bfs.push(nbr);
+					visited_flag[nbr] = true;
+				}
+			}
+		}
+
+		return false;
+
+	}
 	std::vector<int> buildFrontier(const sgbot::Map2D &map,const sgbot::Pose2D& pose,int robot_index,
 			int start_index, bool *frontier_flag, int limit_distance) {
 		std::vector<int> frontiers;
@@ -141,8 +181,8 @@ public:
 			for (int i = 0; i < n8_vec.size(); ++i) {
 				if (isFrontierPoint(map,pose, n8_vec[i], frontier_flag)) {
 					if (distance(robot_index % size_x_, robot_index / size_x_,
-							n8_vec[i] % size_x_, n8_vec[i] / size_x_))
-						frontier_flag[n8_vec[i]] = true;
+									n8_vec[i] % size_x_, n8_vec[i] / size_x_))
+					frontier_flag[n8_vec[i]] = true;
 					frontiers.push_back(n8_vec[i]);
 					queue1.push(n8_vec[i]);
 				}
@@ -258,7 +298,7 @@ public:
 	}
 	int distance(int x1, int y1, int x2, int y2) {
 		int d = static_cast<int>(std::sqrt(
-				std::pow((x1 - x2), 2) + std::pow((y1 - y2), 2)));
+						std::pow((x1 - x2), 2) + std::pow((y1 - y2), 2)));
 		return d;
 	}
 	Rect* generateRectangle(const sgbot::Pose2D& center) {
@@ -287,6 +327,7 @@ private:
 	int is_coveraging;
 };
 
-} /* namespace NS_CostMap */
+}
+/* namespace NS_CostMap */
 
 #endif /* COSTMAP_LAYERS_VISITEDLAYER_H_ */

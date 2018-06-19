@@ -120,6 +120,7 @@ private:
 //	void prepare_for_walk();
 
 ////	///
+	void mappingCallback(int flag);
 	void searchGoWall();
 
 	void triggerLoopTurn();
@@ -351,6 +352,8 @@ private:
 	NS_DataSet::Publisher<sgbot::Pose2D>* goal_pub;
 ///publish start to coverage
 	NS_DataSet::Publisher< int >* coverage_pub;
+///subscribe start to mapping
+	NS_DataSet::Subscriber<int>* mapping_sub;
 ///client call  pose
 	NS_Service::Client<sgbot::Pose2D>* pose_cli;
 ///global goal for visualized

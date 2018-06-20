@@ -94,7 +94,7 @@ void VisitedLayer::coverage() {
 int VisitedLayer::searchWallPoint() {
 	sgbot::Pose2D pose;
 	sgbot::Map2D map;
-	if (!pose_cli->call(pose) || map_cli->call(map)) {
+	if (!pose_cli->call(pose) || !map_cli->call(map)) {
 		logInfo<<"search wall call pose failed";
 	} else {
 		unsigned int map_x,map_y;
@@ -139,7 +139,7 @@ std::vector<int> VisitedLayer::searchFrontWall() {
 
 	sgbot::Pose2D pose;
 	sgbot::Map2D map;
-	if (!pose_cli->call(pose) || map_cli->call(map)) {
+	if (!pose_cli->call(pose) || !map_cli->call(map)) {
 		logInfo<<"search wall call pose failed";
 	} else {
 		std::queue<int> queue1;

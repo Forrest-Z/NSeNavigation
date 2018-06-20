@@ -31,6 +31,7 @@ NavigationApplication::NavigationApplication() :
 
 	pose_theta_pub = new NS_DataSet::Publisher<float>("BORDER_THETA");
 	pose_distance_pub = new NS_DataSet::Publisher<float>("BORDER_DIST");
+	coverage_pub = new NS_DataSet::Publisher<int>("COVERAGE");
 }
 
 NavigationApplication::~NavigationApplication() {
@@ -44,6 +45,7 @@ NavigationApplication::~NavigationApplication() {
 	delete twist_pub;
 	delete pose_theta_pub;
 	delete pose_distance_pub;
+	delete coverage_pub;
 }
 void NavigationApplication::loadParameters() {
 	NS_NaviCommon::Parameter parameter;
@@ -631,9 +633,9 @@ void NavigationApplication::run() {
 //	controller_mutex.unlock();
 //	callback_theta = 0.f;
 
-	backToWalkS();
-		findFrontWall();
-		wolkSComplete();
+//	backToWalkS();
+//		findFrontWall();
+//		wolkSComplete();
 
 	//generate rectangle
 	logInfo<< "generate first rectangle";

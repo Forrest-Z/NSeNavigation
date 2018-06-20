@@ -60,6 +60,8 @@ void VisitedLayer::matchSize() {
 	}
 	size_x_ = size_x;
 	size_y_ = size_y;
+	origin_x_ = costmap->getOriginX();
+	origin_y_ = costmap->getOriginY();
 	resolution_ = costmap->getResolution();
 }
 void VisitedLayer::updateCosts(Costmap2D& master_grid, int min_i, int min_j,
@@ -99,8 +101,12 @@ int VisitedLayer::searchWallPoint() {
 	}
 	else
 	{
+		logInfo <<"map info size = "<<size_x_<<" , "<<size_y_;
+		logInfo <<"resolution = "<<resolution_;
+		logInfo <<"origin = "<<origin_x_<<" , "<<origin_y_;
 		unsigned int map_x,map_y;
 		worldToMap(pose.x(),pose.y(),map_x,map_y);
+		logInfo <<"map_x map_y = "<<map_x<<" , "<<map_y;
 		std::queue<int> queue1;
 		int robot_index = map_x + map_y * size_x_;
 		bool visited[size_x_ * size_y_] = {false};

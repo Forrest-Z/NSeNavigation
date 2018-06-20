@@ -612,9 +612,9 @@ void NavigationApplication::run() {
 
 	control_thread = boost::thread(
 			boost::bind(&NavigationApplication::controlLoop, this));
-
-	listen_thread = boost::thread(
-			boost::bind(&NavigationApplication::listenLoop, this));
+//
+//	listen_thread = boost::thread(
+//			boost::bind(&NavigationApplication::listenLoop, this));
 	global_costmap->start();
 
 	global_state = CIRCLE;

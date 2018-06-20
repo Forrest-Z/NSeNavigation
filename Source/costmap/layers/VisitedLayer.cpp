@@ -96,7 +96,9 @@ int VisitedLayer::searchWallPoint() {
 	sgbot::Map2D map;
 	if (!pose_cli->call(pose) || !map_cli->call(map)) {
 		logInfo<<"search wall call pose failed";
-	} else {
+	}
+	else
+	{
 		unsigned int map_x,map_y;
 		worldToMap(pose.x(),pose.y(),map_x,map_y);
 		std::queue<int> queue1;
@@ -108,6 +110,7 @@ int VisitedLayer::searchWallPoint() {
 			int front = queue1.front();
 			queue1.pop();
 			visited[front] = true;
+			logInfo << "search neiborhood";
 			std::vector<int> neithbor_vec = neighborhood4(pose,front);
 			for (int i = 0; i < neithbor_vec.size(); ++i) {
 				if (isFrontierPoint(map,pose, neithbor_vec[i], frontier_flag)) {

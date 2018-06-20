@@ -107,6 +107,7 @@ public:
 
 	sgbot::tf::Transform2D constructTf(const sgbot::Pose2D& pose) {
 		//world to map translation
+		logInfo <<"contruct tf";
 		sgbot::tf::Transform2D map_transform(pose.x() / resolution_,
 				pose.y() / resolution_, pose.theta(), 1);
 		return map_transform;
@@ -120,6 +121,7 @@ public:
 		int y = index / size_x_;
 		//lethal obstacle and  one of 4 nbor is inscribed obstacle
 		if (map.isEdge(x, y)) {
+			logInfo <<"map is edge index pose = "<<x<<" , "<<y;
 			for (int nbr : neighborhood4(pose, index)) {
 				//    if (map_[nbr] == FREE_SPACE) {
 				if (map.isKnown(nbr % size_x_, nbr / size_x_)) {

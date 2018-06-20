@@ -653,7 +653,7 @@ void NavigationApplication::run() {
 	sgbot::Pose2D pose;
 	pose_cli->call(pose);
 	current_rect = visited_layer->generateRectangle(pose);
-
+//	searchGoWall();
 }
 
 void NavigationApplication::quit() {

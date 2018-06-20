@@ -172,6 +172,7 @@ sgbot::Pose2D NavigationApplication::goalToGlobalFrame(sgbot::Pose2D& goal) {
 void NavigationApplication::listenLoop() {
 	NS_NaviCommon::Rate rate(1.f);
 	while (running) {
+		sleep(10);
 		backToWalkS();
 		findFrontWall();
 		wolkSComplete();
@@ -180,10 +181,12 @@ void NavigationApplication::listenLoop() {
 }
 void NavigationApplication::mappingCallback(int flag){
 	logInfo <<"start mapping so start listening loop thread";
+	searchGoWall();
 	listen_thread = boost::thread(
 				boost::bind(&NavigationApplication::listenLoop, this));
 }
 void NavigationApplication::searchGoWall() {
+	logInfo <<"search go to wall";
 	std::vector<boost::shared_ptr<NS_CostMap::CostmapLayer> >* layer_vec_p =
 			global_costmap->getLayeredCostmap()->getPlugins();
 	boost::shared_ptr<NS_CostMap::CostmapLayer> costmap_layer = layer_vec_p->at(
@@ -277,7 +280,7 @@ void NavigationApplication::findFrontWall() {
 }
 //need to search another area uncovered
 void NavigationApplication::fullCoverage() {
-	if (global_state == CIRCLE) {
+	if (global_state == WALK_S) {
 		boost::shared_ptr<NS_CostMap::VisitedLayer> visited_layer =
 				get_visited_layer();
 		sgbot::Pose2D pose;
@@ -298,7 +301,7 @@ void NavigationApplication::fullCoverage() {
 	}
 }
 void NavigationApplication::wolkSComplete() {
-	if (global_state == CIRCLE) {
+	if (global_state == WALK_S) {
 		boost::shared_ptr<NS_CostMap::VisitedLayer> visited_layer =
 				get_visited_layer();
 		sgbot::Pose2D pose;

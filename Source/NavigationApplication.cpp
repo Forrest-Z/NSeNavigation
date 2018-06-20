@@ -194,6 +194,9 @@ void NavigationApplication::searchGoWall() {
 	boost::shared_ptr<NS_CostMap::VisitedLayer> visited_layer =
 			boost::dynamic_pointer_cast<NS_CostMap::VisitedLayer>(
 					costmap_layer);
+	if(visited_layer == NULL){
+		logInfo <<"visited_layer is null";
+	}
 	unsigned int first_frontier_index = visited_layer->searchWallPoint();
 	unsigned int x1, y1;
 	global_costmap->getCostmap()->indexToCells(first_frontier_index, x1, y1);
